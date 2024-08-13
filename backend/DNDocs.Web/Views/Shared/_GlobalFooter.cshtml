@@ -1,0 +1,40 @@
+﻿@*<footer class="footer">
+    <div class="footer__top">
+        <div class="columns">
+            <div class="column">
+                <span class="title">@resources["About"]</span>
+                @Html.InlineTextLink(resources["Home"], PageUrls.CoreUrls.Home.Index.ToRelativeUrl())
+                @Html.InlineTextLink(resources["HowToUse"], PageUrls.CoreUrls.Home.HowToUse.ToRelativeUrl())
+                @Html.InlineTextLink(resources["AllProjects"], PageUrls.CoreUrls.Home.AllProjects.ToRelativeUrl())
+            </div>
+            <div class="column">
+                <span class="title">@resources["Resources"]</span>
+                @Html.InlineTextLink(resources["Markdig"], "https://github.com/xoofx/markdig")
+                <a href="https://www.flaticon.com/free-icons/leaf" title="leaf icons">Leaf icons created by Icongeek26 - Flaticon</a>
+                @Html.InlineTextLink(resources["Font awesome"], "https://fontawesome.com/docs/web/setup/host-yourself/webfonts")
+                @Html.InlineTextLink(resources["highlight.js"], "https://highlightjs.org/usage/")
+            </div>
+            <div class="column">
+                <span class="title">@resources["Service"]</span>
+                @Html.InlineTextLink(resources["TermsOfService"], PageUrls.CoreUrls.Home.TermsOfService.ToRelativeUrl())
+            </div>
+        </div>
+    </div>
+    <div class="footer__bottom">
+        <div class="infotext">
+            RobiniaDocs is a free .NET core documentation hosting platform.
+            Content is maintained by owners of Projects or by RobiniaDocs Administrator.
+            References, examples and projects are reviewed to avoid errors,
+            but we cannot warrant full correctness of all contents, bugs and
+            unexpected system behaviour.
+            By using RobiniaDocs, you agree to have read and accepted terms of use, cookie and privacy policy.
+        </div>
+        <div class="copy">
+            <b>
+                <span>Powered by <a href="https://github.com/"> Robinia </a></span>
+                <br />
+                <span>&copy; Copyright 2023 - @(DateTime.Now.Year). All Rights Reserved</span>
+            </b>
+        </div>
+    </div>
+</footer>*@

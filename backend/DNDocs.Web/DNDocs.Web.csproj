@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>$(dn_packageid)</PackageId>
+    <Title>$(dn_title)</Title>
+    <Version>$(dn_version)</Version>
+    <InformationalVersion>$(dn_informationalversion)</InformationalVersion>
+    <Authors>$(dn_author)</Authors>
+    <Company>$(dn_company)</Company>
+    <Product>$(dn_product)</Product>
+    <Description>$(dn_description)</Description>
+    <Copyright>$(dn_copyright)</Copyright>
+    <PackageProjectUrl>$(dn_packageprojecturl)</PackageProjectUrl>
+    <AssemblyVersion>$(dn_assemblyversion)</AssemblyVersion>
+    <FileVersion>$(dn_fileversion)</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="AutoMapper\" />
+    <Folder Include="wwwroot\js\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DNDocs.Docs.Api\DNDocs.Docs.Api.csproj" />
+    <ProjectReference Include="..\DNDocs.Domain\DNDocs.Domain.csproj" />
+    <ProjectReference Include="..\DNDocs.Application\DNDocs.Application.csproj" />
+    <ProjectReference Include="..\DNDocs.Infrastructure\DNDocs.Infrastructure.csproj" />
+    <ProjectReference Include="..\DNDocs.Infrastructure\DNDocs.Infrastructure.csproj" />
+    <ProjectReference Include="..\DNDocs.Job.Api\DNDocs.Job.Api.csproj" />
+    <ProjectReference Include="..\DNDocs.Shared\DNDocs.Shared.csproj" />
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+    <Compile Update="Resources\DefaultResources.Designer.cs">
+      <DependentUpon>DefaultResources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\DefaultResources.resx">
+      <LastGenOutput>DefaultResources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

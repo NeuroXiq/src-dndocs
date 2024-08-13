@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Robinia.ConsoleTools": {
+      "commandName": "Project",
+      "commandLineArgs": "",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

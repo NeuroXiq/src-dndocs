@@ -1,0 +1,291 @@
+---
+add 'dotnet' to PATH on Linux:
+You need to add it to your ~/.profile or ~/.bashrc file. 
+export PATH="$PATH:/path/to/dir"
+---
+
+installing .net core on debian 12
+
+// if this is ARM or some errors need to install with script as Microsoft says:
+// because maybe apt-get will fail not sure why
+https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual
+// otherwise
+
+wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+
+// install sdk
+sudo apt-get update && \
+  sudo apt-get install -y dotnet-sdk-8.0
+
+// install runtime
+sudo apt-get update && \
+  sudo apt-get install -y aspnetcore-runtime-8.0
+
+---
+
+need to install both:
+runtime 7.0 and sdks 7.0
+
+>> System.UnauthorizedAccessException: Access to the path '/var/www/.dotnet' is denied.
+whereis docfx
+whereis nuget
+
+NUGET requires MONO to install: (must be)
+https://learn.microsoft.com/en-us/nuget/install-nuget-client-tools
+sudo curl -o /usr/local/bin/nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.ex
+
+
+
+-- when new linux server without any configuration,
+-- scripts here to speed up setup
+sudo apt-get install -y nuget
+
+sudo apt install npm
+sudo apt install nodejs
+sudo apt-get install zip
+sudo apt-get install zip
+sudo nuget update -self
+dotnet tool update -g docfx
+npm install next@latest
+npm i -g create-next-app
+
+install git
+git config --system core.longpaths true
+
+
+//update nodejsversion to latest
+//install nvm
+// nodejs version > 16.0  (must be for nextjs + for robinia-service user)
+sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+DO NOT forget to Restart your terminal OR use command:
+source ~/.nvm/nvm.sh
+
+# max logs (to not too much disk space for journal logs)
+journalctl --vacuum-size=500M
+
+
+
+
+Check current swap status: `sudo swapon -s`
+Create a swap file (4GB): `sudo fallocate -l 4G /swapfile`
+Change swap file permission: `chmod 600 /swapfile`
+Make it in swap format: `sudo mkswap /swapfile`
+Activate swap file: `sudo swapon /swapfile`
+
+
+###
+### service configs - prod
+### /etc/systemd/system
+
+// frontend -prod
+[Unit]
+Description=DNDOCS FRONTEND PROD 
+[Service]
+WorkingDirectory=/var/www/dndocs/prod/app/frontend/
+ExecStart=/home/service-dndocs/.nvm/versions/node/v16.14.0/bin/node /var/www/dndocs/prod/app/frontend/server.js
+Restart=always 
+#restart service after 10 seconds if the dotnet service crashes
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=dndocs-fe-prod
+User=service-dndocs
+Environment=PORT=3002
+[Install]
+WantedBy=multi-user.target
+
+// front - stag
+[Unit]
+Description=DNDOCS FRONTEND STAG
+
+[Service]
+WorkingDirectory=/var/www/dndocs/stag/app/frontend/
+#ExecStart=node /var/www/dndocs/stag/app/frontend/server.js
+ExecStart=/home/service-dndocs/.nvm/versions/node/v16.14.0/bin/node /var/www/dndocs/stag/app/frontend/server.js
+Restart=always
+#restart service after 10 seconds if the dotnet service crashes
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=dndocs-fe-prod
+User=service-dndocs
+Environment=PORT=3001
+
+
+
+// backend
+
+[Unit]
+Description=DNDOCS PROD - Kestrel on linux
+
+[Service]
+WorkingDirectory=/var/www/dndocs/prod/app
+ExecStart=/usr/bin/dotnet /var/www/dndocs/prod/app/DNDocs.Web.dll
+Restart=always
+#restart service after 10 seconds if the dotnet service crashes
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=dndocs-be-prod
+User=service-dndocs
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target
+
+
+# service - stag
+[Unit] 
+Description=DNDOCS STAG - Kestrel on linux
+
+[Service]
+WorkingDirectory=/var/www/dndocs/stag/app
+ExecStart=/usr/bin/dotnet /var/www/dndocs/stag/app/DNDocs.Web.dll
+Restart=always
+#restart service after 10 seconds if the dotnet service crashes
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=dndocs-be-stag
+User=service-dndocs
+Environment=ASPNETCORE_ENVIRONMENT=Staging
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target
+
+
+///////////// nginx config
+serveradmin@114:~$ cat /etc/nginx/shared-configs/robiniadocs.config
+proxy_http_version 1.1;
+client_max_body_size 25M;
+proxy_set_header   Upgrade $http_upgrade;
+proxy_set_header   Connection keep-alive;
+proxy_set_header   Host $host;
+proxy_cache_bypass $http_upgrade;
+proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header   X-Forwarded-Proto $scheme;
+proxy_read_timeout   600;
+
+
+
+
+/// certbot debian:
+
+sudo apt update
+sudo apt install snapd
+sudo snap install --classic certbot
+sudo certbot --nginx
+
+
+---
+
+
+serveradmin@114:~$ cat /etc/nginx/sites-available/default
+server {
+    listen   80 default_server;
+    client_max_body_size 25M;
+    # listen [::]:80 default_server deferred;
+    return   444;
+}
+
+server {
+        #(this is temp until 03.2023) TODO REMOVE everything related (all config etc. ) robiniadocs.com
+    listen 443 ssl http2;
+    server_name www.robiniadocs.com robiniadocs.com;
+    client_max_body_size 25M;
+    ssl_certificate /etc/ssl/certs/a2ca6cb73ed41a99.crt;
+    ssl_certificate_key /etc/ssl/private/robinia-priv-key.txt;
+
+    return 301 https://dndocs.com$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name www.dndocs.com;
+    client_max_body_size 25M;
+    ssl_certificate /etc/letsencrypt/live/dndocs.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/dndocs.com/privkey.pem; # managed by Certbot
+
+    return 301 https://dndocs.com$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name  dndocs.com
+    client_max_body_size 25M;
+    #ssl_certificate /etc/ssl/certs/a2ca6cb73ed41a99.crt;
+    #ssl_certificate_key /etc/ssl/private/robinia-priv-key.txt;
+    ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
+    ssl_certificate /etc/letsencrypt/live/dndocs.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/dndocs.com/privkey.pem; # managed by Certbot
+
+
+    location /d {
+        proxy_pass         http://127.0.0.1:5002/d;
+        include /etc/nginx/shared-configs/robiniadocs.config;
+    }
+
+    location /api {
+        proxy_pass      http://localhost:5002/api;
+        include /etc/nginx/shared-configs/robiniadocs.config;
+    }
+
+    location / {
+        proxy_pass      http://localhost:3002;
+        include /etc/nginx/shared-configs/robiniadocs.config;
+    }
+
+
+}
+
+server {
+    listen 5000;
+    server_name www.robiniadocs.com;
+
+    location /d {
+        proxy_pass      http://localhost:5001/d;
+        include /etc/nginx/shared-configs/robiniadocs.config;
+    }
+
+    location /api {
+        proxy_pass      http://localhost:5001/api;
+        include /etc/nginx/shared-configs/robiniadocs.config;
+    }
+
+    location / {
+        proxy_pass      http://localhost:3001;
+        include /etc/nginx/shared-configs/robiniadocs.config;
+    }
+
+}
+
+
+
+server {
+    if ($host = www.dndocs.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen      80;
+    server_name www.robiniadocs.com www.dndocs.com robiniadocs.com;
+    return 404; # managed by Certbot
+
+
+}
+
+
+
+------------------------------
+select
+'|' || project_name || '|'
+|| '[RobiniaDocs - ' || project_name ||']' || '(' || 'https://www.robiniadocs.com/' || robinia_url_prefix || '/d/index.html)'
+|| '| [Github](' || githuburl || ')|'
+from project
+where status = 2select
+'|' || project_name || '|'
+|| '[RobiniaDocs - ' || project_name ||']' || '(' || 'https://www.robiniadocs.com/' || robinia_url_prefix || '/d/index.html)'
+|| '| [Github](' || githuburl || ')|'
+from project
+where status = 2

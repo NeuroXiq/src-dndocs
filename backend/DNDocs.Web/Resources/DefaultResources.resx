@@ -1,0 +1,585 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddNewTopic" xml:space="preserve">
+    <value>Add New</value>
+  </data>
+  <data name="AdminDashboard" xml:space="preserve">
+    <value>Admin - Dashboard</value>
+  </data>
+  <data name="AllProjects" xml:space="preserve">
+    <value>All Projects</value>
+  </data>
+  <data name="AllRobiniaDocsProjects" xml:space="preserve">
+    <value>All Robinia Docs Projects</value>
+  </data>
+  <data name="AuthenticationActionCompleted" xml:space="preserve">
+    <value>Authentication Action Completed</value>
+  </data>
+  <data name="CannotDeletePageBecauseItDoesNotExist" xml:space="preserve">
+    <value>Cannot delete page because page does not exists</value>
+  </data>
+  <data name="CannotDeleteTopicBecauseItHasChildren" xml:space="preserve">
+    <value>Cannot delete topic because it has one or more children. Delete children first.</value>
+  </data>
+  <data name="CannotDeleteTopicDoesNotExists" xml:space="preserve">
+    <value>Cannot delete topic because topic does not exists</value>
+  </data>
+  <data name="ConfirmDeleteTopicDialogTemplate" xml:space="preserve">
+    <value>Are You sure you want to delete Topic with Id: '{0}'?</value>
+  </data>
+  <data name="ConfirmDialog_DeleteTopicMessageTemplate" xml:space="preserve">
+    <value>Are You sure You want to delete Topic: '{0}'?</value>
+  </data>
+  <data name="ContentUpdatedSuccessfully" xml:space="preserve">
+    <value>Content has been updated successfully</value>
+  </data>
+  <data name="CookieConsent" xml:space="preserve">
+    <value>Cookie Consent</value>
+  </data>
+  <data name="CookiesAndPrivacy" xml:space="preserve">
+    <value>Cookies &amp; Privacy</value>
+  </data>
+  <data name="CreateEditPageDetails" xml:space="preserve">
+    <value>Create / Edit Page Details</value>
+  </data>
+  <data name="CreateEditTopicDetails" xml:space="preserve">
+    <value>Create / Edit Topic Details</value>
+  </data>
+  <data name="CreateNewTopic" xml:space="preserve">
+    <value>Create new topic</value>
+  </data>
+  <data name="CreateOtherPage" xml:space="preserve">
+    <value>Create another page</value>
+  </data>
+  <data name="CreateOtherTopic" xml:space="preserve">
+    <value>Create Another Topic</value>
+  </data>
+  <data name="CreatePage" xml:space="preserve">
+    <value>Create new page</value>
+  </data>
+  <data name="CreateProject" xml:space="preserve">
+    <value>Create Project</value>
+  </data>
+  <data name="DeclaredIn" xml:space="preserve">
+    <value>Declared in</value>
+  </data>
+  <data name="DeclaringType" xml:space="preserve">
+    <value>Declaring type</value>
+  </data>
+  <data name="DeleteTopic" xml:space="preserve">
+    <value>Delete Topic</value>
+  </data>
+  <data name="DocfxEditor" xml:space="preserve">
+    <value>Docfx editor</value>
+  </data>
+  <data name="EditContent" xml:space="preserve">
+    <value>Edit Content</value>
+  </data>
+  <data name="EditDetails" xml:space="preserve">
+    <value>Edit Details</value>
+  </data>
+  <data name="EditPage" xml:space="preserve">
+    <value>Edit Page</value>
+  </data>
+  <data name="EditPageContent" xml:space="preserve">
+    <value>Edit Page Content</value>
+  </data>
+  <data name="EditProperties" xml:space="preserve">
+    <value>Edit Properties</value>
+  </data>
+  <data name="EnumUnderlyingType" xml:space="preserve">
+    <value>Underlying Type</value>
+  </data>
+  <data name="ErrorMoreThanFiveProjectsRequested" xml:space="preserve">
+    <value>Cannot request more than 5 projects (five requests on queue).
+Please wait for deploy of at least one project </value>
+  </data>
+  <data name="Error_CantDeletePageHasRelatedObjects" xml:space="preserve">
+    <value>Cannot delete page because it has related objects. Go to edit page and clear all related objects</value>
+  </data>
+  <data name="EventType" xml:space="preserve">
+    <value>Event type</value>
+  </data>
+  <data name="ExploreAPIObjects" xml:space="preserve">
+    <value>Explore API Objects</value>
+  </data>
+  <data name="FieldError_ProjectDependsOnFiles_InvalidBinaryFile" xml:space="preserve">
+    <value>This field must contains only *.dll file and cannot contain files from 'Project files' form field above</value>
+  </data>
+  <data name="FieldError_RobiniaUrlPrefix" xml:space="preserve">
+    <value>Robinia Url prefix must not be empty, must consist only of small letters 'a' - 'z', length cannot be greated that 16 characters</value>
+  </data>
+  <data name="FieldValue" xml:space="preserve">
+    <value>Field value</value>
+  </data>
+  <data name="FileUpl_DragDropMessage" xml:space="preserve">
+    <value>Choose files or drag and drop files here</value>
+  </data>
+  <data name="FileUpl_FilesCount" xml:space="preserve">
+    <value>Files count: {0}</value>
+  </data>
+  <data name="FileUpl_SelectFilesButtonText" xml:space="preserve">
+    <value>Select files from disk</value>
+  </data>
+  <data name="FormFieldRequired" xml:space="preserve">
+    <value>Value required</value>
+  </data>
+  <data name="FormRequestProject_ProjectDependsOnDlls" xml:space="preserve">
+    <value>Only *.dll .NET Core file that project depends on (Include e.g. all installed nuget .dlls. Do not include SDK's libs like System.*, do not include *.xml, do not include project files)</value>
+  </data>
+  <data name="FormRequestProject_ProjectFiles" xml:space="preserve">
+    <value>Project .NET Core *.dll and *.xml files (do not include any dependencies)</value>
+  </data>
+  <data name="FormTitle_CreateNewTopic" xml:space="preserve">
+    <value>Create New Topic</value>
+  </data>
+  <data name="FormTitle_EditTopicProperties" xml:space="preserve">
+    <value>Edit Topic Details</value>
+  </data>
+  <data name="Form_Project_BlobFilesFieldName" xml:space="preserve">
+    <value>.NET assembly files (.dll, .xml)</value>
+  </data>
+  <data name="Form_Project_GithubProjectUrl" xml:space="preserve">
+    <value>Github Url</value>
+  </data>
+  <data name="Form_Project_ProjectDescription" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Form_Project_ProjectName" xml:space="preserve">
+    <value>Project Name</value>
+  </data>
+  <data name="Form_Project_RobiniaUrlPrefix" xml:space="preserve">
+    <value>Robinia Url Prefix</value>
+  </data>
+  <data name="GlobalHeader_LinkTitle" xml:space="preserve">
+    <value>RobiniaDocs - Free online .NET Core documentation hosting platform</value>
+  </data>
+  <data name="HowToUse" xml:space="preserve">
+    <value>How to use</value>
+  </data>
+  <data name="InheritsFrom" xml:space="preserve">
+    <value>Inherits from</value>
+  </data>
+  <data name="InvalidTopicOrder" xml:space="preserve">
+    <value>Invalid order value. Min: 0, Max: Count of sibling topics (in current parent)</value>
+  </data>
+  <data name="LastHighPriorityLogs" xml:space="preserve">
+    <value>Last High Priority Logs</value>
+  </data>
+  <data name="LastLogs" xml:space="preserve">
+    <value>Last Logs</value>
+  </data>
+  <data name="LocationObjects" xml:space="preserve">
+    <value>Location - Object</value>
+  </data>
+  <data name="LocationTopic" xml:space="preserve">
+    <value>Location - Topic</value>
+  </data>
+  <data name="LoginFailed" xml:space="preserve">
+    <value>Login Failed</value>
+  </data>
+  <data name="LoginSuccess" xml:space="preserve">
+    <value>Login Success</value>
+  </data>
+  <data name="LoginWithGithub" xml:space="preserve">
+    <value>Login with Github</value>
+  </data>
+  <data name="LogoutSuccess" xml:space="preserve">
+    <value>Logout success</value>
+  </data>
+  <data name="ManagePages" xml:space="preserve">
+    <value>Manage Pages</value>
+  </data>
+  <data name="ManageProject" xml:space="preserve">
+    <value>Manage Project</value>
+  </data>
+  <data name="ManageTopics" xml:space="preserve">
+    <value>Manage Topics</value>
+  </data>
+  <data name="Model_TopicDescriptionMaxLength1024" xml:space="preserve">
+    <value>Maximum length of description is 1024 characters</value>
+  </data>
+  <data name="Model_TopicShortLengthMax64" xml:space="preserve">
+    <value>Topic Short name exceeds 64 characters</value>
+  </data>
+  <data name="Model_TopicShortNameRequired" xml:space="preserve">
+    <value>Topic Short Name is required</value>
+  </data>
+  <data name="MyAccount" xml:space="preserve">
+    <value>My account</value>
+  </data>
+  <data name="NotAllNodesSelectedLimit100" xml:space="preserve">
+    <value>Not all nodes were selected. First 100 children selected, for more expand each not selected node and select again</value>
+  </data>
+  <data name="NoValue" xml:space="preserve">
+    <value>No values</value>
+  </data>
+  <data name="ObjectExplorer" xml:space="preserve">
+    <value>Object explorer</value>
+  </data>
+  <data name="ObjectInformations" xml:space="preserve">
+    <value>Object informations</value>
+  </data>
+  <data name="ObjectName" xml:space="preserve">
+    <value>Object name</value>
+  </data>
+  <data name="ObjectNotFound_NotFoundTitle" xml:space="preserve">
+    <value>Object was not found</value>
+  </data>
+  <data name="PageCreatedSuccessfully" xml:space="preserve">
+    <value>Page created successfully</value>
+  </data>
+  <data name="PageDeletedSuccessfully" xml:space="preserve">
+    <value>Page has been deleted successfully</value>
+  </data>
+  <data name="PageUpdatedSuccessfully" xml:space="preserve">
+    <value>Page has been updated successfully</value>
+  </data>
+  <data name="PageWithSpecifiedIdWasNotFoundCannotEdit" xml:space="preserve">
+    <value>Page with specified Id was not found. Cannot edit page.</value>
+  </data>
+  <data name="ParentTopic" xml:space="preserve">
+    <value>Parent Topic</value>
+  </data>
+  <data name="ParentTopicCannotBeTopicChild" xml:space="preserve">
+    <value>Parent topic cannot be topic child</value>
+  </data>
+  <data name="ParentTopicDoesNotExists" xml:space="preserve">
+    <value>Parent topic does not exists</value>
+  </data>
+  <data name="ParentTopicId" xml:space="preserve">
+    <value>Parent topic id</value>
+  </data>
+  <data name="Problems" xml:space="preserve">
+    <value>Problems</value>
+  </data>
+  <data name="ProjectCreatedSuccessfully" xml:space="preserve">
+    <value>Project has been created successfully</value>
+  </data>
+  <data name="ProjectManage" xml:space="preserve">
+    <value>Manage Project</value>
+  </data>
+  <data name="ProjectName" xml:space="preserve">
+    <value>Project name</value>
+  </data>
+  <data name="ProjectNameRequired" xml:space="preserve">
+    <value>Project name is required</value>
+  </data>
+  <data name="ProjectNameUniqueAndNotEmpty" xml:space="preserve">
+    <value>This project name is already in use. Please select other project name because it must be unique</value>
+  </data>
+  <data name="ProjectRequestedSuccessfully" xml:space="preserve">
+    <value>Project Requested Successfully</value>
+  </data>
+  <data name="ProjectShortName" xml:space="preserve">
+    <value>Arctium</value>
+  </data>
+  <data name="RedirectUrl" xml:space="preserve">
+    <value>Redirect URL</value>
+  </data>
+  <data name="ReflectedType" xml:space="preserve">
+    <value>Reflected type</value>
+  </data>
+  <data name="RequestAnotherProject" xml:space="preserve">
+    <value>Request another project</value>
+  </data>
+  <data name="RequestProject" xml:space="preserve">
+    <value>Request Project</value>
+  </data>
+  <data name="RobiniaUrlPrefixRequired" xml:space="preserve">
+    <value>Robinia url prefix is required</value>
+  </data>
+  <data name="Build" xml:space="preserve">
+    <value>Build</value>
+  </data>
+  <data name="SelectAllChildren" xml:space="preserve">
+    <value>Select all children</value>
+  </data>
+  <data name="SelectedItems" xml:space="preserve">
+    <value>Selected item(s)</value>
+  </data>
+  <data name="ShortName" xml:space="preserve">
+    <value>Short name</value>
+  </data>
+  <data name="StatusCode_403_Description" xml:space="preserve">
+    <value>You do not have access to see this page. If Your are owner of this project please contact with Administrator</value>
+  </data>
+  <data name="StatusCode_403_Title" xml:space="preserve">
+    <value>Forbidden</value>
+  </data>
+  <data name="StatusCode_404_Description" xml:space="preserve">
+    <value>Requested resources could not be found</value>
+  </data>
+  <data name="StatusCode_404_Title" xml:space="preserve">
+    <value>Not Found</value>
+  </data>
+  <data name="StatusCode_500_Data" xml:space="preserve">
+    <value>This error can happer because:
+1. Internal server error
+2. Current project references by URL has been blocked, removed or is temporary unavailable
+3. Server cannot process current request
+
+If You uploaded Your project and You see this error at any time please contact with System Administrator</value>
+  </data>
+  <data name="StatusCode_500_Description" xml:space="preserve">
+    <value>Server encountered error</value>
+  </data>
+  <data name="StatusCode_500_Title" xml:space="preserve">
+    <value>Server Error</value>
+  </data>
+  <data name="Template_ConfirmDeletePage" xml:space="preserve">
+    <value>Are You sure you want to delete page with Id: {0}?</value>
+  </data>
+  <data name="TermsOfService" xml:space="preserve">
+    <value>Terms of Service</value>
+  </data>
+  <data name="Text_LoginInfo1" xml:space="preserve">
+    <value>By clicking 'Login' buttons You aggree with our</value>
+  </data>
+  <data name="TopicCreatedSuccessfully" xml:space="preserve">
+    <value>Topic created successfully</value>
+  </data>
+  <data name="TopicDeleteSuccessfully" xml:space="preserve">
+    <value>Topic has been deleted successfully</value>
+  </data>
+  <data name="TopicDoesNotExists" xml:space="preserve">
+    <value>Topic does not exists</value>
+  </data>
+  <data name="TopicEditedSuccessfully" xml:space="preserve">
+    <value>Topic updated successfully</value>
+  </data>
+  <data name="TopicParentCannotBeTopicItself" xml:space="preserve">
+    <value>Parent topic cannot be topic itself</value>
+  </data>
+  <data name="TopicsManage" xml:space="preserve">
+    <value>Manage Topics</value>
+  </data>
+  <data name="TopicUpdatedSuccessfully" xml:space="preserve">
+    <value>Topic updated successfully</value>
+  </data>
+  <data name="TotalVisitors" xml:space="preserve">
+    <value>Total Visitors</value>
+  </data>
+  <data name="ValidationErrorFilesNotXmlOrDotNetAssembly" xml:space="preserve">
+    <value>One or more files are invalid. Valid files are .xml documentation and .dll .NET assembly. Total size of all files cannot exceed 16MB</value>
+  </data>
+  <data name="ValueRequired" xml:space="preserve">
+    <value>Value is required</value>
+  </data>
+  <data name="Visitors24h" xml:space="preserve">
+    <value>Unique Visitors (Last 24H)</value>
+  </data>
+  <data name="WaitForRedirect" xml:space="preserve">
+    <value>Please wait for redirect</value>
+  </data>
+  <data name="DeleteProject" xml:space="preserve">
+    <value>Delete project</value>
+  </data>
+  <data name="CheckToConfirmHardDeleteProject" xml:space="preserve">
+    <value>Check to confirm delete project</value>
+  </data>
+  <data name="AddDirectory" xml:space="preserve">
+    <value>Add Directory</value>
+  </data>
+  <data name="AddMdFile" xml:space="preserve">
+    <value>Add md file</value>
+  </data>
+  <data name="EditFileContent" xml:space="preserve">
+    <value>Edit File Content</value>
+  </data>
+  <data name="ProjectContent" xml:space="preserve">
+    <value>Project Content</value>
+  </data>
+  <data name="RebuildNeeded" xml:space="preserve">
+    <value>Rebuild needed</value>
+  </data>
+  <data name="RemoveDirectory" xml:space="preserve">
+    <value>Remove Directory</value>
+  </data>
+  <data name="RemoveFile" xml:space="preserve">
+    <value>Remove File</value>
+  </data>
+  <data name="Rename Directory" xml:space="preserve">
+    <value>Rename Directory</value>
+  </data>
+  <data name="RenameFile" xml:space="preserve">
+    <value>Rename File</value>
+  </data>
+  <data name="TotalWebsiteItemsCount" xml:space="preserve">
+    <value>Total website items count</value>
+  </data>
+  <data name="HtmlTitle_Home_AllProjects" xml:space="preserve">
+    <value>All Projects hosted on RobiniaDocs</value>
+  </data>
+  <data name="HtmlTitle_Home_Index" xml:space="preserve">
+    <value>Free .NET Core documentation platform</value>
+  </data>
+  <data name="NugetPackageName" xml:space="preserve">
+    <value>Nuget Package Name</value>
+  </data>
+  <data name="DirectoryName" xml:space="preserve">
+    <value>Directory name</value>
+  </data>
+  <data name="NewName" xml:space="preserve">
+    <value>New name</value>
+  </data>
+  <data name="GithubUrl" xml:space="preserve">
+    <value>Github Url</value>
+  </data>
+  <data name="RobiniaUrlPrefix" xml:space="preserve">
+    <value>Robinia url prefix</value>
+  </data>
+  <data name="ContentItems" xml:space="preserve">
+    <value>Content Items</value>
+  </data>
+  <data name="ExploreAllRobiniaDocsProjects" xml:space="preserve">
+    <value>Explore all projects hosted on RobiniaDocs</value>
+  </data>
+  <data name="AddFile" xml:space="preserve">
+    <value>Add File</value>
+  </data>
+  <data name="RenameDirectory" xml:space="preserve">
+    <value>Rename Directory</value>
+  </data>
+  <data name="UploadDirectoryOrDirectories" xml:space="preserve">
+    <value>Upload Directories</value>
+  </data>
+  <data name="UploadFileOrFiles" xml:space="preserve">
+    <value>Upload Files</value>
+  </data>
+  <data name="FileUploader" xml:space="preserve">
+    <value>File uploader</value>
+  </data>
+  <data name="UploadFilesOrDirectories" xml:space="preserve">
+    <value>Upload files or directories</value>
+  </data>
+  <data name="SelectDirectoriesToUpload" xml:space="preserve">
+    <value>Select directories to upload</value>
+  </data>
+  <data name="SelectFilesToUpload" xml:space="preserve">
+    <value>Select files to upload</value>
+  </data>
+  <data name="UploadDirectories" xml:space="preserve">
+    <value>Upload Directories</value>
+  </data>
+  <data name="UploadFiles" xml:space="preserve">
+    <value>Upload Files</value>
+  </data>
+</root>

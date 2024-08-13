@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <PackageId>$(dn_packageid)</PackageId>
+    <Title>$(dn_title)</Title>
+    <Version>$(dn_version)</Version>
+    <InformationalVersion>$(dn_informationalversion)</InformationalVersion>
+    <Authors>$(dn_author)</Authors>
+    <Company>$(dn_company)</Company>
+    <Product>$(dn_product)</Product>
+    <Description>$(dn_description)</Description>
+    <Copyright>$(dn_copyright)</Copyright>
+    <PackageProjectUrl>$(dn_packageprojecturl)</PackageProjectUrl>
+    <AssemblyVersion>$(dn_assemblyversion)</AssemblyVersion>
+    <FileVersion>$(dn_fileversion)</FileVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

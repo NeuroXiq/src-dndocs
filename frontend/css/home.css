@@ -1,0 +1,261 @@
+:root {
+    --c-test: #130058;
+    --c-test2: #5a5763;
+    --c-test3: #423379;
+}
+
+body {
+    font-family: 'Space Grotesk';
+    /* width: 100vw;
+    height: 100vh; */
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    min-height: 0;
+    min-width: 0;
+    margin: 0;
+    height: calc(100% - 6rem);
+    background-color: rgba(250, 250, 250, 1);
+    box-sizing: border-box;
+}
+
+.header {
+    /* height: 6rem; */
+    background-color: rgb(112, 20, 232);
+    background-color: var(--c-test);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 1em;
+    /* justify-content: space-around; */
+    box-shadow: 8px 4px 12px -1px black;
+}
+
+.header h1 {
+    text-align: left;
+    color: white;
+    padding: 0.25rem 0 0.25rem 2rem;
+    font-weight: 700;
+}
+
+h2,
+h3 {
+    background-color: var(--c-test);
+    border-radius: 0.25rem;
+    color: white;
+}
+
+.logo {
+    /* background-color: #009400; */
+    background-color: #201155;
+    background-color: var(--c-test);
+    width: 10rem;
+    height: 10rem;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Roboto';
+    font-family: "Space Grotesk";
+    box-shadow: 8px 4px 12px -8px black;
+    position: absolute;
+    top: 1rem;
+    left: calc(50% - 5rem);
+    /* left: 3rem; */
+    /* border: 0.125rem solid #009400; */
+    border: 0.125rem solid white;
+    transition: all ease-out 0.2s;
+}
+
+.logo:hover {
+    transform: scale(1.02);
+    box-shadow: 8px 4px 12px -4px black;
+    cursor: pointer;
+}
+
+
+.maingrid-right>div {
+    flex: 1 0 1px;
+}
+
+.header .nletter {
+    color: white;
+    font-weight: 700;
+    font-size: 92px;
+    font-size: 1;
+    position: relative;
+    left: -8px;
+}
+
+.home__header {}
+
+h1 {
+    margin: 0;
+    font-size: 64px;
+    text-align: center;
+    font-weight: 500;
+    ;
+}
+
+h3 {
+    font-size: 24px;
+    /* margin: 0.5em 0; */
+    margin: 0;
+    padding: 0.25em;
+    text-align: center;
+}
+
+
+
+h1 {
+    border-radius: 0.125em;
+    background-color: var(--c-test);
+    color: white;
+}
+
+.main {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.main__howit {
+    width: 100%;
+    margin-bottom: 0.25rem;
+}
+
+.main__howit h1 {
+    margin-bottom: 0.5rem;
+}
+
+
+.step {
+    height: 100%;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 8px -4px black;
+    display: flex;
+    flex-direction: column;
+
+    /* need for images because not resize correctlry */
+    /*position: relative*/
+}
+
+.steps h3 {
+    border-radius: 0;
+}
+
+.step .img {
+    position: relative;
+    margin-top: 0.125rem;
+    flex: 1 0 0px;
+    min-height: 200px;
+}
+
+.step img {
+    width: 100%;
+    height: 100%;
+}
+
+.step .footer {
+    padding: 1rem;
+    background-color: var(--c-test2);
+    color: white;
+    height: 5rem;
+}
+
+
+video {
+    width: 100%;
+}
+
+.tryit__buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.tryit__buttons > button,
+.tryit__buttons > a {
+    flex: 1 0 0;
+    margin: 0.25rem 0;
+}
+
+.tryit__buttons>button:first {
+    flex: 2 0 0;
+}
+
+.header h1 {
+    font-size: 2rem;
+}
+
+.note {
+    display: flex;
+    flex-direction: column;
+}
+
+.tryit {
+    width: 100%;
+}
+
+.logo {
+    display: none;
+}
+
+.main {
+    padding: 1rem;
+}
+
+.step .img {
+    display: none;
+}
+
+@media only screen and (min-width: 576px) {}
+
+@media only screen and (min-width: 768px) {
+    .step .img {
+        display: block;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .logo {
+        display: flex;
+    }
+
+    .main {
+        padding: 7rem 4rem 2rem 4rem;
+    }
+
+    .header h1 {
+        font-size: 64px;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+
+    .note {
+        flex-direction: row;
+    }
+
+    .tryit {
+        height: 100%;
+        flex: 3 0 0;
+    }
+
+    .tryit .features {
+        flex: 2 0 0;
+    }
+
+    .note .title {
+        flex-direction: row;
+        text-orientation: mixed;
+        writing-mode: tb-rl;
+        transform: rotate(-180deg);
+        margin-right: 0.5rem;
+    }
+}
+
+/*
+@media only screen and (min-width: 1400px)
+@media only screen and (min-width: 768px)
+*/

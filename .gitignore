@@ -1,0 +1,10 @@
+_GITIGNORE/**
+appfiles/backups/**
+appfiles/dev-infrastructure-files/**
+appfiles/integrationtests-infrastructure-files/**
+appfiles/publishbin/**
+appfiles/publishedbin/**
+build/temp/**
+build/bin-zips
+var/**
+.vimrc

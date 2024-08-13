@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--Copy static files to output-->
+    <Content Include="app-resources\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="app-resources\docfx-init\apidoc\.gitignore" />
+    <None Remove="app-resources\docfx-init\images\.gitignore" />
+    <None Remove="app-resources\docfx-init\src\.gitignore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="app-resources\other\" />
+  </ItemGroup>
+</Project>

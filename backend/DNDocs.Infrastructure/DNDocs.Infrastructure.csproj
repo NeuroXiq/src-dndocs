@@ -1,0 +1,63 @@
+﻿
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <nullable>disable</nullable>
+    <PackageId>$(dn_packageid)</PackageId>
+    <Title>$(dn_title)</Title>
+    <Version>$(dn_version)</Version>
+    <InformationalVersion>$(dn_informationalversion)</InformationalVersion>
+    <Authors>$(dn_author)</Authors>
+    <Company>$(dn_company)</Company>
+    <Product>$(dn_product)</Product>
+    <Description>$(dn_description)</Description>
+    <Copyright>$(dn_copyright)</Copyright>
+    <PackageProjectUrl>$(dn_packageprojecturl)</PackageProjectUrl>
+    <AssemblyVersion>$(dn_assemblyversion)</AssemblyVersion>
+    <FileVersion>$(dn_fileversion)</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="LogMigrations\_00001_init.sql" />
+    <None Remove="Migrations\_00002_djob.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="LogMigrations\_00001_init.sql" />
+    <EmbeddedResource Include="Migrations\_00002_djob.sql" />
+    <EmbeddedResource Include="Migrations\_00001_init.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="dbup" Version="5.0.8" />
+    <PackageReference Include="dbup-sqlite" Version="5.0.8" />
+    <PackageReference Include="LibGit2Sharp" Version="0.27.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DNDocs.Domain\DNDocs.Domain.csproj" />
+    <ProjectReference Include="..\DNDocs.Domain\DNDocs.Domain.csproj" />
+    <ProjectReference Include="..\DNDocs.Shared\DNDocs.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

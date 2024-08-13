@@ -1,0 +1,20 @@
+.rawtable {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.rawtable td {
+    padding: 0.25rem;
+    max-width: 800px;
+    word-wrap: break-all;
+    border-top: 1px solid black;
+}
+
+.rawtable pre {
+    padding: 0.25rem;
+    max-width: 800px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    max-height: 40em;
+    overflow-y: auto;
+}
