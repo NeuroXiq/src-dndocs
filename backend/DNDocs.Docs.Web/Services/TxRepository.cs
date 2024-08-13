@@ -487,7 +487,6 @@ namespace DNDocs.Docs.Web.Services
             if(logTx != null) await logTx.CommitAsync();
             if(varSiteTx != null) await varSiteTx.CommitAsync();
 
-
             commitOrRollback = true;
         }
 
@@ -507,6 +506,7 @@ namespace DNDocs.Docs.Web.Services
             }
             else
             {
+                existing.ByteData = byteData;
                 connection.Execute($"{SqlText.UpdatePublicHtml} WHERE id = @Id", existing);
             }
         }
