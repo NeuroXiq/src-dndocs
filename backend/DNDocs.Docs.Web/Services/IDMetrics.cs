@@ -74,7 +74,7 @@ namespace DNDocs.Docs.Web.Services
             mddocs = meterFactory.Create("DNDocs.Docs.DMetrics", "");
             cSqlOpen = mddocs.CreateCounter<int>("dndocs.sql.connection-open-count", "number", "open new sql connection");
             cSqlSelectCount = mddocs.CreateCounter<int>("dndocs.sql.select-count", "number", "sql SELECT count");
-            cSqlInsert = mddocs.CreateCounter<int>("dndcs.sql.insert-count", "number", "sql insert count");
+            cSqlInsert = mddocs.CreateCounter<int>("dndocs.sql.insert-count", "number", "sql insert count");
             cSaveHttpLogsCount = mddocs.CreateCounter<int>("dndocs.save-http-logs-count", "u", "count of http logs");
             cSaveAppLogsCount = mddocs.CreateCounter<int>("dndocs.save-app-logs-count", "u", "count of app logs");
             cCacheHit = mddocs.CreateCounter<int>("dndocs.memory-cache.hit", "number", "memory cache hits");
@@ -267,7 +267,7 @@ namespace DNDocs.Docs.Web.Services
         {
             cSqlInsert.Add(1, new KeyValuePair<string, object?>("name", methodName));
             cSqlInsertByteDataLength.Add(byteDataLength);
-            hSqlSelectDuration.Record(ellapsedMs, new KeyValuePair<string, object?>("name", methodName));
+            hSqlInsertDuration.Record(ellapsedMs, new KeyValuePair<string, object?>("name", methodName));
         }
 
         public void SqlOpen(string dbName)

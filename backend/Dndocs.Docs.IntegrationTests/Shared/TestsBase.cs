@@ -42,7 +42,7 @@ namespace DNDocs.Docs.IntegrationTests
         [OneTimeTearDown]
         public void Start_OneTimeGlobalTeardown()
         {
-            ddocsProcess.Kill();
+            ddocsProcess.Kill(true);
             ddocsProcess.Dispose();
         }
 

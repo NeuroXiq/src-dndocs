@@ -1,4 +1,6 @@
-﻿namespace DNDocs.Docs.Web.Shared
+﻿using Vinca.Exceptions;
+
+namespace DNDocs.Docs.Web.Shared
 {
     public class DValidation
     {
@@ -11,7 +13,7 @@
         {
             if (isThrow)
             {
-                throw new DValidationException(message);
+                throw new VValidationException(message);
             }
         }
     }
