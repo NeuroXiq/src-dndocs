@@ -121,7 +121,7 @@ namespace DNDocs.Docs.Web.Web
 
             switch (projectType)
             {
-                case ProjectType.Singleton: await memCache.GetSingletonProject(urlPrefix); break;
+                case ProjectType.Singleton: project = await memCache.GetSingletonProject(urlPrefix); break;
                 case ProjectType.Version: throw new NotImplementedException(); break;
                 case ProjectType.Nuget: project = await memCache.GetNugetProject(nugetPackageName, nugetPackageVersion);  break;
                 default: throw new NotImplementedException();
