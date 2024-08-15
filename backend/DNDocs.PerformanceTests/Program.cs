@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
@@ -27,6 +28,7 @@ namespace Program
     class Program
     {
         static Stats stats;
+        static ConcurrentDictionary<string, bool> sendUrls = new ConcurrentDictionary<string, bool>();
 
         public static void Main()
         {
@@ -34,14 +36,12 @@ namespace Program
             stats.RequestCount = 1;
             PerformanceTestConfig config = new PerformanceTestConfig()
             {
-                TaskCount = 300,
-                DelayRequestMs = 200,
+                TaskCount = 80,
+                DelayRequestMs = 2,
                 TotalMaxRequestCount = 200000,
                 RootHtmlPageUrls = new List<string>()
                 {
-                    "https://localhost:7088/system/projects/27",
-                    "https://localhost:7088/system/projects/26",
-                    "https://localhost:7088/system/projects/25"
+                    "https://localhost:7088/system/site-items",
                 }
             };
 
@@ -87,7 +87,11 @@ namespace Program
         {
             List<string> urls = config.RootHtmlPageUrls.ToList();
             List<string> nextUrls = new List<string>();
-            HttpClient client = new HttpClient();
+            var handler = new HttpClientHandler();
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.ServerCertificateCustomValidationCallback = (a, b, c, d) => true;
+            
+            HttpClient client = new HttpClient(handler);
             client.DefaultRequestHeaders.Add("accept", "text/html");
             client.DefaultRequestHeaders.Add("accept-encoding", "gzip, deflate, br, zstd");
             Interlocked.Increment(ref stats.TaskCount);
@@ -120,6 +124,9 @@ namespace Program
                     }
                 }
 
+                foreach (var url in urls) sendUrls[url] = true;
+
+                nextUrls = nextUrls.Where(u => !sendUrls.TryGetValue(u, out _)).ToList();
                 urls = nextUrls;
                 nextUrls = new List<string>();
             }

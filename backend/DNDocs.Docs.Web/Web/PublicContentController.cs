@@ -58,10 +58,6 @@ namespace DNDocs.Docs.Web.Web
             {
                 contentType = "application/xml;charset=utf-8";
                 context.Response.Headers.Append("Content-Encoding", "br");
-                // byte[] decompressed = new byte[10000000];
-                // BrotliDecoder.TryDecompress(byteData, decompressed, out var dlen);
-                // byteData = new byte[dlen];
-                // Buffer.BlockCopy(decompressed, 0, byteData, 0, dlen);
             }
             else contentType = HttpContentTypeMaps.GetFromPathOrFallback(publicHtml.Path);
 
@@ -185,62 +181,37 @@ namespace DNDocs.Docs.Web.Web
             return SimpleHtmlPage(sb, $"<meta http-equiv=\"refresh\" content=\"{refreshRate}\">");
         }
 
-        //public static async Task<IResult> SystemMetrics(
-        //    [FromServices] IQRepository repository)
-        //{
-        //    var s = await repository.SelectSystemStats();
-
-        //    StringBuilder sbt = new StringBuilder();
-          
-        //    return SimpleHtmlPage("", sbt);
-
-        //    // var sb = new StringBuilder();
-        //    // sb.AppendFormat("SiteItemCount: {0}", s.SiteItemCount);
-        //    // sb.AppendLine();
-        //    // sb.AppendFormat("SharedSiteItemCount: {0}", s.SharedSiteItemCount);
-        //    //sb.AppendLine();
-        //    //var sharedUsagePercent = s.SiteItemCountUsingShared == 0 ?
-        //    //    "0" :
-        //    //    Math.Round((double)100 * s.SiteItemCountUsingShared / s.SiteItemCount, 2).ToString();
-
-        //    //sb.AppendFormat("SiteItemCountUsingShared: {0} ({1}%)", s.SharedSiteItemCount, sharedUsagePercent);
-        //    //sb.AppendLine();
-        //    //sb.AppendFormat("AppLogCount: {0}", s.AppLogCount);
-        //    //sb.AppendLine();
-        //    //sb.AppendFormat("HttpLogCount: {0}", s.HttpLogCount);
-        //    //sb.AppendLine();
-        //    //sb.AppendFormat("ProjectCount: {0}", s.ProjectCount);
-        //    //sb.AppendLine();
-        //}
-
         public static async Task<IResult> SystemSiteItems(
             [FromServices] IOptions<DSettings> settings,
             [FromServices] IQRepository repository,
             [FromRoute] int? pageNo)
         {
-            var siteitems = await repository.GetSiteItemPagedAsync(0, 1000);
-            var allprojs = await repository.SelectProjectPagedAsync(0, 100);
+            pageNo = pageNo ?? 0;
+            var siteitems = await repository.GetSiteItemPagedAsync(pageNo.Value, 1000);
+            var siteItemsCount = await repository.SelectSiteItemCount();
+            var allprojs = await repository.SelectProjectPagedAsync(0, 100000);
+
             var pdics = allprojs.ToImmutableDictionary(x => x.Id);
 
             var sb = new StringBuilder();
-            sb.Append("<head></head><body><table>");
-            sb.Append("<thead><tr> <td>SiteItemId</td>  <td>ProjectID</td> <td>Url</td> </tr></thead>");
-            foreach (var si in siteitems)
-            {
-                sb.Append("<tr>");
-                sb.AppendFormat("<td>{0}</td>", si.Id);
-                sb.AppendFormat("<td>{0}</td>", si.ProjectId);
-                sb.Append("<td>");
-                sb.AppendFormat("<a href=\"{0}\">{0}</a>", FullProjectUrl(settings.Value, pdics[si.ProjectId], si.Path));
-                sb.Append("</td>");
-                sb.Append("</tr>");
-            }
-            sb.Append("</table></body>");
+            AppendHtmlTable(sb,
+                new[] { "ProjectId", "ProjectName", "FullUrl" },
+                new Func<SiteItem, object>[]
+                {
+                    s => pdics[s.ProjectId].Id,
+                    s => $"{pdics[s.ProjectId].NugetPackageName} {pdics[s.ProjectId].NugetPackageVersion}",
+                    s => { var u = FullProjectUrl(settings.Value, pdics[s.ProjectId], s.Path); return $"<a href=\"{u}\">{u}</a>"; }
+                },
+                siteitems);
+
+            AppendSimpleHtmlPagination(sb, (long)Math.Ceiling((double)siteItemsCount/1000), "/system/site-items/{0}");
+            SimpleHtmlPage(sb);
 
             var result = sb.ToString();
             return Results.Content(result, "text/html");
         }
 
+      
         public static async Task<IResult> SystemAllProjects(
             [FromServices] IOptions<DSettings> settings,
             [FromServices] IQRepository repository,
@@ -312,6 +283,15 @@ namespace DNDocs.Docs.Web.Web
         }
 
         #endregion
+
+        private static void AppendSimpleHtmlPagination(StringBuilder b, long pagesCount, string formatUrl)
+        {
+            b.Append("<div>Pages</div>");
+            b.Append("<div>");
+            var hrefFormat = $"<a style=\"margin: 0 8px;\"href=\"{formatUrl}\">{{0}}</a>";
+            for (int i = 0; i < pagesCount; i++) b.AppendFormat(hrefFormat, i);
+            b.Append("<div>");
+        }
 
         public static IResult SimpleHtmlPage(StringBuilder body, string headTags = null)
         {

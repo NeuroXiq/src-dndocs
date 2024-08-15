@@ -12,9 +12,12 @@ namespace DNDocs.Docs.Web.Services
     {
         Task<SharedSiteItem> SelectSharedSiteItem(long id);
 
+        // siteitem
         Task<SiteItem> SelectSiteItemAsync(long projectId, string path);
         Task<IEnumerable<SiteItem>> GetSiteItemPagedAsync(int pageNo, int rowsPerPage);
-        
+        Task<long> SelectSiteItemCount();
+
+
         Task<Project> SelectNugetProjectAsync(string nugetPackageName, string nugetPackageVersion);
         Task<Project> SelectSingletonProjectAsync(string urlPrefix);
         Task<Project[]> SelectProjectPagedAsync(int pageSize, int pageNo);
@@ -130,6 +133,12 @@ ORDER BY mi.[type] ASC, mi.[name] ASC, mi.id, h.end IS NULL, h.end ASC ";
 
         #region SiteItemDb
 
+        public async Task<long> SelectSiteItemCount()
+        {
+            using var con = infrastructure.OpenSqliteConnection(DatabaseType.Site);
+            return await con.ExecuteScalarAsync<long>("SELECT COUNT(*) FROM site_item");
+        }
+
         public async Task<SiteItem> SelectSiteItemAsync(long projectId, string path)
         {
             var sw = Stopwatch.StartNew();
@@ -156,7 +165,7 @@ ORDER BY mi.[type] ASC, mi.[name] ASC, mi.id, h.end IS NULL, h.end ASC ";
         public async Task<IEnumerable<SiteItem>> GetSiteItemPagedAsync(int pageNo, int pageSize)
         {
             using var connection = infrastructure.OpenSqliteConnection(DatabaseType.Site);
-            var sql = $"{SqlSelectSiteItem(false)} ORDER BY id DESC LIMIT @Limit OFFSET @Offset";
+            var sql = $"{SqlSelectSiteItem(false)} ORDER BY id ASC LIMIT @Limit OFFSET @Offset";
             return await connection.QueryAsync<SiteItem>(sql, new { Offset = pageNo * pageSize, Limit = pageSize });
         }
 
