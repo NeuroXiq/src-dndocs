@@ -199,7 +199,7 @@ namespace DNDocs.Job.Web.Services
             // just run docfx process, rest are logs or cancellation
             string stdo = "";
             string stderr = "";
-            string plog = $"Process Info: docfx os path: {0}";
+            string plog = $"Process Info: docfx os path: {osPathDocfxJson}";
             string toolspath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, settings.ConsoleToolsDllFilePath));
             int maxProcessWait5Min = 5 * 60 * 1000;
 
@@ -208,13 +208,24 @@ namespace DNDocs.Job.Web.Services
                 try
                 {
                     p.StartInfo.FileName = "docfx";
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) p.StartInfo.FileName = "/root/.dotnet/tools/docfx";
                     p.StartInfo.Arguments = @$"{osPathDocfxJson}";
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        p.StartInfo.FileName = "/root/.dotnet/tools/docfx";
+                        // p.StartInfo.FileName = "bash";
+                        // p.StartInfo.FileName = $"-c \"docfx {osPathDocfxJson}\"";
+                    }
                     p.StartInfo.UseShellExecute = false;
                     p.StartInfo.RedirectStandardOutput = true;
                     p.StartInfo.RedirectStandardError = true;
                     p.StartInfo.WorkingDirectory = null;
+                    p.OutputDataReceived += (s, e) => stdo += e.Data;
+                    p.ErrorDataReceived += (s, e) => stderr += e.Data;
+
                     bool started = p.Start();
+
+                    p.BeginOutputReadLine();
+                    p.BeginErrorReadLine();
 
                     plog += string.Format("PID: {0}, PSI_ARGS: {1}, PSTART: {2}", p.Id, p.StartInfo.Arguments, started);
 
@@ -226,8 +237,8 @@ namespace DNDocs.Job.Web.Services
 
                     var sw = Stopwatch.StartNew();
                     await p.WaitForExitAsync(cts.Token);
-                    stdo = await p.StandardOutput.ReadToEndAsync();
-                    stderr = await p.StandardError.ReadToEndAsync();
+                    //stdo = await p.StandardOutput.ReadToEndAsync();
+                    //stderr = await p.StandardError.ReadToEndAsync();
 
                     VValidate.AppEx(!p.HasExited, "process did not exits");
                     VValidate.AppEx(p.ExitCode != 0, "process exit code not zero");
