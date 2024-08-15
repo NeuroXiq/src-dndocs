@@ -5,6 +5,7 @@ using Microsoft.Extensions.Diagnostics.ResourceMonitoring;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Text;
 using Vinca.BufferLogger;
 using Vinca.Http.Logs;
@@ -69,7 +70,19 @@ namespace DNDocs.Docs.Web.Application
         {
             if (saveMetricsTask.IsCompleted)
             {
-                saveMetricsTask = Task.Run(metrics.SaveInDbAndClear);
+                saveMetricsTask = Task.Run(SaveMetrics);
+            }
+        }
+
+        async Task SaveMetrics()
+        {
+            try
+            {
+                await metrics.SaveInDbAndClear();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "failed to save metrics");
             }
         }
 
@@ -223,6 +236,8 @@ namespace DNDocs.Docs.Web.Application
                 return;
             }
 
+            byte[] brotliBuffer = new byte[10000000];
+
             foreach (var projectId in needSitemapId)
             {
                 var p = await repository.SelectProjectByIdAsync(projectId);
@@ -253,7 +268,10 @@ namespace DNDocs.Docs.Web.Application
                 if (!appended || sitemapGenerator.CurrentLength > 10 * 1000 * 1000 || projectId == needSitemapId.Last())
                 {
                     var sitemapXmlString = sitemapGenerator.ToXmlStringAndClear();
-                    var htmlPage = new PublicHtml($"/sitemaps/sitemap_project_{Guid.NewGuid()}.xml", Encoding.UTF8.GetBytes(sitemapXmlString));
+                    byte[] byteData = Encoding.UTF8.GetBytes(sitemapXmlString);
+                    byteData = Shared.Helpers.BrotliCompress(byteData, ref brotliBuffer);
+
+                    var htmlPage = new PublicHtml($"/sitemaps/sitemap_project_{Guid.NewGuid()}.xml", byteData);
                     await repository.InsertPublicHtml(htmlPage);
                     var sitemapProjects = projectsInSingleSitemap.Select(projectId => new SitemapProject(htmlPage.Id, projectId)).ToList();
                     projectsInSingleSitemap.Clear();
@@ -269,6 +287,7 @@ namespace DNDocs.Docs.Web.Application
 
             PublicHtml sitemapIndex = await repository.SelectPublicHtmlByPath("/sitemap.xml");
             byte[] sitemapIndexByteData = Encoding.UTF8.GetBytes(sitemapIndexGen.ToStringXmlAndClear());
+            sitemapIndexByteData = Shared.Helpers.BrotliCompress(sitemapIndexByteData, ref brotliBuffer);
 
             if (sitemapIndex == null)
             {

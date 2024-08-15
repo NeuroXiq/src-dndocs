@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Text;
+using Vinca.Exceptions;
 using Vinca.Http;
 using Vinca.Http.Cache;
 
@@ -43,6 +44,7 @@ namespace DNDocs.Docs.Web.Web
         }
 
         static async Task<IResult> GetPublicHtmlFile(
+            HttpContext context,
             [FromServices] IDMemCache memCache,
             string slug)
         {
@@ -50,11 +52,20 @@ namespace DNDocs.Docs.Web.Web
             if (publicHtml == null) return await NotFound();
 
             string contentType = null;
+            byte[] byteData = publicHtml.ByteData;
 
-            if (slug == "sitemap.xml" || slug.StartsWith("sitemaps/")) contentType = "application/xml;charset=utf-8";
+            if (slug == "sitemap.xml" || slug.StartsWith("sitemaps/"))
+            {
+                contentType = "application/xml;charset=utf-8";
+                context.Response.Headers.Append("Content-Encoding", "br");
+                // byte[] decompressed = new byte[10000000];
+                // BrotliDecoder.TryDecompress(byteData, decompressed, out var dlen);
+                // byteData = new byte[dlen];
+                // Buffer.BlockCopy(decompressed, 0, byteData, 0, dlen);
+            }
             else contentType = HttpContentTypeMaps.GetFromPathOrFallback(publicHtml.Path);
 
-            return Results.File(publicHtml.ByteData, contentType);
+            return Results.File(byteData, contentType);
         }
 
         static async Task<IResult> GetSingletonProjectSiteHtml(
@@ -117,7 +128,7 @@ namespace DNDocs.Docs.Web.Web
             }
 
             if (project == null) return Results.NotFound();
-            if (path == "/favicon.ico") return await GetPublicHtmlFile(memCache, "favicon.ico");
+            if (path == "/favicon.ico") return await GetPublicHtmlFile(context, memCache, "favicon.ico");
             
             var siteItem = await memCache.GetSiteItem(project.Id, path);
 

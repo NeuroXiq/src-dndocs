@@ -51,10 +51,15 @@ namespace DNDocs.Docs.Web.Services
 
             var sql =
 @"
-SELECT mi.id as InstrumentId, SUM(m.[value]) as [Sum], 
-m.mt_instrument_id as MtInstrumentId,
-m.mt_hrange_id as MtHRangeId, h.end as MtHRangeEnd, mi.name as InstrumentName,
-mi.tags as InstrumentTags, mi.type as InstrumentType
+SELECT
+ mi.id as InstrumentId,
+ SUM(m.[value]) as [Sum],
+ m.mt_instrument_id as MtInstrumentId,
+ m.mt_hrange_id as MtHRangeId,
+ h.end as MtHRangeEnd,
+ mi.name as InstrumentName,
+ mi.tags as InstrumentTags,
+ mi.type as InstrumentType
 FROM mt_measurement m 
 INNER JOIN mt_instrument mi on mi.id = m.mt_instrument_id 
 LEFT JOIN mt_hrange h on h.id = m.mt_hrange_id 

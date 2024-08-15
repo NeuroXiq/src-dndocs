@@ -44,6 +44,7 @@ namespace DNDocs.Docs.Web.Services
                 publicHtml = await repository.SelectPublicHtml(path);
                 
                 if (publicHtml == null) return null;
+                if (publicHtml.Path.StartsWith("/sitemap")) return publicHtml;
 
                 memoryCache.Set(key, publicHtml, new MemoryCacheEntryOptions
                 {
@@ -86,6 +87,8 @@ namespace DNDocs.Docs.Web.Services
                 {
                     sharedSiteItem = await repository.SelectSharedSiteItem(siteItem.SharedSiteItemId.Value);
 
+                    if (sharedSiteItem == null) return null;
+
                     memoryCache.Set(ssiKey, sharedSiteItem, new MemoryCacheEntryOptions()
                     {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
@@ -107,6 +110,8 @@ namespace DNDocs.Docs.Web.Services
             if (!TryGetValue<Project>(projectKey, out var project))
             {
                 project = await repository.SelectNugetProjectAsync(packageName, packageVersion);
+
+                if (project == null) return null;
 
                 memoryCache.Set(projectKey, project, new MemoryCacheEntryOptions()
                 {

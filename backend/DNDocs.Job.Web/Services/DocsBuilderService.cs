@@ -9,9 +9,11 @@ using Ganss.Xss;
 using Markdig;
 using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.Extensions.Options;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Vinca.Api;
 using Vinca.Api.Nuget;
 using Vinca.Exceptions;
@@ -205,8 +207,9 @@ namespace DNDocs.Job.Web.Services
             {
                 try
                 {
-                    p.StartInfo.FileName = "dotnet";
-                    p.StartInfo.Arguments = $@"{toolspath} docfx {osPathDocfxJson}";
+                    p.StartInfo.FileName = "docfx";
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) p.StartInfo.FileName = "/root/.dotnet/tools/docfx";
+                    p.StartInfo.Arguments = @$"{osPathDocfxJson}";
                     p.StartInfo.UseShellExecute = false;
                     p.StartInfo.RedirectStandardOutput = true;
                     p.StartInfo.RedirectStandardError = true;
@@ -228,6 +231,7 @@ namespace DNDocs.Job.Web.Services
 
                     VValidate.AppEx(!p.HasExited, "process did not exits");
                     VValidate.AppEx(p.ExitCode != 0, "process exit code not zero");
+                    VValidate.AppEx(!stdo.Contains("0 error(s)"), "docfx std output does not contain '0 error(s)' string");
 
                     logger.LogInformation("process successfully exited, pinfo  {0}, stdo: {1}, stderr: {2}, ellapsed ms: {3}", plog, stdo, stderr, sw.ElapsedMilliseconds);
                 }

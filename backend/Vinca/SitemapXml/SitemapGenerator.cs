@@ -32,10 +32,8 @@ namespace Vinca.SitemapXml
 
         public SitemapGenerator()
         {
-            this.sb = new StringBuilder();
+            sb = new StringBuilder();
             Clear();
-            sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-            sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
         }
 
 
@@ -54,8 +52,8 @@ namespace Vinca.SitemapXml
             var entryWithoutUrl = string.Format(UrlEntryFormat, "", lastMod, changeFreq);
             var urlsLength = urls.Sum(t => t.Length);
 
-            bool urlsWillExceed = urls.Count + urlsCount <= MaxUrlsCount;
-            bool sizeWillExceed = (sb.Length + urlsLength + (urls.Count * entryWithoutUrl.Length)) <= MaxSitemapFileSizeBytes;
+            bool urlsWillExceed = urls.Count + urlsCount > MaxUrlsCount;
+            bool sizeWillExceed = (sb.Length + urlsLength + (urls.Count * entryWithoutUrl.Length)) > MaxSitemapFileSizeBytes;
 
             // final sitemap will be larger than this so if right now is bigger does not make sens to continue
             // (urls will be encoded for xml, so can be little larger later)
@@ -151,6 +149,8 @@ namespace Vinca.SitemapXml
         {
             sb.Clear();
             urlsCount = 0;
+            sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+            sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
         }
 
         public string ToXmlStringAndClear()

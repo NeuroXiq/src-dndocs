@@ -4,5 +4,6 @@
     {
         Counter = 1,
         Histogram = 2,
+        Gauge = 3,
     }
 }

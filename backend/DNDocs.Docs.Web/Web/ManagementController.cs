@@ -75,7 +75,7 @@ namespace DNDocs.Docs.Web.Web
                 new Func<MtMeasurementSum, object>[]
                 {
                     t => t.InstrumentId,
-                    t => t.Sum,
+                    t => string.Format("{0:n}", t.Sum),
                     t => t.InstrumentName,
                     t => t.MtHRangeEnd,
                     t => t.InstrumentTags,

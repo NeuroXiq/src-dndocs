@@ -156,9 +156,6 @@ namespace DNDocs.Docs.Web.Services
             sql =
                 "DELETE FROM sitemap_project AS sm WHERE NOT EXISTS (SELECT * FROM [appdb].project p WHERE p.id = sm.project_id);" +
                 "DELETE FROM sitemap_project AS sm WHERE sm.public_html_id NOT IN (SELECT id FROM public_html);" +
-                "DELETE FROM sitemap_project AS sm WHERE sm.public_html_id IN " + // delete this because want to merge stuff to be 10MB (if not then can be 100 files 0.1MB)
-                "  (SELECT ph.id FROM public_html ph WHERE [path] LIKE '/sitemaps/%' AND length(byte_data) < 10000000) " +
-                "  AND (SELECT COUNT(*) FROM public_html WHERE [path] LIKE '/sitemaps/%') > 5;" + 
                 "DELETE FROM public_html AS ph WHERE [path] like '/sitemaps/%' AND ph.id NOT IN (SELECT sm.public_html_id FROM sitemap_project sm);";
 
             await conn.ExecuteAsync(sql);

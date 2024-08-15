@@ -218,7 +218,7 @@ namespace DNDocs.Docs.Web.Services
                 
                 if (isempty) continue;
                 // if (instrument.Name == "http.server.request.duration") Debugger.Break();
-                if (instrument.Type == MtInstrumentType.Counter)
+                if (instrument.Type == MtInstrumentType.Counter || instrument.Type == MtInstrumentType.Gauge)
                 {
                     mtMeasurements.Add(new MtMeasurement(instrument.Id, Interlocked.Exchange(ref cs.Value, 0), null));
                 }
@@ -321,6 +321,10 @@ namespace DNDocs.Docs.Web.Services
                 {
                     InstrumentType = MtInstrumentType.Histogram;
                 }
+                else if (instrumentType == typeof(ObservableGauge<>))
+                {
+                    InstrumentType = MtInstrumentType.Gauge;
+                }
                 else InstrumentType = MtInstrumentType.Counter;
             }
 
@@ -333,6 +337,10 @@ namespace DNDocs.Docs.Web.Services
                 if (InstrumentType == MtInstrumentType.Counter)
                 {
                     ThreadSafeAddDouble(ref counter.Value, measurement);
+                }
+                else if (InstrumentType == MtInstrumentType.Gauge)
+                {
+                    counter.Value = measurement;
                 }
                 else
                 {
