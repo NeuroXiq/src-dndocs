@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace DNDocs.ConsoleTools
 {
@@ -28,6 +29,7 @@ namespace DNDocs.ConsoleTools
         static int Main(string[] args)
         {
             if (args.Length == 0) throw new Exception("no arguments");
+            // args = new string[] { "docfx", @"C:\my-files\test\docfx-init-org\docfx_project\docfx.json" };
 
             if (args[0]?.Trim() == "docfx")
             {
@@ -58,8 +60,9 @@ namespace DNDocs.ConsoleTools
             var r = tempLogger.FormatString();
             //Debugger.Break();
 
-            t2.Wait();
-            if (t2.Exception != null) throw t2.Exception;
+            // t2.Wait();
+            Task.WaitAny(t2);
+            // if (t2.Exception != null) throw t2.Exception;
 
 
             tempLogger = new DocfxLogListener();

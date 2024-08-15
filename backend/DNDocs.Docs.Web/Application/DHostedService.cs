@@ -237,11 +237,10 @@ namespace DNDocs.Docs.Web.Application
                 }
 
                 var now = DateTime.UtcNow;
-                bool canAppend = sitemapGenerator.CanAppend(urls, DateTime.UtcNow, ChangeFreq.Monthly);
-
-                if (canAppend)
+                bool appended = sitemapGenerator.TryAppend(urls, DateTime.UtcNow, ChangeFreq.Monthly);
+                
+                if (appended)
                 {
-                    sitemapGenerator.Append(urls, now, ChangeFreq.Monthly);
                     projectsInSingleSitemap.Add(p.Id);
                 }
                 else if (sitemapGenerator.UrlsCount == 0)
@@ -251,7 +250,7 @@ namespace DNDocs.Docs.Web.Application
                 }
 
                 // restrict for not bigger than 10MB to have something to download in reasonable time (arbitrary size restriction)
-                if (!canAppend || sitemapGenerator.CurrentLength > 10 * 1000 * 1000 || projectId == needSitemapId.Last())
+                if (!appended || sitemapGenerator.CurrentLength > 10 * 1000 * 1000 || projectId == needSitemapId.Last())
                 {
                     var sitemapXmlString = sitemapGenerator.ToXmlStringAndClear();
                     var htmlPage = new PublicHtml($"/sitemaps/sitemap_project_{Guid.NewGuid()}.xml", Encoding.UTF8.GetBytes(sitemapXmlString));

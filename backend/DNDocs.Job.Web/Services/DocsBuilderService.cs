@@ -211,8 +211,6 @@ namespace DNDocs.Job.Web.Services
                     p.StartInfo.RedirectStandardOutput = true;
                     p.StartInfo.RedirectStandardError = true;
                     p.StartInfo.WorkingDirectory = null;
-                    p.OutputDataReceived += delegate (object sender, DataReceivedEventArgs eventArgs) { stdo += eventArgs.Data; }; ;
-                    p.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs eventArgs) { stderr += eventArgs.Data; }; ;
                     bool started = p.Start();
 
                     plog += string.Format("PID: {0}, PSI_ARGS: {1}, PSTART: {2}", p.Id, p.StartInfo.Arguments, started);
@@ -225,6 +223,8 @@ namespace DNDocs.Job.Web.Services
 
                     var sw = Stopwatch.StartNew();
                     await p.WaitForExitAsync(cts.Token);
+                    stdo = await p.StandardOutput.ReadToEndAsync();
+                    stderr = await p.StandardError.ReadToEndAsync();
 
                     VValidate.AppEx(!p.HasExited, "process did not exits");
                     VValidate.AppEx(p.ExitCode != 0, "process exit code not zero");

@@ -11,7 +11,6 @@ namespace Vinca.SitemapXml
     {
         const int MaxUrlsCount = 50000;
         const int MaxSitemapFileSizeBytes = 50 * 1000 * 1000;
-        
         public int UrlsCount => urlsCount;
 
         /// <summary>
@@ -22,6 +21,7 @@ namespace Vinca.SitemapXml
         StringBuilder sb;
         int urlsCount;
 
+        const string UrlSetClosingTag = "</urlset>";
         // todo, maybe change values to nullable to not force e.g. changefreq
         const string UrlEntryFormat = "<url>" +
                 "<loc>{0}</loc>" +
@@ -39,28 +39,63 @@ namespace Vinca.SitemapXml
         }
 
 
-        public bool CanAppend(IList<string> urls, DateTime lastMod, ChangeFreq changeFreq)
+        // public bool CanAppend(IList<string> urls, DateTime lastMod, ChangeFreq changeFreq)
+        // {
+        // 
+        //     bool urlsCountNotExceed = UrlsCount + urls.Count < MaxUrlsCount;
+        // 
+        //     // return sizeNotExceed && urlsCountNotExceed;
+        //     throw new Exception();
+        // 
+        // }
+
+        public bool TryAppend(IList<string> urls, DateTime lastMod, ChangeFreq changeFreq)
         {
-            var urlsLength = urls.Sum(t => t.Length);
             var entryWithoutUrl = string.Format(UrlEntryFormat, "", lastMod, changeFreq);
+            var urlsLength = urls.Sum(t => t.Length);
 
-            bool sizeNotExceed = (sb.Length  + urlsLength + (urls.Count * entryWithoutUrl.Length)) <= MaxSitemapFileSizeBytes;
-            bool urlsCountNotExceed = UrlsCount + urls.Count < MaxUrlsCount;
+            bool urlsWillExceed = urls.Count + urlsCount <= MaxUrlsCount;
+            bool sizeWillExceed = (sb.Length + urlsLength + (urls.Count * entryWithoutUrl.Length)) <= MaxSitemapFileSizeBytes;
 
-            return sizeNotExceed && urlsCountNotExceed;
-
-        }
-
-        public void Append(IList<string> urls, DateTime lastMod, ChangeFreq changeFreq)
-        {
+            // final sitemap will be larger than this so if right now is bigger does not make sens to continue
+            // (urls will be encoded for xml, so can be little larger later)
+            // do this preemptively because dont want to XmlEscape large amount of strings
+            if (urlsWillExceed || sizeWillExceed) return false;
+            
             var changeFreqString = FormatChangeFreq(changeFreq);
             var lastModString = FormatLastMod(lastMod);
-            
-            foreach (var url in urls) sb.AppendFormat(UrlEntryFormat, url, lastModString, changeFreqString);
+            int oldLength = sb.Length;
+
+            foreach (var url in urls)
+            {
+                var xmlEscapedUrl = XmlEscapeUrl(url);
+                sb.AppendFormat(UrlEntryFormat, xmlEscapedUrl, lastModString, changeFreqString);
+            }
 
             urlsCount += urls.Count;
 
-            ThrowIfInvalid();
+            // as last step will append closing tag, so length need to be included here
+            if (sb.Length + UrlSetClosingTag.Length > MaxSitemapFileSizeBytes || urlsCount > MaxUrlsCount)
+            {
+                // revert changes because exceed
+                sb.Length = oldLength;
+                urlsCount -= urls.Count;
+                return false;
+            }
+
+            return true;
+        }
+
+        private string XmlEscapeUrl(string url)
+        {
+            string result = url;
+            result = result.Replace("&", "&amp;");
+            result = result.Replace("<", "&lt;");
+            result = result.Replace(">", "&gt;");
+            result = result.Replace("\"", "&quot;");
+            result = result.Replace("\'", "&apos;");
+
+            return result;
         }
 
         static string FormatChangeFreq(ChangeFreq changeFreq)
@@ -112,30 +147,6 @@ namespace Vinca.SitemapXml
         //    urlsCount++;
         //}
 
-        public void ThrowIfInvalid()
-        {
-            // TODO: this need to include last append: '</urlset>' fromn toxmlstringandclera
-
-            // just estimated for now, this is not exact to fit 10MB afte append
-            if (sb.Length > MaxSitemapFileSizeBytes)
-                throw new InvalidDataException($"not valid length of sitemap.xml after generation. current {sb.Length} bytes, max sitemap length: {MaxSitemapFileSizeBytes} bytes");
-            if (urlsCount > MaxUrlsCount)
-                throw new InvalidDataException($"max urls count exceed limit. count: {urlsCount}, limit for sitemap file: {MaxUrlsCount}");
-        }
-
-        public bool IsValid()
-        {
-            try
-            {
-                ThrowIfInvalid();
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public void Clear()
         {
             sb.Clear();
@@ -144,7 +155,7 @@ namespace Vinca.SitemapXml
 
         public string ToXmlStringAndClear()
         {
-            sb.AppendLine("</urlset>");
+            sb.AppendLine(UrlSetClosingTag);
             var result = sb.ToString();
 
             Clear();
