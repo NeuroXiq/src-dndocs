@@ -15,7 +15,6 @@ namespace Vinca.Http.Cache
     //SomeDate.ToUniversalTime().ToString("r");
     internal class VCacheControlMiddleware
     {
-        private ILogger<VCacheControlMiddleware> logger;
         private RequestDelegate next;
         private IVCacheControlService ccservice;
         private static ConcurrentDictionary<string, CacheInfoEntry> cacheEntriesDict = new ConcurrentDictionary<string, CacheInfoEntry>();
@@ -23,10 +22,8 @@ namespace Vinca.Http.Cache
 
         public VCacheControlMiddleware(
             RequestDelegate next,
-            ILogger<VCacheControlMiddleware> logger,
             IVCacheControlService ccservice)
         {
-            this.logger = logger;
             this.next = next;
             this.ccservice = ccservice;
             this.getResourceInfo = null;
@@ -34,8 +31,6 @@ namespace Vinca.Http.Cache
 
         public async Task InvokeAsync(HttpContext context)
         {
-            logger.LogTrace("Starting with route: {0}", context.Request.Path);
-
             // todo this needs tests:
             // bool is304NotModifiedUsed = await TryUseNotModified304(context);
 

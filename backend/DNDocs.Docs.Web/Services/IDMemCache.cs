@@ -10,6 +10,7 @@ namespace DNDocs.Docs.Web.Services
         Task<SiteItem> GetSiteItem(long projectId, string path);
         Task<Project> GetNugetProject(string nugetPackageName, string nugetPackageVersion);
         Task<PublicHtml> GetPublicHtmlFile(string path);
+        Task<Project> GetSingletonProject(string urlPrefix);
     }
 
     public class DMemCache : IDMemCache
@@ -46,9 +47,9 @@ namespace DNDocs.Docs.Web.Services
 
                 memoryCache.Set(key, publicHtml, new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15),
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
                     Size = publicHtml.ByteData?.Length ?? 1,
-                    SlidingExpiration = TimeSpan.FromSeconds(5)
+                    SlidingExpiration = TimeSpan.FromMinutes(15)
                 });
             }
 
@@ -69,8 +70,8 @@ namespace DNDocs.Docs.Web.Services
 
                 memoryCache.Set(siteItemKey, siteItem, new MemoryCacheEntryOptions()
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15),
-                    SlidingExpiration = TimeSpan.FromSeconds(10),
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(45),
+                    SlidingExpiration = TimeSpan.FromMinutes(30),
                     Size = siteItem.ByteData?.Length ?? 1
                 });
             }
@@ -88,7 +89,7 @@ namespace DNDocs.Docs.Web.Services
                     memoryCache.Set(ssiKey, sharedSiteItem, new MemoryCacheEntryOptions()
                     {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
-                        SlidingExpiration = TimeSpan.FromMinutes(30),
+                        SlidingExpiration = TimeSpan.FromMinutes(10),
                         Size = sharedSiteItem.ByteData.Length
                     });
                 }
@@ -116,6 +117,11 @@ namespace DNDocs.Docs.Web.Services
             }
 
             return project;
+        }
+
+        public async Task<Project> GetSingletonProject(string urlPrefix)
+        {
+            return await repository.SelectSingletonProjectAsync(urlPrefix);
         }
     }
 }

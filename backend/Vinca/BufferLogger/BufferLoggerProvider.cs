@@ -77,14 +77,6 @@ namespace Vinca.BufferLogger
 
             for (int i = 0; i < nowCount && logs.TryDequeue(out var logRow); i++) result.Add(logRow);
 
-            result.Add(new LogRow()
-            {
-                CategoryName = nameof(BufferLoggerProvider),
-                Date = DateTime.UtcNow,
-                LogLevel = LogLevel.Trace,
-                Message = $"Dequeue all logs, count: {result.Count}"
-            });
-
             return result;
         }
     }

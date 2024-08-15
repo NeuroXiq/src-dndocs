@@ -11,10 +11,13 @@ namespace DNDocs.Infrastructure.Repository
 
         public IList<AppLog> GetLastLogs(int count, int minPriority)
         {
-            return dbset.Where(t => t.LogLevelId >= minPriority)
-                .OrderByDescending(t => t.Date)
-                .Take(count)
-                .ToList();
+            //return dbset.Where(t => t.LogLevelId >= minPriority)
+            //    .OrderByDescending(t => t.Date)
+            //    .Take(count)
+            //    .ToList();
+
+            return new List<AppLog>();
+
         }
 
         private static IQueryable<T> FilterDynamic<T>(IQueryable<T> query, string fieldname, object value)

@@ -34,8 +34,8 @@ namespace Program
             stats.RequestCount = 1;
             PerformanceTestConfig config = new PerformanceTestConfig()
             {
-                TaskCount = 220,
-                DelayRequestMs = 1,
+                TaskCount = 300,
+                DelayRequestMs = 200,
                 TotalMaxRequestCount = 200000,
                 RootHtmlPageUrls = new List<string>()
                 {
@@ -76,9 +76,10 @@ namespace Program
         {
             for (int i = 0; i < config.TaskCount; i++)
             {
-                Thread t = new Thread(() => { RunTaskDoPerformanceWork(config, stats).Wait(); });
-                t.Start();
-                // Task.Run(() => );
+                // Thread t = new Thread(() => { RunTaskDoPerformanceWork(config, stats).Wait(); });
+                // t.Start();
+                // Task.Factory.StartNew(() => RunTaskDoPerformanceWork(config, stats), TaskCreationOptions.LongRunning);
+                Task.Run(() => RunTaskDoPerformanceWork(config, stats));
             }
         }
 

@@ -45,8 +45,8 @@ namespace DNDocs.Application.QueryHandlers.Admin
                 .GetTableData(new TableDataRequest(1, 999999999, false));
 
             result.InMemoryQueuedLogsToSave = -1;
-            result.AppLogsCount = this.uow.GetSimpleRepository<AppLog>().Query().Count();
-            result.HttpLogsCount = uow.GetSimpleRepository<HttpLog>().Query().Count();
+            // result.AppLogsCount = this.uow.GetSimpleRepository<AppLog>().Query().Count();
+            // result.HttpLogsCount = uow.GetSimpleRepository<HttpLog>().Query().Count();
             result.Projects = Mapper.Map(projects);
 
             result.BackgroundQueueAppLogsCount = DoBackgroundWorkHandler.Logs.Count;

@@ -62,7 +62,7 @@ namespace DNDocs.Docs.Web.Web
             [FromServices] IDMemCache memCache,
             [FromRoute] string urlPrefix, string slug)
         {
-            return await ReturnSiteItem(context, memCache, ProjectType.Singleton, slug, null, null, null, null);
+            return await ReturnSiteItem(context, memCache, ProjectType.Singleton, slug, null, null, urlPrefix, null);
         }
 
         static async Task<IResult> GetVersionProjectSiteHtml([FromRoute] string urlPrefix, [FromRoute] string versionTag, string slug)
@@ -110,7 +110,7 @@ namespace DNDocs.Docs.Web.Web
 
             switch (projectType)
             {
-                case ProjectType.Singleton: throw new NotImplementedException(); break;
+                case ProjectType.Singleton: await memCache.GetSingletonProject(urlPrefix); break;
                 case ProjectType.Version: throw new NotImplementedException(); break;
                 case ProjectType.Nuget: project = await memCache.GetNugetProject(nugetPackageName, nugetPackageVersion);  break;
                 default: throw new NotImplementedException();

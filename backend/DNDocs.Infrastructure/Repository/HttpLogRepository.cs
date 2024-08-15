@@ -26,12 +26,13 @@ namespace DNDocs.Infrastructure.Repository
 
         public int UniqueIP(DateTime maxAge)
         {
-            var logs = dbset.Where(log => log.DateTime > maxAge)
-                .OrderByDescending(t => t.DateTime)
-                .Select(t => t.IP);
+            return 0;
+            //var logs = dbset.Where(log => log.DateTime > maxAge)
+            //    .OrderByDescending(t => t.DateTime)
+            //    .Select(t => t.IP);
 
-            // shows warnings in logs if 'distinc' used with query above
-            return logs.Distinct().Count();
+            //// shows warnings in logs if 'distinc' used with query above
+            //return logs.Distinct().Count();
         }
     }
 }

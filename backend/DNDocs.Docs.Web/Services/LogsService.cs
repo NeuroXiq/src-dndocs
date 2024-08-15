@@ -50,8 +50,6 @@ namespace DNDocs.Docs.Web.Services
             if (logsCount == 0) return;
             metrics.SaveHttpLogsCount(logsCount);
             
-            logger.LogTrace("save http logs, count: {0}", logsCount);
-
             using var scope = serviceProvider.CreateScope();
             using var repository = scope.ServiceProvider.GetRequiredService<ITxRepository>();
             repository.BeginTransaction();

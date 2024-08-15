@@ -162,7 +162,7 @@ ORDER BY mi.[type] ASC, mi.[name] ASC, mi.id, h.end IS NULL, h.end ASC ";
         public async Task<Project> SelectSingletonProjectAsync(string urlPrefix)
         {
             using var connection = infrastructure.OpenSqliteConnection(DatabaseType.App);
-            var sql = $"{SqlText.SelectProject} WHERE url_prefix = @UrlPrefix COLLATE NOCASE";
+            var sql = $"{SqlText.SelectProject} WHERE url_prefix = @UrlPrefix";
             return await connection.QuerySingleOrDefaultAsync<Project>(sql, new { UrlPrefix = urlPrefix });
         }
 

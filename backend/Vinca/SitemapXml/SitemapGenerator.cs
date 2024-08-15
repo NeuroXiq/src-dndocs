@@ -44,7 +44,11 @@ namespace Vinca.SitemapXml
             var urlsLength = urls.Sum(t => t.Length);
             var entryWithoutUrl = string.Format(UrlEntryFormat, "", lastMod, changeFreq);
 
-            return (sb.Length  + urlsLength + (urls.Count * entryWithoutUrl.Length)) <= MaxSitemapFileSizeBytes;
+            bool sizeNotExceed = (sb.Length  + urlsLength + (urls.Count * entryWithoutUrl.Length)) <= MaxSitemapFileSizeBytes;
+            bool urlsCountNotExceed = UrlsCount + urls.Count < MaxUrlsCount;
+
+            return sizeNotExceed && urlsCountNotExceed;
+
         }
 
         public void Append(IList<string> urls, DateTime lastMod, ChangeFreq changeFreq)
