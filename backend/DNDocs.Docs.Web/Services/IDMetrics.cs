@@ -149,19 +149,7 @@ namespace DNDocs.Docs.Web.Services
             // todo: need to do something with txrepository, get rid of serviceprovider
             using var scope = serviceProvider.CreateScope();
             using var txRepository = scope.ServiceProvider.GetRequiredService<ITxRepository>();
-            try
-            {
-                txRepository.BeginTransaction();
-            }
-            catch (Exception)
-            {
-                await txRepository.RollbackAsync();
-                throw;
-            }
-            finally
-            {
-                txRepository.Dispose();
-            }
+            txRepository.BeginTransaction();
 
             List<CounterState> allCounterStates = new List<CounterState>();
 

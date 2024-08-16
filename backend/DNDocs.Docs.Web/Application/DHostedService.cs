@@ -18,7 +18,7 @@ namespace DNDocs.Docs.Web.Application
     {
         private Timer logsTimer;
         private Timer resourceMonitorTimer;
-        private Timer systemWorkTimer;
+        private Timer generateSitemapsTimer;
         private Timer metricTimer;
         private Timer metricsTimer;
         private IDMetrics metrics;
@@ -27,13 +27,13 @@ namespace DNDocs.Docs.Web.Application
         private ILogsService logsService;
         private ILogger<DHostedService> logger;
         private IResourceMonitor resourceMonitor;
-        private Thread systemWorkThread;
         private int isSystemThreadRun;
         CancellationTokenSource cancelAllTokenSource;
 
         Task saveLogsTask = Task.CompletedTask;
         Task saveHttpLogsTask = Task.CompletedTask;
         Task saveMetricsTask = Task.CompletedTask;
+        Task generateSitemapsTask = Task.CompletedTask;
 
         public DHostedService(
             IServiceProvider serviceProvider,
@@ -59,7 +59,7 @@ namespace DNDocs.Docs.Web.Application
             cancelAllTokenSource = new CancellationTokenSource();
 
             logsTimer = new Timer(LogsTimerCallback, null, settings.FlushAllLogsTimeSpan, settings.FlushAllLogsTimeSpan);
-            systemWorkTimer = new Timer(OnSysTimerTick, null, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10 * 60 * 1000));
+            generateSitemapsTimer = new Timer(GenerateSitemapsCallback, null, TimeSpan.FromSeconds(3), settings.TimespanGenerateSitemapPeriod);
             metricTimer = new Timer(OnMetricsTimer, null, TimeSpan.FromSeconds(1), settings.TimeSpanSaveMetrics);
 
             // systemWorkTimer = new Timer(DoSystemWorkTimerCallback, null, 5, 2000 );
@@ -90,7 +90,7 @@ namespace DNDocs.Docs.Web.Application
         {
             logger.LogInformation("stopping");
             logsTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            systemWorkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            generateSitemapsTimer.Change(Timeout.Infinite, Timeout.Infinite);
             metricsTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
             // todo everything must have cancellationtoken to stop in conrolled/success way
@@ -118,47 +118,9 @@ namespace DNDocs.Docs.Web.Application
             // 6.  pragma wal_checkpoint
         }
 
-        private void OnSysTimerTick(object state)
+        private async Task DoSystemWorkThreadStart()
         {
-            var isRunning = Interlocked.Exchange(ref isSystemThreadRun, 1);
-
-            if (isRunning != 0) return;
-
-            try
-            {
-                systemWorkThread = new Thread(DoSystemWorkThreadStart);
-                systemWorkThread.IsBackground = false;
-
-                systemWorkThread.Start();
-            }
-            catch (Exception e)
-            {
-                isRunning = 0;
-                logger.LogError(e, "failed to start system background work thread");
-            }
-        }
-
-        private void DoSystemWorkThreadStart()
-        {
-            var jobs = new[]
-            {
-                () => TransactionWrap(GenerateSitemaps),
-            };
-
-            foreach (var job in jobs)
-            {
-                try
-                {
-                    job().Wait();
-                }
-                catch (Exception e)
-                {
-                    logger.LogCritical(e, "exception during background system thread");
-                }
-            }
-
-
-            isSystemThreadRun = 0;
+            await GenerateSitemaps();
         }
 
         private async Task TransactionWrap(Func<IServiceProvider, ITxRepository, Task> action)
@@ -214,7 +176,14 @@ namespace DNDocs.Docs.Web.Application
             //await connSite.ExecuteAsync("VACUUM");
         }
 
-        private async Task GenerateSitemaps(IServiceProvider scope, ITxRepository repository)
+        private void GenerateSitemapsCallback(object _)
+        {
+            if (!generateSitemapsTask.IsCompleted) return;
+
+            generateSitemapsTask = Task.Run(GenerateSitemaps);
+        }
+
+        private async Task GenerateSitemaps()
         {
             logger.LogInformation("generate sitemaps");
 
@@ -226,8 +195,13 @@ namespace DNDocs.Docs.Web.Application
             // if trying to create  project on docs.dndocs then
             // indefinitely waits for open connection and hangs indefinitely
             // need to investigate why this locks databases:
+            var scope = serviceProvider.CreateScope();
+            var repository = scope.ServiceProvider.GetRequiredService<ITxRepository>();
+            repository.BeginTransaction();
 
             var needSitemapId = await repository.ScriptForSitemapGenerator();
+            await repository.CommitAsync();
+
             List<long> projectsInSingleSitemap = new List<long>();
 
             if (needSitemapId.Count() == 0)
@@ -237,6 +211,8 @@ namespace DNDocs.Docs.Web.Application
             }
 
             byte[] brotliBuffer = new byte[10000000];
+
+            repository.BeginTransaction();
 
             foreach (var projectId in needSitemapId)
             {
@@ -267,40 +243,40 @@ namespace DNDocs.Docs.Web.Application
                 // restrict for not bigger than 10MB to have something to download in reasonable time (arbitrary size restriction)
                 if (!appended || sitemapGenerator.CurrentLength > 10 * 1000 * 1000 || projectId == needSitemapId.Last())
                 {
+                    long urlsCount = sitemapGenerator.UrlsCount;
                     var sitemapXmlString = sitemapGenerator.ToXmlStringAndClear();
                     byte[] byteData = Encoding.UTF8.GetBytes(sitemapXmlString);
+                    long decompressedLength = byteData.Length;
                     byteData = Shared.Helpers.BrotliCompress(byteData, ref brotliBuffer);
 
-                    var htmlPage = new PublicHtml($"/sitemaps/sitemap_project_{Guid.NewGuid()}.xml", byteData);
-                    await repository.InsertPublicHtml(htmlPage);
-                    var sitemapProjects = projectsInSingleSitemap.Select(projectId => new SitemapProject(htmlPage.Id, projectId)).ToList();
-                    projectsInSingleSitemap.Clear();
+                    var sitemap = new Sitemap($"/public/sitemaps/sitemap_project_{Guid.NewGuid()}.xml", byteData.Length, urlsCount, byteData);
+                    await repository.InsertSitemap(sitemap);
+                    var sitemapProjects = projectsInSingleSitemap.Select(projectId => new SitemapProject(sitemap.Id, projectId));
+                    
+                    logger.LogTrace("inserting sitemap '{0}' for project_id: ({1})", sitemap.Path, projectsInSingleSitemap.StringJoin(","));
                     await repository.InsertSitemapProject(sitemapProjects);
+                    await repository.CommitAsync();
+                    repository.BeginTransaction();
+                    projectsInSingleSitemap.Clear();
                 }
             }
 
-            IEnumerable<PublicHtml> allSitemaps = await repository.SelectAllSitemap();
+            IEnumerable<Sitemap> allSitemaps = await repository.SelectAllSitemap();
             var sitemapIndexGen = new SitemapIndexGenerator();
 
             foreach (var sitemapItem in allSitemaps)
                 sitemapIndexGen.Append(settings.GetUrlDDocs(sitemapItem.Path), sitemapItem.UpdatedOn);
 
-            PublicHtml sitemapIndex = await repository.SelectPublicHtmlByPath("/sitemap.xml");
+            await repository.DeleteSitemapIndex();
+            long sitemapsCount = sitemapIndexGen.UrlsCount;
             byte[] sitemapIndexByteData = Encoding.UTF8.GetBytes(sitemapIndexGen.ToStringXmlAndClear());
+            long decompressedLen = sitemapIndexByteData.Length;
             sitemapIndexByteData = Shared.Helpers.BrotliCompress(sitemapIndexByteData, ref brotliBuffer);
+            
+            var sitemapIndex = new Sitemap("/sitemap.xml", decompressedLen, sitemapsCount, sitemapIndexByteData);
+            await repository.InsertSitemap(sitemapIndex);
 
-            if (sitemapIndex == null)
-            {
-                sitemapIndex = new PublicHtml("/sitemap.xml", sitemapIndexByteData);
-                await repository.InsertPublicHtml(sitemapIndex);
-            }
-            else
-            {
-                sitemapIndex.UpdatedOn = DateTime.UtcNow;
-                sitemapIndex.ByteData = sitemapIndexByteData;
-                await repository.UpdatePublicHtml(sitemapIndex);
-            }
-
+            await repository.CommitAsync();
             sw.Stop();
 
             logger.LogInformation("completed generating sitemaps, project_id:({0}) total time: {1}s",

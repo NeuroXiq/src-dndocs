@@ -24,6 +24,7 @@
     <None Remove="Infrastructure\Migrations\Log\_00001_init.sql" />
     <None Remove="Infrastructure\Migrations\Log\_00002_metrics.sql" />
     <None Remove="Infrastructure\Migrations\Site\_00001_init.sql" />
+    <None Remove="Infrastructure\Migrations\VarSite\_00002__sitemaps_.sql" />
     <None Remove="PublicHtml\cookies-consent.html" />
     <None Remove="PublicHtml\dndocs-docfx-script.js" />
   </ItemGroup>
@@ -42,6 +43,7 @@
     <EmbeddedResource Include="Infrastructure\Migrations\Log\_00002_metrics.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\Log\_00001_init.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\Site\_00001_init.sql" />
+    <EmbeddedResource Include="Infrastructure\Migrations\VarSite\_00002__sitemaps_.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\VarSite\_00001_init.sql" />
   </ItemGroup>
 
@@ -56,10 +58,6 @@
   <ItemGroup>
     <ProjectReference Include="..\DNDocs.Docs.Api\DNDocs.Docs.Api.csproj" />
     <ProjectReference Include="..\Vinca\Vinca.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Infrastructure\Migrations\VarSite\" />
   </ItemGroup>
 
   <ItemGroup>

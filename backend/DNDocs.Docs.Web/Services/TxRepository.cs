@@ -40,11 +40,12 @@ namespace DNDocs.Docs.Web.Services
         Task InsertResourceMonitorUtilization(ResourceMonitorUtilization rmu);
 
         // varsite
+        Task InsertSitemap(Sitemap sitemap);
         Task InsertPublicHtml(PublicHtml publicHtml);
         Task InsertSitemapProject(IEnumerable<SitemapProject> sitemapProject);
         Task UpdatePublicHtml(PublicHtml publicHtml);
-        Task<PublicHtml> SelectPublicHtmlByPath(string path);
-        Task<IEnumerable<PublicHtml>> SelectAllSitemap();
+        Task DeleteSitemapIndex();
+        Task<IEnumerable<Sitemap>> SelectAllSitemap();
 
         // other
         Task<IEnumerable<long>> ScriptForSitemapGenerator();
@@ -74,8 +75,7 @@ namespace DNDocs.Docs.Web.Services
         SqliteTransaction varSiteTx = null;
 
         bool isDisposed = false;
-        bool isBeginTx = false;
-        bool commitOrRollback = false;
+        bool isTransactionOpen = false;
         IDInfrastructure infrastructure;
         private IDMetrics metrics;
 
@@ -150,18 +150,26 @@ namespace DNDocs.Docs.Web.Services
 
             await conn.ExecuteAsync(sql);
 
-            // second query:
-            // delete valid sitemaps to compact them later after generation occurs for not existing (want to have multiple projects in single sitemap)
-            // for now 10000000 (10MB) but maybe exceed in future
-            sql =
-                "DELETE FROM sitemap_project AS sm WHERE NOT EXISTS (SELECT * FROM [appdb].project p WHERE p.id = sm.project_id);" +
-                "DELETE FROM sitemap_project AS sm WHERE sm.public_html_id NOT IN (SELECT id FROM public_html);" +
-                "DELETE FROM public_html AS ph WHERE [path] like '/sitemaps/%' AND ph.id NOT IN (SELECT sm.public_html_id FROM sitemap_project sm);";
+            // delete small sitemaps to merge them after generation
+            // because generator will generate everything what not exists 
+            // and want to have as much big sitemaps as possible (means as close 50000 urls in single file)
+            // but can occur that sitemap has only e.g. 1000urls in single file. thus delete this small files
+            sql = "DELETE FROM sitemap WHERE " +
+                "[path] <> '/sitemap.xml' AND " +
+                "length(byte_data) < 2000000 " + 
+                "AND urls_count < 25000 " +
+                "AND (SELECT COUNT(*) FROM sitemap WHERE length(byte_data) < 2000000 AND urls_count < 25000) > 10; ";
 
             await conn.ExecuteAsync(sql);
 
-            sql = $"SELECT id FROM [appdb].project p " +
-                "WHERE NOT EXISTS (SELECT sp.id FROM sitemap_project sp WHERE sp.project_id = p.id);";
+            sql =
+                $"DELETE FROM sitemap_project AS sm WHERE sm.project_id NOT IN (SELECT id FROM [appdb].project);" +
+                $"DELETE FROM sitemap_project AS sm WHERE sm.sitemap_id NOT IN (SELECT id FROM sitemap);" +
+                $"DELETE FROM sitemap WHERE id NOT IN (SELECT sitemap_id FROM sitemap_project) AND [path] <> '/sitemap.xml'";
+
+            await conn.ExecuteAsync(sql);
+
+            sql = $"SELECT p.id FROM [appdb].project p WHERE p.id NOT IN (SELECT sm.project_id FROM sitemap_project sm);";
 
             IEnumerable<long> needSitemaps = await conn.QueryAsync<long>(sql);
 
@@ -330,7 +338,17 @@ namespace DNDocs.Docs.Web.Services
 
         #endregion
 
-        // varsit
+        // varsite
+        public async Task InsertSitemap(Sitemap sitemap)
+        {
+            var con = GetSqliteConnection(DatabaseType.VarSite);
+            var sql = $"INSERT INTO sitemap([path], decompressed_length, urls_count, byte_data, updated_on) " + 
+                "VALUES (@Path, @DecompressedLength, @UrlsCount, @ByteData, @UpdatedOn); " +
+                $"{SqlText.SelectLastInsertRowId};";
+
+            sitemap.Id = await con.ExecuteScalarAsync<long>(sql, sitemap);
+        }
+
         public async Task UpdatePublicHtml(PublicHtml publicHtml)
         {
             var con = GetSqliteConnection(DatabaseType.VarSite);
@@ -339,22 +357,24 @@ namespace DNDocs.Docs.Web.Services
             DValidation.ThrowISE(affectedRows != 1, "after updated affected rows not equal 1");
         }
 
-        public async Task<PublicHtml> SelectPublicHtmlByPath(string path)
+        public async Task DeleteSitemapIndex()
         {
             var con = GetSqliteConnection(DatabaseType.VarSite);
-            return await con.QueryFirstOrDefaultAsync<PublicHtml>($"{SqlText.SelectPublicHtml} WHERE [path] = @path", new { path });
+            await con.ExecuteAsync($"DELETE FROM sitemap WHERE [path] = '/sitemap.xml'");
         }
 
-        public async Task<IEnumerable<PublicHtml>> SelectAllSitemap()
+        public async Task<IEnumerable<Sitemap>> SelectAllSitemap()
         {
             var con = GetSqliteConnection(DatabaseType.VarSite);
-            return await con.QueryAsync<PublicHtml>($"{SqlText.SelectPublicHtml_NoData} WHERE [path] LIKE '/sitemaps/%'");
+            var sql = $"{SqlText.SelectSitemap_NoData} WHERE path <> '/sitemap.xml'";
+            
+            return await con.QueryAsync<Sitemap>(sql);
         }
 
         public async Task InsertSitemapProject(IEnumerable<SitemapProject> sitemapProject)
         {
             var con = GetSqliteConnection(DatabaseType.VarSite);
-            await con.ExecuteAsync("INSERT INTO sitemap_project(project_id, public_html_id) VALUES (@ProjectId, @PublicHtmlId)", sitemapProject);
+            await con.ExecuteAsync("INSERT INTO sitemap_project(project_id, sitemap_id) VALUES (@ProjectId, @SitemapId)", sitemapProject);
         }
 
         public async Task InsertPublicHtml(PublicHtml publicHtml)
@@ -385,7 +405,7 @@ namespace DNDocs.Docs.Web.Services
             isDisposed = true;
 
 
-            if (isBeginTx && !commitOrRollback)
+            if (isTransactionOpen)
             {
                 var transactions = new SqliteTransaction[] { appTx, siteTx, logTx };
                 foreach (var tx in transactions)
@@ -393,6 +413,8 @@ namespace DNDocs.Docs.Web.Services
                     try { tx?.Rollback(); } catch { }
                 }
             }
+
+            isTransactionOpen = false;
 
             appConnection?.Close();
             siteConnection?.Close();
@@ -456,36 +478,37 @@ namespace DNDocs.Docs.Web.Services
 
         public void BeginTransaction()
         {
-            DValidation.ThrowISE(isBeginTx, "already begin tx, need to commit/rollback before open new");
-            
-            isBeginTx = true;
-            commitOrRollback = false;
+            DValidation.ThrowISE(isTransactionOpen, "already begin tx, need to commit/rollback before open new");
+
+            isTransactionOpen = true;
         }
 
         public async Task RollbackAsync()
         {
-            DValidation.ThrowISE(!isBeginTx, "not transaction begin");
-            DValidation.ThrowISE(commitOrRollback, "already commited or rolledback");
+            DValidation.ThrowISE(!isTransactionOpen, "not transaction begin");
 
             if (appTx != null) await appTx.RollbackAsync();
             if(siteTx != null) await siteTx.RollbackAsync();
             if(logTx != null) await logTx.RollbackAsync();
             if(varSiteTx != null) await varSiteTx.RollbackAsync();
+            
+            appTx = siteTx = logTx = varSiteTx = null;
 
-            commitOrRollback = true;
+            isTransactionOpen = false;
         }
 
         public async Task CommitAsync()
         {
-            DValidation.ThrowISE(!isBeginTx, "not transaction begin");
-            DValidation.ThrowISE(commitOrRollback, "already commited or rolledback");
+            DValidation.ThrowISE(!isTransactionOpen, "not transaction begin");
 
             if (appTx != null) await appTx.CommitAsync();
             if(siteTx != null) await siteTx.CommitAsync();
             if(logTx != null) await logTx.CommitAsync();
             if(varSiteTx != null) await varSiteTx.CommitAsync();
 
-            commitOrRollback = true;
+            appTx = siteTx = logTx = varSiteTx = null;
+
+            isTransactionOpen = false;
         }
 
         internal static async Task InsertPublicHtml(SqliteConnection connection, PublicHtml publicHtml)

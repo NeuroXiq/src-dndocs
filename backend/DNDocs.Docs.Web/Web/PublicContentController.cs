@@ -31,6 +31,8 @@ namespace DNDocs.Docs.Web.Web
             GetEndpoint(HttpMethod.Get, "/system/resource-monitor", SystemResourceMonitoring),
 
             GetEndpoint(HttpMethod.Get, "/{*slug}", GetPublicHtmlFile),
+            GetEndpoint(HttpMethod.Get, "/sitemap.xml", GetSitemap),
+            GetEndpoint(HttpMethod.Get, "/public/sitemaps/{*slug}", GetSitemap),
         };
 
         static ApiEndpoint GetEndpoint(HttpMethod method, string path, Delegate delegateMethod)
@@ -41,6 +43,20 @@ namespace DNDocs.Docs.Web.Web
         static IResult Ping()
         {
             return Results.Ok();
+        }
+
+        static async Task<IResult> GetSitemap(
+            HttpContext context,
+            [FromServices] IQRepository qrepository)
+        {
+            string path = context.Request.Path.ToString();
+            string contentType = "application/xml;charset=utf-8";
+            context.Response.Headers.Append("Content-Encoding", "br");
+            Sitemap sitemap = await qrepository.SelectSitemap(path);
+
+            if (sitemap == null) return await NotFound();
+
+            return Results.File(sitemap.ByteData, contentType);
         }
 
         static async Task<IResult> GetPublicHtmlFile(
@@ -54,12 +70,7 @@ namespace DNDocs.Docs.Web.Web
             string contentType = null;
             byte[] byteData = publicHtml.ByteData;
 
-            if (slug == "sitemap.xml" || slug.StartsWith("sitemaps/"))
-            {
-                contentType = "application/xml;charset=utf-8";
-                context.Response.Headers.Append("Content-Encoding", "br");
-            }
-            else contentType = HttpContentTypeMaps.GetFromPathOrFallback(publicHtml.Path);
+            contentType = HttpContentTypeMaps.GetFromPathOrFallback(publicHtml.Path);
 
             return Results.File(byteData, contentType);
         }

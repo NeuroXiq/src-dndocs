@@ -28,6 +28,7 @@ namespace Program
     class Program
     {
         static Stats stats;
+        static HttpClient client;
         static ConcurrentDictionary<string, bool> sendUrls = new ConcurrentDictionary<string, bool>();
 
         public static void Main()
@@ -36,14 +37,22 @@ namespace Program
             stats.RequestCount = 1;
             PerformanceTestConfig config = new PerformanceTestConfig()
             {
-                TaskCount = 80,
+                TaskCount = 40,
                 DelayRequestMs = 2,
                 TotalMaxRequestCount = 200000,
                 RootHtmlPageUrls = new List<string>()
                 {
-                    "https://localhost:7088/system/site-items",
+                    "https://localhost:7088/system/site-items/222",
                 }
             };
+
+            var handler = new HttpClientHandler();
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.ServerCertificateCustomValidationCallback = (a, b, c, d) => true;
+
+            client = new HttpClient(handler);
+            client.DefaultRequestHeaders.Add("accept", "text/html");
+            client.DefaultRequestHeaders.Add("accept-encoding", "gzip, deflate, br, zstd");
 
             Timer refreshUiTimer = new Timer(RefreshUI, null, 1, 1000);
 
@@ -87,13 +96,7 @@ namespace Program
         {
             List<string> urls = config.RootHtmlPageUrls.ToList();
             List<string> nextUrls = new List<string>();
-            var handler = new HttpClientHandler();
-            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-            handler.ServerCertificateCustomValidationCallback = (a, b, c, d) => true;
             
-            HttpClient client = new HttpClient(handler);
-            client.DefaultRequestHeaders.Add("accept", "text/html");
-            client.DefaultRequestHeaders.Add("accept-encoding", "gzip, deflate, br, zstd");
             Interlocked.Increment(ref stats.TaskCount);
 
             while (urls.Count > 0 && !(config.TotalMaxRequestCount < stats.RequestCount))

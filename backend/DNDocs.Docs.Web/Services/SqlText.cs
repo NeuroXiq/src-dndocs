@@ -2,6 +2,14 @@
 {
     public class SqlText
     {
+        public const string SelectSitemap = $"SELECT id as Id, [path] as Path, decompressed_length as DecompressedLength, " +
+                "urls_count as UrlsCount, byte_data ByteData, updated_on as UpdatedOn " +
+                "FROM sitemap";
+
+        public const string SelectSitemap_NoData = $"SELECT id as Id, [path] as Path, decompressed_length as DecompressedLength, " +
+                "urls_count as UrlsCount, NULL ByteData, updated_on as UpdatedOn " +
+                "FROM sitemap";
+
         public const string SelectLastInsertRowId = "select last_insert_rowid()";
         public const string SelectMtMeasurement = "SELECT id as Id, [name] as Name, meter_name as MeterName, " +
                 "instance_id as InstanceId, created_on as CreatedOn, tags as Tags, type as Type FROM mt_instrument";

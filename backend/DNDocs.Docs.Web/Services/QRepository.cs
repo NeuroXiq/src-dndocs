@@ -17,7 +17,6 @@ namespace DNDocs.Docs.Web.Services
         Task<IEnumerable<SiteItem>> GetSiteItemPagedAsync(int pageNo, int rowsPerPage);
         Task<long> SelectSiteItemCount();
 
-
         Task<Project> SelectNugetProjectAsync(string nugetPackageName, string nugetPackageVersion);
         Task<Project> SelectSingletonProjectAsync(string urlPrefix);
         Task<Project[]> SelectProjectPagedAsync(int pageSize, int pageNo);
@@ -28,11 +27,15 @@ namespace DNDocs.Docs.Web.Services
         // other
         Task<PublicHtml> SelectPublicHtml(string slug);
         Task<IEnumerable<MtMeasurementSum>> SelectMtMeasurementSum(DateTime rangeStart, DateTime rangeEnd);
+
+        //varsite
+        Task<Sitemap> SelectSitemap(string path);
     }
 
     public class QRepository : IQRepository
     {
         private SqliteConnection CreateSiteDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.Site);
+        private SqliteConnection CreateVarSiteDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.VarSite);
         private SqliteConnection CreateAppDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.App);
         private SqliteConnection CreateLogDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.Log);
 
@@ -44,6 +47,16 @@ namespace DNDocs.Docs.Web.Services
             this.infrastructure = infrastructure;
             this.metrics = metrics;
         }
+
+        #region varsite
+        public async Task<Sitemap> SelectSitemap(string path)
+        {
+            using var con = CreateVarSiteDbConnection;
+            return await con.QueryFirstOrDefaultAsync<Sitemap>($"{SqlText.SelectSitemap} WHERE [path] = @path", new { path });
+        }
+
+
+        #endregion
 
         #region other
 
