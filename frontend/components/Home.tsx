@@ -87,6 +87,30 @@ export default function Home() {
         reset();
     }, [iPackageName, iPackageVersion]);
 
+    function createProject(pkgname: string, pkgversion: string) {
+        api.Integration_NuGetCreateProject({ packageName: pkgname, packageVersion: pkgversion })
+            .then((cr) => {
+                setCreateResult(cr);
+
+                if (cr.success) {
+                    setRefreshJob(true);
+                } else {
+                    setState('error');
+                    let newsstate = stepperInitialState();
+                    newsstate.steps[0].failed = true;
+                    setStepper(newsstate);
+                }
+            });
+    }
+
+    useEffect(() => {
+        if (urlPackageName && urlPackageVersion) {
+            setIPackageName(urlPackageName);
+            setIPackageVersion(urlPackageVersion);
+            startCreateProject(urlPackageName, urlPackageVersion);
+        }
+    }, [urlPackageName, urlPackageVersion]);
+
     useEffect(() => {
         if (openDocsTimer === -1) { return; }
 
@@ -149,28 +173,13 @@ export default function Home() {
         return () => { abort = true; };
     }, [iPackageName, iPackageVersion, refreshJob, refreshCounter]);
 
-    function createProject() {
-        api.Integration_NuGetCreateProject({ packageName: iPackageName, packageVersion: iPackageVersion })
-            .then((cr) => {
-                setCreateResult(cr);
-
-                if (cr.success) {
-                    setRefreshJob(true);
-                } else {
-                    setState('error');
-                    let newsstate = stepperInitialState();
-                    newsstate.steps[0].failed = true;
-                    setStepper(newsstate);
-                }
-            });
-    }
-
-    function onExploreClick() {
+    function startCreateProject(pkgName: string, pkgVer: string) {
         let newErrors = {
-            name: !iPackageName,
-            version: !iPackageVersion
+            name: !pkgName,
+            version: !pkgVer
         }
 
+        reset();
         setErrors(newErrors);
 
         if (newErrors.name || newErrors.version) { return; }
@@ -184,23 +193,15 @@ export default function Home() {
 
         setState('loading');
 
-        api.Integration_NugetCreateProjectCheckStatus(iPackageName as string, iPackageVersion as string)
+        api.Integration_NugetCreateProjectCheckStatus(pkgName, pkgVer)
             .then((r: any) => {
                 if (r.result == null) {
-                    createProject();
+                    createProject(pkgName, pkgVer);
                 } else {
                     onRefreshJobCompleted(r.result);
                 }
             });
     }
-
-    function onRunAgainClick() {
-        reset();
-        createProject();
-    }
-
-    useEffect(() => {
-    }, [jobStatus, createResult]);
 
     return (
         <div className="home">
@@ -252,7 +253,7 @@ export default function Home() {
                                 <Button
                                     sx={{ flex: '1 1 1px' }}
                                     variant="contained"
-                                    onClick={onExploreClick}
+                                    onClick={() => startCreateProject(iPackageName, iPackageVersion)}
                                     color="info"
                                     disabled={state === 'loading'}
                                     startIcon={<SendIcon />}>
@@ -275,7 +276,7 @@ export default function Home() {
                                     sx={{ flex: '1 1 1px' }}
                                     variant="contained"
                                     color="error"
-                                    onClick={onRunAgainClick}
+                                    onClick={() => startCreateProject(iPackageName, iPackageVersion)}
                                     startIcon={<ReplayIcon />}>
                                     retry
                                 </Button>}
