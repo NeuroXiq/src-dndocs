@@ -15,6 +15,7 @@ using DNDocs.Shared.Configuration;
 using Newtonsoft.Json;
 using DNDocs.Application.Services;
 using Microsoft.Extensions.Caching.Memory;
+using DNDocs.Domain.Enums;
 
 namespace DNDocs.Application.QueryHandlers.DocfxExplorer
 {
@@ -48,6 +49,20 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
 
         protected override async Task<BgJobViewModel> Handle(GetNugetCreateProjectStatusQuery query)
         {
+            Thread.Sleep(1000);
+            
+            //return new BgJobViewModel
+            //{
+            //    ProjectId = 123,
+            //    EstimateOtherJobsBeforeThis = 1,
+            //    EstimateBuildTime = 12,
+            //    EstimateStartIn = 32,
+            //    State = (int)2,
+            //    StateDetails = (int)ProjectStateDetails.BuildFailed,
+            //    LastDocfxBuildTime = DateTime.Now,
+            //    ProjectApiFolderUrl = "url", //settings.GetUrlNugetOrgProject(project.NugetOrgPackageName, project.NugetOrgPackageVersion),
+            //};
+
             var project = await appUow.ProjectRepository.GetNugetOrgProjectAsync(query.PackageName, query.PackageVersion);
 
             if (project == null) return null;

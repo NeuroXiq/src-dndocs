@@ -51,6 +51,8 @@ namespace DNDocs.Application.CommandHandlers.Integration
 
         public override async Task Handle(NugetCreateProjectCommand command)
         {
+            Thread.Sleep(1000);
+            //return;
             var packageName = command.PackageName;
             var packageVersion = command.PackageVersion;
             logger.LogInformation("starting to create nuget project: {0} {1}", packageName, packageVersion);

@@ -8,5 +8,6 @@
         BuildFailed = 4,
         BlockedByOwner = 5,
         Ready = 6,
+        ManuallyCancelled = 7,
     }
 }

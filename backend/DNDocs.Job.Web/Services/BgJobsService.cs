@@ -90,8 +90,6 @@ namespace DNDocs.Job.Web.Services
                 return;
             }
 
-            Console.WriteLine(runningTasks);
-
             _ = Task.Run(StartTask);
         }
 

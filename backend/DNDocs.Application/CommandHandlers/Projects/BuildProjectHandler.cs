@@ -64,29 +64,31 @@ namespace DNDocs.Application.CommandHandlers.Projects
         private async Task SendBuildProjectAsync(Project nextToBuild)
         {
             bool retry = true;
+            IDJobClient nextClient = null;
+            BuildProjectModel model = null;
 
             do
             {
                 requestsCounter++;
 
-                if (requestsCounter % 20 == 1) await FromTimeToTimeRevalidateIfClientsStillAlive();
-
-                IDJobClient nextClient = djobClients[requestsCounter % djobClients.Length];
-
-                BuildProjectModel model = new BuildProjectModel()
-                {
-                    ProjectId = nextToBuild.Id,
-                    ProjectName = nextToBuild.ProjectName,
-                    DocfxTemplate = nextToBuild.DocfxTemplate,
-                    NugetOrgPackageName = nextToBuild.NugetOrgPackageName,
-                    NugetOrgPackageVersion = nextToBuild.NugetOrgPackageVersion,
-                    ProjectNugetPackages = nextToBuild.ProjectNugetPackages.Select(t => new BuildProjectModel.NugetPackage(t.IdentityId, t.IdentityVersion)).ToList(),
-                    ProjectType = (Job.Api.Management.ProjectType)nextToBuild.ProjectType,
-                    UrlPrefix = nextToBuild.UrlPrefix
-                };
-
                 try
                 {
+                    model = new BuildProjectModel()
+                    {
+                        ProjectId = nextToBuild.Id,
+                        ProjectName = nextToBuild.ProjectName,
+                        DocfxTemplate = nextToBuild.DocfxTemplate,
+                        NugetOrgPackageName = nextToBuild.NugetOrgPackageName,
+                        NugetOrgPackageVersion = nextToBuild.NugetOrgPackageVersion,
+                        ProjectNugetPackages = nextToBuild.ProjectNugetPackages.Select(t => new BuildProjectModel.NugetPackage(t.IdentityId, t.IdentityVersion)).ToList(),
+                        ProjectType = (Job.Api.Management.ProjectType)nextToBuild.ProjectType,
+                        UrlPrefix = nextToBuild.UrlPrefix
+                    };
+
+                    if (requestsCounter % 20 == 1) await FromTimeToTimeRevalidateIfClientsStillAlive();
+
+                    nextClient = djobClients[requestsCounter % djobClients.Length];
+
                     nextToBuild.StateDetails = ProjectStateDetails.Building;
                     nextToBuild.LastBuildStartOn = DateTime.UtcNow;
                     nextToBuild.LastBuildCompletedOn = null;
@@ -102,12 +104,12 @@ namespace DNDocs.Application.CommandHandlers.Projects
 
                     if (e?.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                     {
-                        logger.LogWarning(e, "warning build project - too many requests: {0}", nextClient.ServerUrl);
+                        logger.LogWarning(e, "warning build project - too many requests: {0}", nextClient?.ServerUrl);
                         await Task.Delay(10000);
                     }
                     else if (e?.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     {
-                        logger.LogError(e, "failed to request build project - bad request: {0} \r\n data: {1}", nextClient.ServerUrl, JsonSerializer.Serialize(model));
+                        logger.LogError(e, "failed to request build project - bad request: {0} \r\n data: {1}", nextClient?.ServerUrl, JsonSerializer.Serialize(model));
 
                         nextToBuild.LastBuildErrorLog = Helpers.ExceptionToStringForLogs(e);
                         nextToBuild.StateDetails = ProjectStateDetails.BuildFailed;
@@ -118,14 +120,14 @@ namespace DNDocs.Application.CommandHandlers.Projects
                     }
                     else
                     {
-                        logger.LogError(e, "failed to request build project with unknown error. ServerUrl: {0} {1}", nextClient.ServerUrl, JsonSerializer.Serialize(model));
-                        await FromTimeToTimeRevalidateIfClientsStillAlive();
+                        logger.LogError(e, "failed to request build project with unknown error. ServerUrl: {0} {1}", nextClient?.ServerUrl, JsonSerializer.Serialize(model));
 
                         nextToBuild.LastBuildErrorLog = Helpers.ExceptionToStringForLogs(e);
                         nextToBuild.StateDetails = ProjectStateDetails.BuildFailed;
                         await uow.SaveChangesAsync();
 
                         retry = false;
+                        await FromTimeToTimeRevalidateIfClientsStillAlive();
                     }
                 }
             } while (retry);

@@ -23,6 +23,7 @@ export default function InputText(props: any) {
             name={props.name}
             disabled={props.disabled}
             error={!!error}
+            size="small"
             helperText={error || props.helperText}
             onChange={onChange}
             margin="normal"

@@ -16,7 +16,7 @@ import UseApi from "@/services/Api";
 import LinearProgress from '@mui/material/LinearProgress';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-
+import { useSearchParams } from 'next/navigation'
 import SourceIcon from '@mui/icons-material/Source';
 import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
 import PendingIcon from '@mui/icons-material/Pending';
@@ -33,13 +33,11 @@ export default function Page() {
     const urlParams = useParams() || {};
     const urlPackageName = urlParams.PackageName;
     const urlPackageVersion = urlParams.PackageVersion;
-
     const api = UseApi();
     const data = useState<any>(null);
     const [refresh, setRefresh] = useState<number>(0);
     const [jobStatus, setJobStatus] = useState<BgJobViewModel | null>(null); // todo fix any
     const [createResult, setCreateResult] = useState<any>(null);
-
 
     function requestCreateProject() {
         api.Integration_NuGetCreateProject({
