@@ -8,6 +8,7 @@
         public long MemoryCacheMaxSizeMB { get; set; }
         // public string X509CertificatePemPath { get; set; }
         // public string X509CertificateKeyPemPath { get; set; }
+        public string IndexNowApiKey { get; set; }
 
         public TimeSpan TimeSpanSaveMetrics { get; set; }
         public TimeSpan FlushAllLogsTimeSpan { get; set; }

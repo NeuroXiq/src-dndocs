@@ -4,9 +4,9 @@ using DNDocs.Domain.Entity.App;
 
 namespace DNDocs.Infrastructure.Mapping.App
 {
-    internal class AppSettingMap : IEntityTypeConfiguration<AppSetting>
+    internal class AppSettingMap : IEntityTypeConfiguration<SysVar>
     {
-        public void Configure(EntityTypeBuilder<AppSetting> b)
+        public void Configure(EntityTypeBuilder<SysVar> b)
         {
             b.ToTable("app_setting");
             b.HasKey(t => t.Id);

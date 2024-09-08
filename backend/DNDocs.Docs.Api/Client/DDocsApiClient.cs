@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +32,8 @@ namespace DNDocs.Docs.Api.Client
                 int projectType,
                 Stream zipStream
                 );
+
+        Task<IList<SiteItemDto>> Management_GetSiteItemIdPaged(long startId, int count);
     }
 
     public class DDocsApiClient : IDDocsApiClient
@@ -129,6 +132,15 @@ namespace DNDocs.Docs.Api.Client
         static DDocsApiResult MapResult(HttpResponseMessage response)
         {
             return new DDocsApiResult { RawResponse = response };        
+        }
+
+        public async Task<IList<SiteItemDto>> Management_GetSiteItemIdPaged(long startId, int count)
+        {
+            var httpResult = await client.GetAsync($"{DUrls.Management_GetSiteItemPaged}?startSiteItemId={startId}&count={count}");
+            httpResult.EnsureSuccessStatusCode();
+            var siteItems = await httpResult.Content.ReadFromJsonAsync<IList<SiteItemDto>>();
+
+            return siteItems;
         }
     }
 

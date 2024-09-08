@@ -16,7 +16,10 @@ const Urls = {
     },
     other: {
         help: '/help',
-        appGithubProjectRepository: 'https://github.com/NeuroXiq/DNDocs',
+        DNDocsGithub: 'https://github.com/NeuroXiq/DNDocs',
+        DDocsAllProjects: "https://docs.dndocs.com/system/projects",
+        DNDocsSourceGithub: 'https://github.com/NeuroXiq/src-dndocs',
+        DNDocsReportIssue: 'https://github.com/NeuroXiq/DNDocs/issues',
         cookiesConsentHtml: `${robiniadocsDocfx}/cookies-consent.html`
     },
     robiniadocsUrl: function (urlPrefix: any) { return `${robiniadocsDocfx}/${urlPrefix}/` },

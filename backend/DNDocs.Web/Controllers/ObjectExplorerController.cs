@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.StaticFiles;
 using DNDocs.Application.Shared;
 using System.Text;
 using System.Web;
+using Microsoft.Extensions.Options;
+using DNDocs.Shared.Configuration;
 
 namespace DNDocs.Web.Controllers
 {
@@ -11,8 +13,7 @@ namespace DNDocs.Web.Controllers
         private static readonly FileExtensionContentTypeProvider fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
         private IQueryDispatcher qd;
 
-        public ObjectExplorerController(
-            IQueryDispatcher qd)
+        public ObjectExplorerController(IQueryDispatcher qd)
         {
             this.qd = qd;
         }
@@ -35,6 +36,29 @@ namespace DNDocs.Web.Controllers
         [ResponseCache(Duration = 36000)]
         public IActionResult Docfx([FromRoute] string projectUrlPrefix, [FromRoute] string slug)
         {
+            // todo: remove this, later fix invalid links if neede
+            string basePath = "https://dndocs.com/?packageName={0}&packageVersion={1}&r=" + Guid.NewGuid(); // for avoid caching
+            //string basePath = "http://localhost:3000/?packageName={0}&packageVersion={1}";
+            string redirect = "";
+
+            if (projectUrlPrefix == "betalgo-openai" && slug.Contains("Utilities")) redirect = string.Format(basePath, "Betalgo.OpenAI", "8.6.1");
+            else if (projectUrlPrefix == "betalgo-openai") redirect = string.Format(basePath, "Betalgo.OpenAI.Utilities", "8.0.1");
+            else if (projectUrlPrefix == "distributedlock")
+            {
+                if (slug.Contains("SqlServer")) redirect = string.Format(basePath, "DistributedLock.SqlServer", "1.0.5");
+                else if (slug.Contains("Postgres")) redirect = string.Format(basePath, "DistributedLock.Postgres", "1.2.0");
+                else if (slug.Contains("MySql")) redirect = string.Format(basePath, "DistributedLock.MySql", "1.0.2");
+                else if (slug.Contains("Oracle")) redirect = string.Format(basePath, "DistributedLock.Oracle", "1.0.3");
+                else if (slug.Contains("Redis")) redirect = string.Format(basePath, "DistributedLock.Redis", "1.0.3");
+                else if (slug.Contains("Azure")) redirect = string.Format(basePath, "DistributedLock.Azure", "1.0.1");
+                else if (slug.Contains("ZooKeeper")) redirect = string.Format(basePath, "DistributedLock.ZooKeeper", "1.0.0");
+                else if (slug.Contains("FileSystem")) redirect = string.Format(basePath, "DistributedLock.FileSystem", "1.0.2");
+                else if (slug.Contains("WaitHandles")) redirect = string.Format(basePath, "DistributedLock.WaitHandles", "1.0.1");
+            }
+            else if (projectUrlPrefix == "sharpcompress") redirect = string.Format(basePath, "SharpCompress", "0.37.2");
+
+            if (redirect != "") return Redirect(redirect);
+
             return Redirect($"https://docs.dndocs.com/s/{projectUrlPrefix}/{slug}");
 
             //string currentTenant = projectUrlPrefix;

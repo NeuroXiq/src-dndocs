@@ -2,14 +2,14 @@
 
 namespace DNDocs.Domain.Entity.App
 {
-    public class AppSetting : Entity
+    public class SysVar : Entity
     {
         public string Key { get; set; }
         public string Value { get; set; }
 
-        public AppSetting() { }
+        public SysVar() { }
 
-        public AppSetting(string key, string value)
+        public SysVar(string key, string value)
         {
             Validation.AppArgStringNotEmpty(key, nameof(key));
 

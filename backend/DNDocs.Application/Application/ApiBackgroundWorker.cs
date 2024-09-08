@@ -22,6 +22,10 @@ using Vinca.Http.Logs;
 using System.Data;
 using Vinca.Utils;
 using System;
+using DNDocs.Docs.Api.Client;
+using NuGet.Packaging;
+using DNDocs.Docs.Api.Management;
+using Vinca.Api;
 
 namespace DNDocs.Application.Application
 {
@@ -37,11 +41,15 @@ namespace DNDocs.Application.Application
         private readonly int SleepSecondsDoWork;
         private Timer timerImportantWork;
         private Timer timerWork;
+        private Timer timerIndexNow;
+        private IIndexNowApi indexNowApi;
+        private IDDocsApiClient ddocsApiClient;
         private IVHttpLogService vHttpLogs;
         private IDNInfrastructure dinfrastructure;
         private IVBufferLogger ivBufferLogger;
         private IServiceProvider services;
         private ILogger<ApiBackgroundWorker> logger;
+        private Task taskIndexNow = Task.CompletedTask;
 
         public ApiBackgroundWorker(IServiceProvider services,
             ILogger<ApiBackgroundWorker> logger,
@@ -49,8 +57,13 @@ namespace DNDocs.Application.Application
             IBgJobQueue bgjobQueue,
             IVBufferLogger ivBufferLogger,
             IDNInfrastructure dinfrastructure,
-            IVHttpLogService vHttpLogs)
+            IVHttpLogService vHttpLogs,
+            IDDocsApiClient ddocsApiClient,
+            IIndexNowApi indexNowApi
+            )
         {
+            this.indexNowApi = indexNowApi;
+            this.ddocsApiClient = ddocsApiClient;
             this.vHttpLogs = vHttpLogs;
             this.dinfrastructure = dinfrastructure;
             this.ivBufferLogger = ivBufferLogger;
@@ -68,10 +81,69 @@ namespace DNDocs.Application.Application
 
             timerImportantWork = new Timer(TimerTickImportantWork, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(SleepSecondsDoImportantWork));
             timerWork = new Timer(TimerTickWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(SleepSecondsDoWork));
+            timerIndexNow = new Timer(OnTimerIndexNow, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24.1));
+
             await bgjobQueue.OnSystemStart();
 
             // 1. generate projects
             // 2. cleanup bgjob remote services
+        }
+
+        private void OnTimerIndexNow(object state)
+        {
+            if (!taskIndexNow.IsCompleted) return;
+            taskIndexNow = Task.Run(DoIndexNow);
+        }
+
+        private async Task DoIndexNow()
+        {
+            logger.LogTrace("starting doindexnow");
+
+            using var scope = services.CreateScope();
+            var uow = scope.ServiceProvider.GetRequiredService<IAppUnitOfWork>();
+            var indexNowRepository = uow.GetSimpleRepository<IndexNowLog>();
+
+            List<SiteItemDto> siteItems = new List<SiteItemDto>();
+            bool lastAnyUrls = true;
+            int counter = 0;
+            long nextStartId = indexNowRepository.Query().Any() ? indexNowRepository.Query().Max(t => t.SiteItemIdEnd) + 1 : 1;
+
+            do
+            {
+                IList<SiteItemDto> items = await ddocsApiClient.Management_GetSiteItemIdPaged(nextStartId, 1000);
+                lastAnyUrls = items.Count > 0;
+                nextStartId = (items.LastOrDefault()?.Id ?? -2) + 1;
+
+                items = items.Where(t => t.Path.EndsWith(".html")).ToList();
+                counter += items.Count;
+
+                siteItems.AddRange(items);
+
+                if (items.Count > 0)
+                {
+                    logger.LogTrace("doindexnow starting submitting urls, site item range: [{0}, {1}]", items.First().Id, items.Last().Id);
+
+                    string[] urls = items.Select(t => t.FullUri).ToArray();
+                    var indexNowLog = new IndexNowLog(items.First().Id, items.Last().Id, true, null, DateTime.UtcNow.Date, 1);
+
+                    try
+                    {
+                        await indexNowApi.SubmitUrls(urls);
+                        logger.LogTrace("doindexnow submit urls success");
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "failed to send indexnow request");
+                        indexNowLog.Success = false;
+                        indexNowLog.LastException = Vinca.Utils.Helpers.ExceptionToStringForLogs(e);
+                    }
+
+                    await indexNowRepository.CreateAsync(indexNowLog);
+                    await uow.SaveChangesAsync();
+                    if (!indexNowLog.Success) return;
+                }
+
+            } while (lastAnyUrls && counter < 10000);
         }
 
         private bool isStopping = false;
@@ -279,50 +351,6 @@ VALUES
             {
                 IsNormalRunning = false;
             }
-
-            //try
-            //{
-            //    while (bgjobQueue.TryDequeue(out var item))
-            //    {
-            //        using (var scope = services.CreateScope())
-            //        {
-            //            var uow = scope.ServiceProvider.GetRequiredService<IAppUnitOfWork>();
-            //            BgJob job = null;
-
-            //            try
-            //            {
-            //                var cd = scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
-            //                var currentUser = scope.ServiceProvider.GetRequiredService<ICurrentUser>();
-
-            //                var bgjobRepo = scope.ServiceProvider.GetRequiredService<IAppUnitOfWork>().BgJobRepository;
-            //                job = bgjobRepo.GetByIdChecked(item.BgJobId);
-
-            //                currentUser.AuthenticateAsUser(fromUserId: item.UserId);
-
-            //                job.SetInProgress(Thread.CurrentThread.ManagedThreadId.ToString());
-            //                uow.SaveChanges();
-
-            //                var result = cd.Dispatch(item.Command, cancellationTokenSource.Token);
-
-            //                job.SetCompleted(result.Success, JsonConvert.SerializeObject(result));
-            //            }
-            //            catch (Exception e)
-            //            {
-            //                logger.LogError(e, "failed processing job: {0}", item?.BgJobId);
-            //                job?.SetFailedToRun(Helpers.ExceptionToStringForLogs(e));
-            //            }
-            //            uow.SaveChanges();
-            //        }
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    this.logger.LogError(e, "failed to process bg job queue");
-            //}
-            //finally
-            //{
-            //    IsNormalRunning = false;
-            //}
         }
 
         ~ApiBackgroundWorker() { Dispose(false); }
@@ -340,3 +368,4 @@ VALUES
         }
     }
 }
+

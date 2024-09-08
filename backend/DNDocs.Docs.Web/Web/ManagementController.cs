@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Mime;
 using System.Text;
 using Vinca.Api;
+using Vinca.Http;
 using Vinca.Utils;
 
 namespace DNDocs.Docs.Web.Web
@@ -21,6 +22,8 @@ namespace DNDocs.Docs.Web.Web
         IOptions<DSettings> Settings { get; }
         IOSApi OSApi { get; }
         IManagementService ManagementService { get; }
+        public ITxRepository TxRepository { get; set; }
+        public IQRepository QRepository { get; set; }
     }
 
     public class ManagementControllerContext : IManagementControllerContext
@@ -35,11 +38,19 @@ namespace DNDocs.Docs.Web.Web
 
         public IManagementService ManagementService { get; set; }
 
+        public IQRepository QRepository { get; set; }
+
+        public ITxRepository TxRepository { get; set; }
+
         public ManagementControllerContext(ILogger<ManagementController> logger,
             IOptions<DSettings> settings,
+            ITxRepository txRepository,
             IManagementService managementService,
+            IQRepository qrepository,
             IOSApi osApi)
         {
+            TxRepository = txRepository;
+            QRepository = qrepository;
             Logger = logger;
             Settings = settings;
             ManagementService = managementService;
@@ -53,12 +64,36 @@ namespace DNDocs.Docs.Web.Web
 
         public static readonly ApiEndpoint[] Endpoints = new ApiEndpoint[]
         {
-            GetEndpoint(HttpMethod.Get, "/ping/{reply?}", Ping),
-            GetEndpoint(HttpMethod.Post, "/createproject", CreateProject),
-            GetEndpoint(HttpMethod.Get, "/deleteproject", DeleteProject),
-            GetEndpoint(HttpMethod.Get, "/metrics/{seconds:int?}", Metrics),
+            GetManagementEndpoint(HttpMethod.Get, "/ping/{reply?}", Ping),
+            GetManagementEndpoint(HttpMethod.Post, "/createproject", CreateProject),
+            GetManagementEndpoint(HttpMethod.Get, "/deleteproject", DeleteProject),
+            GetManagementEndpoint(HttpMethod.Get, "/metrics/{seconds:int?}", Metrics),
+            GetManagementEndpoint(HttpMethod.Get, "/site-item-id-paged", GetSiteItemPaged),
         };
 
+        private static async Task<IResult> GetSiteItemPaged(
+            HttpContext context,
+            [FromServices] IManagementControllerContext mmc,
+            [FromQuery] long startSiteItemId, [FromQuery] int count)
+        {
+            Authorized(context, mmc);
+
+            var siteItems = await mmc.QRepository.GetSiteItemIdPagedAsync(startSiteItemId, count);
+            var projectsTasks = siteItems.Select(t => t.ProjectId).Distinct().Select(t => mmc.TxRepository.SelectProjectByIdAsync(t));
+            await Task.WhenAll(projectsTasks);
+
+            var projects = projectsTasks.Select(t => t.Result).ToDictionary(t => t.Id);
+            var result = siteItems.Select(t =>
+                new SiteItemDto(
+                    t.Id,
+                    t.ProjectId,
+                    t.Path,
+                    PublicContentController.FullProjectUrl(mmc.Settings.Value, projects[t.ProjectId], t.Path))
+                )
+                .ToList();
+
+            return Results.Ok(result);
+        }
 
         static async Task<IResult> Metrics(
             HttpContext context,
@@ -97,7 +132,7 @@ namespace DNDocs.Docs.Web.Web
             return Results.Ok();
         }
 
-        static ApiEndpoint GetEndpoint(HttpMethod method, string path, Delegate delegateMethod)
+        static ApiEndpoint GetManagementEndpoint(HttpMethod method, string path, Delegate delegateMethod)
         {
             return new ApiEndpoint(method, $"{Controller}{path}", delegateMethod);
         }

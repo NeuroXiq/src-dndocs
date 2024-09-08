@@ -15,6 +15,7 @@ namespace DNDocs.Docs.Web.Services
         // siteitem
         Task<SiteItem> SelectSiteItemAsync(long projectId, string path);
         Task<IEnumerable<SiteItem>> GetSiteItemPagedAsync(int pageNo, int rowsPerPage);
+        Task<IEnumerable<SiteItem>> GetSiteItemIdPagedAsync(long startId, long count);
         Task<long> SelectSiteItemCount();
 
         Task<Project> SelectNugetProjectAsync(string nugetPackageName, string nugetPackageVersion);
@@ -146,6 +147,13 @@ ORDER BY mi.[type] ASC, mi.[name] ASC, mi.id, h.end IS NULL, h.end ASC ";
 
         #region SiteItemDb
 
+        public async Task<IEnumerable<SiteItem>> GetSiteItemIdPagedAsync(long startId, long limit)
+        {
+            using var con = infrastructure.OpenSqliteConnection(DatabaseType.Site);
+
+            return await con.QueryAsync<SiteItem>($"{SqlSelectSiteItem(false)} WHERE id >= {startId} ORDER BY id ASC LIMIT {limit}");
+        }
+
         public async Task<long> SelectSiteItemCount()
         {
             using var con = infrastructure.OpenSqliteConnection(DatabaseType.Site);
@@ -226,15 +234,15 @@ ORDER BY mi.[type] ASC, mi.[name] ASC, mi.id, h.end IS NULL, h.end ASC ";
         }
 
         // todo remove this and add conditions in method: bool includebytedata ... etc
-//        const string SqlSelectSiteItem =
-//@$"{SqlSelectSiteItem_NoData_NoFROM}, byte_data as ByteData FROM site_item";
+        //        const string SqlSelectSiteItem =
+        //@$"{SqlSelectSiteItem_NoData_NoFROM}, byte_data as ByteData FROM site_item";
 
-//        const string SqlSelectSiteItem_NoData_NoFROM =
-//@"SELECT id as Id, project_id as ProjectId, [path] as Path";
+        //        const string SqlSelectSiteItem_NoData_NoFROM =
+        //@"SELECT id as Id, project_id as ProjectId, [path] as Path";
 
-//        const string SqlSelectSiteItem_NoData =
-//@$"{SqlSelectSiteItem_NoData_NoFROM} FROM site_item";
-    
+        //        const string SqlSelectSiteItem_NoData =
+        //@$"{SqlSelectSiteItem_NoData_NoFROM} FROM site_item";
+
     }
 
     //static class SqliteExtensions

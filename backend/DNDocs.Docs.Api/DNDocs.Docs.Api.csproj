@@ -15,7 +15,7 @@
     <PackageProjectUrl>$(dn_packageprojecturl)</PackageProjectUrl>
     <AssemblyVersion>$(dn_assemblyversion)</AssemblyVersion>
     <FileVersion>$(dn_fileversion)</FileVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

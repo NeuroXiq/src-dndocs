@@ -17,6 +17,7 @@ using Vinca.Utils;
 using Vinca.Api;
 using Microsoft.Identity.Client;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.Options;
 
 namespace DNDocs.Docs.Web
 {
@@ -43,6 +44,9 @@ namespace DNDocs.Docs.Web
             {
                 o.Limits.MaxRequestBodySize = 1024 * 1024 * 300;
                 o.AddServerHeader = false;
+                // przetestowac c zy dziala szybciej teraz
+                o.Limits.MaxResponseBufferSize = 1024 * 1024 * 1024;
+                
                 // o.ConfigureHttpsDefaults(c =>
                 // {
                 //     c.ServerCertificate = X509Certificate2.CreateFromPemFile(settings.X509CertificatePemPath, settings.X509CertificateKeyPemPath);
@@ -50,12 +54,14 @@ namespace DNDocs.Docs.Web
             });
 
             // external services
+
             builder.Services.AddMemoryCache(o =>
             {
                 o.SizeLimit = 1024 * 1024 * settings.MemoryCacheMaxSizeMB;
                 o.TrackStatistics = true;
                 o.CompactionPercentage = 0.3;
             });
+
             builder.Services.AddVOSApi();
             builder.Services.AddMetrics();
             builder.Services.AddResourceMonitoring();
@@ -102,7 +108,7 @@ namespace DNDocs.Docs.Web
 
             var allEndpoints = new List<ApiEndpoint>();
             allEndpoints.AddRange(ManagementController.Endpoints);
-            allEndpoints.AddRange(PublicContentController.Endpoints);
+            allEndpoints.AddRange(PublicContentController.GetEndpoints(app.Services.GetRequiredService<IOptions<DSettings>>()));
 
             foreach (var e in allEndpoints)
             {

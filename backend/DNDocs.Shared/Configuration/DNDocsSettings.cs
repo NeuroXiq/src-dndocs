@@ -15,6 +15,11 @@ namespace DNDocs.Shared.Configuration
         public int BackendBackgroundWorkerDoImportantWorkSleepSeconds { get; set; }
         public int BackendBackgroundWorkerDoWorkSleepSeconds { get; set; }
         public int FrontendBackgroundWorkerDoWorkSleepSeconds { get; set; }
+        
+        public string IndexNowApiKey { get; set; }
+        public string IndexNowHost { get; set; }
+        public string IndexNowKeyLocation { get; set; }
+        public string IndexNowSubmitUrl { get; set; }
 
         public string OSPathInfrastructureDirectory { get; set; }
 

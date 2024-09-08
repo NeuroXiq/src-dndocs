@@ -146,7 +146,7 @@ namespace DNDocs.Docs.Web.Services
 
             // doing without transaction and on separate connection
             var conn = this.infrastructure.OpenSqliteConnection(DatabaseType.VarSite);
-            var sql = $"{infrastructure.AttachDatabase(DatabaseType.App)} AS [appdb]; ";
+            var sql = $"{infrastructure.GetAttachDatabaseSql(DatabaseType.App, "[appdb]")}";
 
             await conn.ExecuteAsync(sql);
 

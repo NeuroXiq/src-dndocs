@@ -70,11 +70,6 @@ export default function Home() {
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [openDocsTimer, setOpenDocsTimer] = useState<number>(-1);
 
-    useEffect(() => {
-        setIPackageName(urlPackageName || '');
-        setIPackageVersion(urlPackageVersion || '');
-    }, [urlPackageName, urlPackageVersion]);
-
     function reset() {
         setJobStatus(null);
         setCreateResult(null);
@@ -83,9 +78,9 @@ export default function Home() {
         setStepper(stepperInitialState());
     }
 
-    useEffect(() => {
-        reset();
-    }, [iPackageName, iPackageVersion]);
+    // useEffect(() => {
+    //     // reset();
+    // }, [iPackageName, iPackageVersion]);
 
     function createProject(pkgname: string, pkgversion: string) {
         api.Integration_NuGetCreateProject({ packageName: pkgname, packageVersion: pkgversion })
@@ -105,6 +100,7 @@ export default function Home() {
 
     useEffect(() => {
         if (urlPackageName && urlPackageVersion) {
+
             setIPackageName(urlPackageName);
             setIPackageVersion(urlPackageVersion);
             startCreateProject(urlPackageName, urlPackageVersion);
@@ -149,7 +145,7 @@ export default function Home() {
         }
 
         (newState.steps[1] as any).labelOptional = 'No.' + jobStatus?.estimateOtherJobsBeforeThis + ' (~' + jobStatus?.estimateStartIn + 's)';
-        (newState.steps[2] as any).labelOptional = '~' + jobStatus?.estimateStartIn + 's';
+        (newState.steps[2] as any).labelOptional = '~' + jobStatus?.estimateBuildTime + 's';
 
         setJobStatus(jobStatus);
         setStepper(newState);
@@ -225,7 +221,7 @@ export default function Home() {
                         <Box marginBottom={4} style={{ display: 'flex', alignItems: 'stretch', gap: "0.25rem" }}>
                             <TextField
                                 error={errors.name}
-                                onChange={(e) => setIPackageName(e.target.value)}
+                                onChange={(e) => { setIPackageName(e.target.value); reset(); }}
                                 value={iPackageName}
                                 disabled={state === 'loading'}
                                 sx={{ flex: '3 1 1px' }}
@@ -239,7 +235,7 @@ export default function Home() {
                             <TextField
                                 error={errors.version}
                                 disabled={state === 'loading'}
-                                onChange={(e) => setIPackageVersion(e.target.value)}
+                                onChange={(e) => { setIPackageVersion(e.target.value); reset(); }}
                                 value={iPackageVersion}
                                 sx={{ flex: '3 1 1px' }}
                                 fullWidth
@@ -316,10 +312,10 @@ export default function Home() {
                             </Stepper>
                         </Box>
                         <Box marginBottom={3} style={{ display: 'flex', gap: "0.25rem", flexWrap: "wrap", justifyContent: "center" }}>
-                            <Button variant="outlined" size="small" color="secondary" startIcon={<ArticleIcon />}>All projects</Button>
-                            <Button variant="outlined" size="small" color="secondary" startIcon={<GitHubIcon />}>DNDocs Github</Button>
-                            <Button variant="outlined" size="small" color="secondary" startIcon={<CodeIcon />}>Source code</Button>
-                            <Button color="error" size="small" variant="outlined" startIcon={<AnnouncementIcon />}>Report Issue</Button>
+                            <Button href={Urls.other.DNDocsGithub} variant="contained" size="small" color="success" startIcon={<GitHubIcon />}>DNDocs Github</Button>
+                            <Button href={Urls.other.DDocsAllProjects} variant="outlined" size="small" color="primary" startIcon={<ArticleIcon />}>All projects</Button>
+                            <Button href={Urls.other.DNDocsSourceGithub} variant="outlined" size="small" color="primary" startIcon={<CodeIcon />}>Source code</Button>
+                            <Button href={Urls.other.DNDocsReportIssue} color="error" size="small" variant="outlined" startIcon={<AnnouncementIcon />}>Report Issue</Button>
                         </Box>
                         {(createResult?.success === false) && <Alert severity="error">
                             <pre>
@@ -414,7 +410,7 @@ function Home_old() {
                         color="secondary"
                         startIcon={<AccountTreeIcon />}>See all projects</Button>
                     <Button
-                        href={Urls.other.appGithubProjectRepository}
+                        href={Urls.other.DNDocsGithub}
                         variant="outlined"
                         size="large"
                         color="secondary" startIcon={<GitHubIcon />}>Github</Button>

@@ -12,5 +12,6 @@ namespace DNDocs.Docs.Api.Shared
     {
         public const string Management_CreateProject = "api/management/createproject";
         public const string Management_Ping = "api/management/ping";
+        public const string Management_GetSiteItemPaged = "api/management/site-item-id-paged";
     }
 }

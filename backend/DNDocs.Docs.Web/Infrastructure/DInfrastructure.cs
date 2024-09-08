@@ -15,7 +15,7 @@ namespace DNDocs.Docs.Web.Infrastructure
         // public 
         void ApplicationStartup();
         SqliteConnection OpenSqliteConnection(DatabaseType db);
-        string AttachDatabase(DatabaseType type);
+        string GetAttachDatabaseSql(DatabaseType type, string alias);
     }
 
     public enum DatabaseType
@@ -31,10 +31,10 @@ namespace DNDocs.Docs.Web.Infrastructure
         private IDMetrics metrics;
         private DFileSystemOptions options;
 
-        string ConnectionString_App;
-        string ConnectionString_Site;
-        string ConnectionString_VarSite;
-        string ConnectionString_Log;
+        string ConnectionString_App, OSPath_AppDb;
+        string ConnectionString_Site, OSPath_SiteDb;
+        string ConnectionString_VarSite, OSPath_VarSiteDb;
+        string ConnectionString_Log, OSPath_LogDb;
 
         public DInfrastructure(IOptions<DFileSystemOptions> fsOptions, IDMetrics metrics)
         {
@@ -43,30 +43,51 @@ namespace DNDocs.Docs.Web.Infrastructure
             if (!Directory.Exists(options.InfrastructureFolderOSPath))
                 throw new ArgumentException($"(Safety): Directory for instrastructure not exists: '{options.InfrastructureFolderOSPath}'. Create this directory manually");
 
-            ConnectionString_App = $"Data Source={Path.Combine(options.InfrastructureFolderOSPath, options.AppDbSqliteFileName)};";
-            ConnectionString_Site = $"Data Source={Path.Combine(options.InfrastructureFolderOSPath, options.SiteDbSqliteFileName)};";
-            ConnectionString_Log = $"Data Source={Path.Combine(options.InfrastructureFolderOSPath, options.LogDbSqliteFileName)};";
-            ConnectionString_VarSite = $"Data Source={Path.Combine(options.InfrastructureFolderOSPath, options.VarSiteDbSqliteFileName)};";
+            OSPath_AppDb = Path.Combine(options.InfrastructureFolderOSPath, options.AppDbSqliteFileName);
+            OSPath_SiteDb = Path.Combine(options.InfrastructureFolderOSPath, options.SiteDbSqliteFileName);
+            OSPath_VarSiteDb = Path.Combine(options.InfrastructureFolderOSPath, options.VarSiteDbSqliteFileName);
+            OSPath_LogDb = Path.Combine(options.InfrastructureFolderOSPath, options.LogDbSqliteFileName);
+
+            ConnectionString_App = $"Data Source={OSPath_AppDb};";
+            ConnectionString_Site = $"Data Source={OSPath_SiteDb};";
+            ConnectionString_Log = $"Data Source={OSPath_LogDb};";
+            ConnectionString_VarSite = $"Data Source={OSPath_VarSiteDb};";
         }
 
-        public string AttachDatabase(DatabaseType type)
+        public string GetAttachDatabaseSql(DatabaseType type, string alias)
         {
-            if (type != DatabaseType.App) throw new NotImplementedException("implement others");
-            return $"ATTACH DATABASE '{Path.Combine(options.InfrastructureFolderOSPath, options.AppDbSqliteFileName)}'";
+            string path = null;
+            switch (type)
+            {
+                case DatabaseType.App: path = OSPath_AppDb; break;
+                case DatabaseType.Site: path = OSPath_SiteDb; break;
+                case DatabaseType.Log: path = OSPath_LogDb; break;
+                case DatabaseType.VarSite: path = OSPath_VarSiteDb; break;
+                default: throw new ArgumentException("type");
+            }
+
+            return $"ATTACH DATABASE '{path}' AS {alias}";
         }
 
-        public SqliteConnection OpenSqliteConnection(DatabaseType db)
+        string GetConnectionString(DatabaseType dbType)
         {
-            metrics.SqlOpen(db.ToString());
-            string connectionString = null;
-            switch (db)
+            string connectionString;
+            switch (dbType)
             {
                 case DatabaseType.App: connectionString = ConnectionString_App; break;
                 case DatabaseType.Log: connectionString = ConnectionString_Log; break;
                 case DatabaseType.Site: connectionString = ConnectionString_Site; break;
                 case DatabaseType.VarSite: connectionString = ConnectionString_VarSite; break;
-                default: throw new ArgumentException(nameof(db));
+                default: throw new ArgumentException(nameof(dbType));
             }
+
+            return connectionString;
+        }
+
+        public SqliteConnection OpenSqliteConnection(DatabaseType db)
+        {
+            metrics.SqlOpen(db.ToString());
+            string connectionString = GetConnectionString(db);
 
             var sqliteConnection = new SqliteConnection(connectionString);
             // SqliteConnection.BusyTimeout = 5 * 60 ( * 1000 ??)??;

@@ -92,14 +92,14 @@ namespace DNDocs.Application.CommandHandlers
                 if (IsCancellationRequested) return;
 
                 string lastRunSettingKey = $"DoBgWork_{item.Action.Method.Name}_LastRunDateTime";
-                var settingRepo = appUow.GetSimpleRepository<AppSetting>();
-                var setting = settingRepo.Query().Where(t => t.Key == lastRunSettingKey).SingleOrDefault();
+                var sysVarRepo = appUow.GetSimpleRepository<SysVar>();
+                var setting = sysVarRepo.Query().Where(t => t.Key == lastRunSettingKey).SingleOrDefault();
                 DateTime lastRunTime = DateTime.UtcNow.AddYears(-1);
 
                 if (setting == null)
                 {
-                    setting = new AppSetting(lastRunSettingKey, DateTime.UtcNow.AddDays(-10).ToString("O"));
-                    settingRepo.Create(setting);
+                    setting = new SysVar(lastRunSettingKey, DateTime.UtcNow.AddDays(-10).ToString("O"));
+                    sysVarRepo.Create(setting);
                 }
 
                 lastRunTime = DateTime.Parse(setting.Value);

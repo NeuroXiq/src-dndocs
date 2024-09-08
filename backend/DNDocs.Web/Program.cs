@@ -27,6 +27,7 @@ using DNDocs.Docs.Api.Shared;
 using Vinca.Utils;
 using DNDocs.Job.Api.Client;
 using Vinca.Http.Logs;
+using Vinca.Api;
 
 namespace DNDocs.Web
 {
@@ -179,6 +180,12 @@ namespace DNDocs.Web
             {
                 opt.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None;
             });
+
+            services.AddVIndexNowApi(
+                dsettings.IndexNowSubmitUrl,
+                dsettings.IndexNowHost,
+                dsettings.IndexNowApiKey,
+                dsettings.IndexNowKeyLocation);
 
             services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
             builder.Services.AddResponseCaching();

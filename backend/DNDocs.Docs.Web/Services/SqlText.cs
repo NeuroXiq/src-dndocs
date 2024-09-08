@@ -21,6 +21,7 @@
 
         public const string SelectPublicHtml_NoData =
             @"SELECT id as Id, [path] as Path,      NULL as ByteData, created_on as CreatedOn, updated_on as UpdatedOn from public_html";
+
         public const string SelectPublicHtml =
             @"SELECT id as Id, [path] as Path, byte_data as ByteData, created_on as CreatedOn, updated_on as UpdatedOn from public_html";
 

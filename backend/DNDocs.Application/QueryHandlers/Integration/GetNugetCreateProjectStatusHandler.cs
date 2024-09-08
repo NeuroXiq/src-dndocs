@@ -49,20 +49,6 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
 
         protected override async Task<BgJobViewModel> Handle(GetNugetCreateProjectStatusQuery query)
         {
-            Thread.Sleep(1000);
-            
-            //return new BgJobViewModel
-            //{
-            //    ProjectId = 123,
-            //    EstimateOtherJobsBeforeThis = 1,
-            //    EstimateBuildTime = 12,
-            //    EstimateStartIn = 32,
-            //    State = (int)2,
-            //    StateDetails = (int)ProjectStateDetails.BuildFailed,
-            //    LastDocfxBuildTime = DateTime.Now,
-            //    ProjectApiFolderUrl = "url", //settings.GetUrlNugetOrgProject(project.NugetOrgPackageName, project.NugetOrgPackageVersion),
-            //};
-
             var project = await appUow.ProjectRepository.GetNugetOrgProjectAsync(query.PackageName, query.PackageVersion);
 
             if (project == null) return null;
@@ -115,7 +101,7 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
                 var estimatedBuildTime = last50SuccessBuilds.Average(t => (t.LastBuildCompletedOn.Value - t.LastBuildStartOn.Value).TotalSeconds);
                 estimatedBuildTime = Math.Round(estimatedBuildTime, 2);
 
-                memoryCache.Set(key, estimatedBuildTime);
+                memoryCache.Set(key, estimatedBuildTime, TimeSpan.FromSeconds(30));
                 value = estimatedBuildTime;
             }
 

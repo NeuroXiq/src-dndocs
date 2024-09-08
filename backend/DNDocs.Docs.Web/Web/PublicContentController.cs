@@ -20,20 +20,26 @@ namespace DNDocs.Docs.Web.Web
 {
     public class PublicContentController
     {
-        public static readonly ApiEndpoint[] Endpoints = new ApiEndpoint[]
+        public static ApiEndpoint[] GetEndpoints(IOptions<DSettings> settings)
         {
-            GetEndpoint(HttpMethod.Get, "/n/{nugetPackageName}/{nugetPackageVersion}/{*slug}", GetNugetProjectSiteHtml),
-            GetEndpoint(HttpMethod.Get, "/v/{urlPrefix}/{versionTag}/{*slug}", GetVersionProjectSiteHtml),
-            GetEndpoint(HttpMethod.Get, "/s/{urlPrefix}/{*slug}", GetSingletonProjectSiteHtml),
-            GetEndpoint(HttpMethod.Get, "/public/ping", Ping),
-            GetEndpoint(HttpMethod.Get, "/system/projects/{pageNo?}", SystemAllProjects),
-            GetEndpoint(HttpMethod.Get, "/system/site-items/{pageNo?}", SystemSiteItems),
-            GetEndpoint(HttpMethod.Get, "/system/resource-monitor", SystemResourceMonitoring),
+            var endpoints = new List<ApiEndpoint>()
+            {
+                GetEndpoint(HttpMethod.Get, "/n/{nugetPackageName}/{nugetPackageVersion}/{*slug}", GetNugetProjectSiteHtml),
+                GetEndpoint(HttpMethod.Get, "/v/{urlPrefix}/{versionTag}/{*slug}", GetVersionProjectSiteHtml),
+                GetEndpoint(HttpMethod.Get, "/s/{urlPrefix}/{*slug}", GetSingletonProjectSiteHtml),
+                GetEndpoint(HttpMethod.Get, "/public/ping", Ping),
+                GetEndpoint(HttpMethod.Get, "/system/projects/{pageNo?}", SystemAllProjects),
+                GetEndpoint(HttpMethod.Get, "/system/site-items/{pageNo?}", SystemSiteItems),
+                GetEndpoint(HttpMethod.Get, "/system/resource-monitor", SystemResourceMonitoring),
 
-            GetEndpoint(HttpMethod.Get, "/{*slug}", GetPublicHtmlFile),
-            GetEndpoint(HttpMethod.Get, "/sitemap.xml", GetSitemap),
-            GetEndpoint(HttpMethod.Get, "/public/sitemaps/{*slug}", GetSitemap),
-        };
+                GetEndpoint(HttpMethod.Get, "{*slug}", GetPublicHtmlFile),
+                GetEndpoint(HttpMethod.Get, "/sitemap.xml", GetSitemap),
+                GetEndpoint(HttpMethod.Get, "/public/sitemaps/{*slug}", GetSitemap),
+                new ApiEndpoint(HttpMethod.Get, $"/{settings.Value.IndexNowApiKey}.txt", GetIndexNowKey)
+            };
+
+            return endpoints.ToArray();
+        }
 
         static ApiEndpoint GetEndpoint(HttpMethod method, string path, Delegate delegateMethod)
         {
@@ -59,11 +65,21 @@ namespace DNDocs.Docs.Web.Web
             return Results.File(sitemap.ByteData, contentType);
         }
 
+        static IResult GetIndexNowKey([FromServices] IOptions<DSettings> settingsOptions)
+        {
+            var dsettings = settingsOptions.Value;
+            string indexNowKey = dsettings.IndexNowApiKey;
+
+            return Results.File(Encoding.UTF8.GetBytes(indexNowKey), "text/plain");
+        }
+
         static async Task<IResult> GetPublicHtmlFile(
             HttpContext context,
             [FromServices] IDMemCache memCache,
             string slug)
         {
+            if (string.IsNullOrWhiteSpace(slug) || slug == "/") slug = "index.html";
+
             PublicHtml publicHtml = await memCache.GetPublicHtmlFile($"/{slug}");
             if (publicHtml == null) return await NotFound();
 
@@ -78,6 +94,7 @@ namespace DNDocs.Docs.Web.Web
         static async Task<IResult> GetSingletonProjectSiteHtml(
             HttpContext context,
             [FromServices] IDMemCache memCache,
+            [FromServices] IOptions<DSettings> dsettings,
             [FromRoute] string urlPrefix, string slug)
         {
             return await ReturnSiteItem(context, memCache, ProjectType.Singleton, slug, null, null, urlPrefix, null);
@@ -125,18 +142,18 @@ namespace DNDocs.Docs.Web.Web
         {
             var path = $"/{slug}";
             Project project = null;
-
+            
             switch (projectType)
             {
                 case ProjectType.Singleton: project = await memCache.GetSingletonProject(urlPrefix); break;
                 case ProjectType.Version: throw new NotImplementedException(); break;
-                case ProjectType.Nuget: project = await memCache.GetNugetProject(nugetPackageName, nugetPackageVersion);  break;
+                case ProjectType.Nuget: project = await memCache.GetNugetProject(nugetPackageName, nugetPackageVersion); break;
                 default: throw new NotImplementedException();
             }
 
             if (project == null) return Results.NotFound();
             if (path == "/favicon.ico") return await GetPublicHtmlFile(context, memCache, "favicon.ico");
-            
+
             var siteItem = await memCache.GetSiteItem(project.Id, path);
 
             if (siteItem == null) return Results.NotFound();
@@ -215,14 +232,14 @@ namespace DNDocs.Docs.Web.Web
                 },
                 siteitems);
 
-            AppendSimpleHtmlPagination(sb, (long)Math.Ceiling((double)siteItemsCount/1000), "/system/site-items/{0}");
+            AppendSimpleHtmlPagination(sb, (long)Math.Ceiling((double)siteItemsCount / 1000), "/system/site-items/{0}");
             SimpleHtmlPage(sb);
 
             var result = sb.ToString();
             return Results.Content(result, "text/html");
         }
 
-      
+
         public static async Task<IResult> SystemAllProjects(
             [FromServices] IOptions<DSettings> settings,
             [FromServices] IQRepository repository,
@@ -232,8 +249,8 @@ namespace DNDocs.Docs.Web.Web
             if (projects.Length == 0) return Results.Content("no projects", "text/html");
 
             var sb = new StringBuilder();
-            
-            AppendHtmlTable(sb, new[] { "id", "dn id", "type", "packagename", "packagever", "urlprefix", "version", "fullurl" },
+
+            AppendHtmlTable(sb, new[] { "id", "dn id", "type", "packagename", "packagever", "urlprefix", "version", "dn-url-generate", "ddocs-url" },
             new Func<Project, string>[]
             {
                 (Project p) => p.Id.ToString(),
@@ -243,6 +260,7 @@ namespace DNDocs.Docs.Web.Web
                 (Project p) => p.NugetPackageVersion ?? "",
                 (Project p) => p.UrlPrefix ?? "",
                 (Project p) => p.ProjectVersion ?? "",
+                (Project p) => { var u = settings.Value.GetUrlNugetProjectGenerate(p.NugetPackageName, p.NugetPackageVersion);  return $"<a href=\"{u}\">{u}</a>"; },
                 (Project p) => { var u = FullProjectUrl(settings.Value, p); return $"<a href=\"{u}\">{u}</a>"; }
             }, projects);
 
@@ -285,8 +303,7 @@ namespace DNDocs.Docs.Web.Web
 
         }
 
-
-        static string FullProjectUrl(DSettings s, Project p, string path = "/api/index.html")
+        public static string FullProjectUrl(DSettings s, Project p, string path = "/api/index.html")
         {
             if (p.ProjectType == ProjectType.Nuget) return s.GetUrlNugetOrgProject(p.NugetPackageName, p.NugetPackageVersion, path);
             else if (p.ProjectType == ProjectType.Singleton) return s.GetUrlSingletonProject(p.UrlPrefix, path);

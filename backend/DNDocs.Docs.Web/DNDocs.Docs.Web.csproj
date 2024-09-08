@@ -19,7 +19,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Infrastructure\Migrations\App\_00001_init - Copy.sql" />
     <None Remove="Infrastructure\Migrations\App\_00001_init.sql" />
     <None Remove="Infrastructure\Migrations\Log\_00001_init.sql" />
     <None Remove="Infrastructure\Migrations\Log\_00002_metrics.sql" />
@@ -82,7 +81,10 @@
     <None Update="PublicHtml\favicon-large.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="PublicHtml\home.html">
+    <None Update="PublicHtml\main.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="PublicHtml\index.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="PublicHtml\robots.txt">
