@@ -4,9 +4,8 @@ using Microsoft.Extensions.Options;
 using DNDocs.Application.Queries.Home;
 using DNDocs.Application.Shared;
 using DNDocs.Shared.Configuration;
-using DNDocs.Shared.Log;
+
 using DNDocs.Web.Application;
-using DNDocs.Web.Application.RateLimit;
 using DNDocs.Web.Models.Home;
 using DNDocs.Api.DTO;
 using System.Diagnostics;
@@ -17,23 +16,24 @@ namespace DNDocs.Web.Controllers
 {
     public class HomeController : ApiControllerBase
     {
+        private readonly ILogger<HomeController> logger;
         private readonly ICommandDispatcher cd;
         private readonly IQueryDispatcher qd;
         private readonly DNDocsSettings rsettings;
         private readonly IRobiniaResources res;
-        private readonly ILog<HomeController> logger;
 
-        public HomeController(ILog<HomeController> logger,
+        public HomeController(
+            ILogger<HomeController> logger,
             IRobiniaResources res,
             IOptions<DNDocsSettings> options,
             IQueryDispatcher qd,
             ICommandDispatcher cd)
         {
+            this.logger = logger;
             this.cd = cd;
             this.qd = qd;
             this.rsettings = options.Value;
             this.res = res;
-            this.logger = logger;
         }
 
         [HttpGet]
@@ -43,7 +43,6 @@ namespace DNDocs.Web.Controllers
         }
 
         [HttpGet]
-        [RateLimit(RLP.Project)]
         public async Task<IActionResult> GetRecentProjects()
         {
             return await ApiResult2(qd.DispatchAsync(new GetRecentProjectsQuery()));

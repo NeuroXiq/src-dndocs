@@ -49,10 +49,6 @@ namespace DNDocs.Application.QueryHandlers.Admin
             // result.HttpLogsCount = uow.GetSimpleRepository<HttpLog>().Query().Count();
             result.Projects = Mapper.Map(projects);
 
-            result.BackgroundQueueAppLogsCount = DoBackgroundWorkHandler.Logs.Count;
-            result.BackgroundQueueHttpLogsCount = DoBackgroundWorkHandler.HttpLogs.Count;
-            result.BackgroundStatusText = DoBackgroundWorkHandler.StatusString;
-
             return Task.FromResult(result);
         }
     }

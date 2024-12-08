@@ -1,4 +1,5 @@
-﻿using DNDocs.Docs.Api.Shared;
+﻿using DNDocs.Docs.Api.Management;
+using DNDocs.Docs.Api.Shared;
 using DNDocs.Docs.IntegrationTests.Shared;
 using System;
 using System.Collections.Generic;
@@ -89,17 +90,66 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
         }
 
         [Test]
-        public void CreateProject_WillNotCreateNugetProjectWithSamePackages()
+        public async Task CreateProject_WillNotCreateNugetProjectWithSamePackages()
         {
-        
+            var sameNugetPackage = "same-nuget-pkb-1.2.3.4";
+
+            await Client.Management_CreateProject
+                (NextProjectId,
+                NextProjectName,
+                null,
+                null,
+                null,
+                sameNugetPackage,
+                sameNugetPackage,
+                (int)ProjectType.Nuget,
+                GetSuperSmallSiteFileStream());
+
+            Assert.That(() => {
+                var r = Client.Management_CreateProject
+                    (NextProjectId,
+                    NextProjectName,
+                    null,
+                    null,
+                    null,
+                    sameNugetPackage,
+                    sameNugetPackage,
+                    (int)ProjectType.Nuget,
+                    GetSuperSmallSiteFileStream()).Result;
+            }, Throws.Exception);
         }
 
         [Test]
-        public void CreateProject_WillFailOnInvalidRequestsModelData()
+        public void CreateProject_Nuget_WillFailOnInvalidData()
         {
-            
+            string[] s = new string[]
+            {
+                "", NextPkgVer, null,
+                NextProjectName, "     ", null,
+                NextProjectName, NextPkgVer, "prefix-invalid-for-nuget",
+                null, NextPkgVer, null,
+            };
+
+            for (int i = 0; i < s.Length; i++)
+            {
+                Assert.That(() =>
+                {
+                    string pname = s[(i * 3 + 0)];
+                    string pver = s[(i * 3 + 1)];
+                    string urlprefix = s[(i * 3 + 2)];
+
+                    var r = Client.Management_CreateProject
+                        (NextProjectId,
+                        NextProjectName,
+                        null,
+                        urlprefix,
+                        null,
+                        pname,
+                        pver,
+                        (int)ProjectType.Nuget,
+                        GetSuperSmallSiteFileStream()).Result;
+                }, Throws.Exception);
+            }
         }
-
-
     }
 }

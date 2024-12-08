@@ -80,7 +80,7 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
                 ProjectApiFolderUrl = settings.GetUrlNugetOrgProject(project.NugetOrgPackageName, project.NugetOrgPackageVersion),
             };
 
-            abw.DoSystemWorkNow();
+            abw.RunBuildProjects();
 
             return result;
         }

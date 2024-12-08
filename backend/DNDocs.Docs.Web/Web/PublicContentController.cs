@@ -164,13 +164,13 @@ namespace DNDocs.Docs.Web.Web
             {
                 // should be very very rare case but to be 100% sure support decompress
                 // (bytes in db are brotli compressed)
-
-                var compressed = new MemoryStream();
+                var compressed = new MemoryStream(byteData);
                 var decompressed = new MemoryStream();
 
-                compressed.Write(byteData);
                 BrotliStream brotliStream = new BrotliStream(compressed, CompressionMode.Decompress);
                 brotliStream.CopyTo(decompressed);
+                brotliStream.Flush();
+                brotliStream.Close();
 
                 byteData = decompressed.ToArray();
             }

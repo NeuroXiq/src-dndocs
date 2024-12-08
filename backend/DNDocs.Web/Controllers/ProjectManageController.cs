@@ -7,7 +7,6 @@ using DNDocs.Application.Commands.Projects;
 using DNDocs.Application.Queries;
 using DNDocs.Application.Queries.ProjectManage;
 using DNDocs.Application.Shared;
-using DNDocs.Web.Application.RateLimit;
 using DNDocs.Web.Models.MyAccount;
 using DNDocs.Web.Models.Project;
 using DNDocs.Api.DTO;
@@ -65,14 +64,12 @@ namespace DNDocs.Web.Controllers
         //
 
         [HttpDelete]
-        [RateLimit(RLP.Project)]
         public async Task<IActionResult> DeleteProjectVersioning([FromBody] int projectVersioningId)
         {
             return await ApiResult2(cd.DispatchAsync(new DeleteProjectVersioningCommand { ProjectVersioningId = projectVersioningId }));
         }
 
         [HttpPost]
-        [RateLimit(RLP.Project)]
         public async Task<IActionResult> CreateProjectVersionByGitTag(CreateProjectVersionByGitTagModel model)
         {
             return await ApiResult2(cd.DispatchAsync(new CreateProjectVersionByGitTagCommand()
@@ -83,7 +80,6 @@ namespace DNDocs.Web.Controllers
         }
 
         [HttpPost]
-        [RateLimit(RLP.Project)]
         public async Task<IActionResult> CreateProjectVersion( CreateProjectVersionModel model)
         {
             var nugetPackages = model.NugetPackages?
@@ -98,7 +94,6 @@ namespace DNDocs.Web.Controllers
         }
 
         [HttpPost]
-        [RateLimit(RLP.Project)]
         public async Task<IActionResult> CreateProjectVersioning(CreateProjectVersioningModel model)
         {
             return await ApiResult2(cd.DispatchAsync(new CreateProjectVersioningCommand(
@@ -115,7 +110,6 @@ namespace DNDocs.Web.Controllers
         }
 
         [HttpPost]
-        [RateLimit(RLP.Project)]
         public async Task<IActionResult> RequestProject([FromForm] RequestProjectModel model)
         {
             CreateSingletonProjectCommand cmd = new CreateSingletonProjectCommand()
@@ -150,7 +144,6 @@ namespace DNDocs.Web.Controllers
         }
 
         [HttpPost]
-        [RateLimit(RLP.Project)]
         public async Task<IActionResult> RequestAutoupgrade([FromBody] int projectid)
         {
             return await ApiResult2(cd.DispatchAsync(new RequestAutoupgradeSingletonProjectCommand { ProjectId = projectid }));

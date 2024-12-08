@@ -59,19 +59,6 @@ namespace DNDocs.Web.Controllers
         {
             return await ApiResult2(cd.DispatchAsync(new HardRecreateProjectCommand { ProjectId = projectid }));
         }
- 
-        [HttpPost]
-        public async Task<IActionResult> DoBackgroundWorkNow([FromBody] DoBackgroundWorkNowModel model)
-        {
-            var cmd = new RequestDoBackgroundWorkCommand
-            {
-                ForceAll = model.ForceAll,
-                ForceQueuedItems = model.ForceQueuedItems,
-                ForceCheckHttpStatusForProjects = model.ForceCheckHttpStatusForProjects,
-            };
-            
-            return await ApiResult2(cd.DispatchAsync(cmd));
-        }
 
         [HttpPost]
         public IActionResult AttachTenant(AttachTenantModel model)

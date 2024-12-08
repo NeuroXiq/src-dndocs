@@ -31,16 +31,13 @@ namespace DNDocs.Application.Application
 {
     public class ApiBackgroundWorker : IHostedService, IDisposable
     {
-        static bool IsNormalRunning = false;
-        static bool IsImportantRunning = false;
-
         static object _lock = new object();
         CancellationTokenSource cancellationTokenSource;
         private IBgJobQueue bgjobQueue;
         private readonly int SleepSecondsDoImportantWork;
         private readonly int SleepSecondsDoWork;
-        private Timer timerImportantWork;
-        private Timer timerWork;
+        private Timer timerSaveLogs;
+        private Timer timerBuildProjects;
         private Timer timerIndexNow;
         private IIndexNowApi indexNowApi;
         private IDDocsApiClient ddocsApiClient;
@@ -50,6 +47,7 @@ namespace DNDocs.Application.Application
         private IServiceProvider services;
         private ILogger<ApiBackgroundWorker> logger;
         private Task taskIndexNow = Task.CompletedTask;
+        private int isBuildProjects;
 
         public ApiBackgroundWorker(IServiceProvider services,
             ILogger<ApiBackgroundWorker> logger,
@@ -73,14 +71,16 @@ namespace DNDocs.Application.Application
             this.SleepSecondsDoWork = robiniaSettings.Value.BackendBackgroundWorkerDoWorkSleepSeconds;
             cancellationTokenSource = new CancellationTokenSource();
             this.bgjobQueue = bgjobQueue;
+
+            isBuildProjects = 0;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation("Starting backend background service");
 
-            timerImportantWork = new Timer(TimerTickImportantWork, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(SleepSecondsDoImportantWork));
-            timerWork = new Timer(TimerTickWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(SleepSecondsDoWork));
+            timerSaveLogs = new Timer(BgWork_SaveLogs, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(SleepSecondsDoImportantWork));
+            timerBuildProjects = new Timer(BgWork_BuildProjects, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(SleepSecondsDoWork));
             timerIndexNow = new Timer(OnTimerIndexNow, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24.1));
 
             await bgjobQueue.OnSystemStart();
@@ -106,10 +106,14 @@ namespace DNDocs.Application.Application
             List<SiteItemDto> siteItems = new List<SiteItemDto>();
             bool lastAnyUrls = true;
             int counter = 0;
-            long nextStartId = indexNowRepository.Query().Any() ? indexNowRepository.Query().Max(t => t.SiteItemIdEnd) + 1 : 1;
+            long nextStartId = indexNowRepository.Query().Any() ?
+                indexNowRepository.Query().Max(t => t.SiteItemIdEnd) + 1
+                : 1;
 
             do
             {
+                await Task.Delay(1000);
+
                 IList<SiteItemDto> items = await ddocsApiClient.Management_GetSiteItemIdPaged(nextStartId, 1000);
                 lastAnyUrls = items.Count > 0;
                 nextStartId = (items.LastOrDefault()?.Id ?? -2) + 1;
@@ -140,10 +144,11 @@ namespace DNDocs.Application.Application
 
                     await indexNowRepository.CreateAsync(indexNowLog);
                     await uow.SaveChangesAsync();
+
                     if (!indexNowLog.Success) return;
                 }
 
-            } while (lastAnyUrls && counter < 10000);
+            } while (lastAnyUrls && counter < 1000000);
         }
 
         private bool isStopping = false;
@@ -154,7 +159,8 @@ namespace DNDocs.Application.Application
             {
                 Dispose(true);
                 logger.Log(LogLevel.Information, "On before stopping backend background service");
-                DoWork(WorkType.SystemImportant);
+                
+                BgWork_SaveLogs(null);
 
                 cancellationTokenSource.Cancel();
             }
@@ -169,84 +175,60 @@ namespace DNDocs.Application.Application
             //return Task.CompletedTask;
         }
 
-        DoBackgroundWorkCommand doBackgroundWorkCommand = null;
+        //private void RemoveOldCache()
+        //{
+        //    logger.LogTrace("Starting RemoveOldCache");
 
-        public void DoSystemWorkNow(DoBackgroundWorkCommand command = null)
-        {
-            doBackgroundWorkCommand = command;
-            TimerTickWork(null);
-        }
+        //    var cacheRepo = appUow.GetSimpleRepository<Cache>();
 
-        private void TimerTickImportantWork(object state)
-        {
-            DoWork(WorkType.SystemImportant);
-        }
+        //    var toDelete = appUow.GetSimpleRepository<Cache>()
+        //        .Query()
+        //        .Where(t => t.Expiration < DateTime.UtcNow)
+        //        .Select(t => t.Id)
+        //        .ToArray();
 
-        private void TimerTickWork(object state)
-        {
-            DoWork(WorkType.SystemNormal);
-        }
+        //    logger.LogTrace($"RemoveOldCache, to delete ids: {toDelete.StringJoin(",")}");
 
-        enum WorkType
-        {
-            SystemNormal,
-            SystemImportant
-        }
+        //    foreach (var id in toDelete)
+        //    {
+        //        cacheRepo.ExecuteDelete(t => t.Id == id);
+        //    }
+        //}
 
-        void DoWork(WorkType type)
+        private void BgWork_SaveLogs(object s)
         {
-            lock (_lock)
+            try
             {
-                if (type == WorkType.SystemImportant && IsImportantRunning) return;
-                if (type == WorkType.SystemNormal && IsNormalRunning) return;
+                var logs = ivBufferLogger.DequeueAllLogs();
 
-                if (type == WorkType.SystemImportant) IsImportantRunning = true;
-                if (type == WorkType.SystemNormal) IsNormalRunning = true;
-            }
+                using var sqliteConnection = new SqliteConnection(RawRobiniaInfrastructure.LogDbConnectionString());
+                sqliteConnection.Open();
+                using var logCommand = sqliteConnection.CreateCommand();
+                using var tx = sqliteConnection.BeginTransaction();
 
-            if (type == WorkType.SystemImportant)
-            {
+                logCommand.Transaction = tx;
+                logCommand.CommandType = System.Data.CommandType.Text;
 
-                // now this runs on Timer thread,
-                // this is not correct way (timer operations should be very short, start thread or something and immediately return)
-                // but for now it works so instead of creating new
-                // thread everytime (saving logs should be short operation)
-                // run directly on timer thread in 'incorrect' way
-                // this should be invoked often because logs should be
-                // save in db as fast as possible
-
-                try
+                foreach (var log in logs)
                 {
-                    var logs = ivBufferLogger.DequeueAllLogs();
 
-                    using var sqliteConnection = new SqliteConnection(RawRobiniaInfrastructure.LogDbConnectionString());
-                    sqliteConnection.Open();
-                    using var logCommand = sqliteConnection.CreateCommand();
-                    using var tx = sqliteConnection.BeginTransaction();
+                    var msg = log.Message == null ? "NULL" : $"'{log.Message.Replace("'", "''")}'";
+                    logCommand.CommandText =
+                    "INSERT INTO app_log(message, category_name, log_level_id, event_id, event_name, [date]) " +
+                    $"VALUES ({msg}, '{log.CategoryName}', {(int)log.LogLevel}, {log.EventId.Id}, '{log.EventId.Name}', '{log.Date.ToString("O")}')";
 
-                    logCommand.Transaction = tx;
-                    logCommand.CommandType = System.Data.CommandType.Text;
+                    logCommand.ExecuteNonQuery();
+                }
 
-                    foreach (var log in logs)
-                    {
+                var httplogs = vHttpLogs.DequeueAll();
 
-                        var msg = log.Message == null ? "NULL" : $"'{log.Message.Replace("'", "''")}'";
-                        logCommand.CommandText =
-                        "INSERT INTO app_log(message, category_name, log_level_id, event_id, event_name, [date]) " +
-                        $"VALUES ({msg}, '{log.CategoryName}', {(int)log.LogLevel}, {log.EventId.Id}, '{log.EventId.Name}', '{log.Date.ToString("O")}')";
-
-                        logCommand.ExecuteNonQuery();
-                    }
-
-                    var httplogs = vHttpLogs.DequeueAll();
-
-                    using var httpLogsCommand = sqliteConnection.CreateCommand();
-                    httpLogsCommand.Transaction = tx;
-                    httpLogsCommand.CommandType = CommandType.Text;
-                    foreach (var hl in httplogs)
-                    {
-                        httpLogsCommand.CommandText =
-    $@"
+                using var httpLogsCommand = sqliteConnection.CreateCommand();
+                httpLogsCommand.Transaction = tx;
+                httpLogsCommand.CommandType = CommandType.Text;
+                foreach (var hl in httplogs)
+                {
+                    httpLogsCommand.CommandText =
+$@"
 INSERT INTO http_log
 (
 start_date,
@@ -273,10 +255,10 @@ VALUES
 '{hl.ClientIP}',
 {hl.ClientPort?.ToString() ?? "NULL"},
 '{hl.Method}',
-'{hl.UriPath?.Replace("'",  "''")}',
+'{hl.UriPath?.Replace("'", "''")}',
 '{hl.UriQuery?.Replace("'", "''")}',
 {hl.ResponseStatus},
-{hl.BytesSend?.ToString() ?? "NULL" },
+{hl.BytesSend?.ToString() ?? "NULL"},
 {hl.BytesReceived?.ToString() ?? "NULL"},
 {hl.TimeTakenMs},
 '{hl.Host}',
@@ -284,27 +266,32 @@ VALUES
 '{hl.Referer}'
 );
 ";
-                        httpLogsCommand.ExecuteNonQuery();
+                    httpLogsCommand.ExecuteNonQuery();
 
-                    }
-                    tx.Commit();
-                    IsImportantRunning = false;
                 }
-                catch (Exception e)
-                {
-                    IsImportantRunning = false;
-                    logger.LogCritical(e, "system important exception");
+                tx.Commit();
+            }
+            catch (Exception e)
+            {
+                logger.LogCritical(e, "system important exception");
 
-                    // question: what should  happen in this unhandled  exception in background worker service?
-                    // throw;
-                }
+                // question: what should  happen in this unhandled  exception in background worker service?
+                // throw;
+            }
+        }
 
+        public void RunBuildProjects() { BgWork_BuildProjects(null); }
+
+        private void BgWork_BuildProjects(object _)
+        {
+            if (Interlocked.Exchange(ref isBuildProjects, 1) != 0)
+            {
                 return;
             }
 
             try
             {
-                var t = new Thread(ThreadHandlerWork);
+                var t = new Thread(BuildProjectThreadHandler);
 
                 t.Priority = ThreadPriority.Normal;
                 t.IsBackground = true;
@@ -312,14 +299,11 @@ VALUES
             }
             catch (Exception)
             {
-                if (type == WorkType.SystemNormal) IsNormalRunning = false;
-
-                // question: what should  happen in this unhandled  exception in background worker service?
-                //throw;
+                isBuildProjects = 0;
             }
         }
 
-        void ThreadHandlerWork()
+        void BuildProjectThreadHandler()
         {
             try
             {
@@ -349,7 +333,7 @@ VALUES
             }
             finally
             {
-                IsNormalRunning = false;
+                isBuildProjects = 0;
             }
         }
 
@@ -362,8 +346,8 @@ VALUES
             if (!isDisposed)
             {
                 isDisposed = true;
-                this.timerImportantWork?.Dispose();
-                this.timerWork?.Dispose();
+                this.timerSaveLogs?.Dispose();
+                this.timerBuildProjects?.Dispose();
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using DNDocs.Shared.Log;
 using Microsoft.Extensions.Options;
 using DNDocs.Domain.Entity.App;
 using DNDocs.Domain.Enums;
@@ -37,7 +36,7 @@ namespace DNDocs.Domain.ServiceImpl
         private ISystemMessages systemMessages;
         private ICurrentUser user;
         private IProjectRepository projectRepo;
-        private ILog<ProjectManager> logger;
+        private ILogger<ProjectManager> logger;
         const int MaxProjectsPerUser = 50;
 
         public ProjectManager(
@@ -47,7 +46,7 @@ namespace DNDocs.Domain.ServiceImpl
             IAppManager appManager,
             IUnitOfWorkFactory uowFactory,
             IOptions<DNDocsSettings> rsettings,
-            ILog<ProjectManager> logger,
+           ILogger<ProjectManager> logger,
             ICurrentUser user,
             ISystemMessages systemMessages,
             INugetRepositoryFacade nugetRepositoryFacade)

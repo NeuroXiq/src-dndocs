@@ -8,7 +8,6 @@ using DNDocs.Application.Queries.Auth;
 using DNDocs.Application.Shared;
 using DNDocs.Domain.ValueTypes;
 using DNDocs.Shared.Configuration;
-using DNDocs.Web.Application.RateLimit;
 using DNDocs.Web.Models.Auth;
 using DNDocs.Api.DTO;
 using DNDocs.Api.Admin;
@@ -46,7 +45,6 @@ namespace DNDocs.Web.Controllers
         }
 
         [HttpPost]
-        [RateLimit(RLP.Login)]
         public async Task<IActionResult> CallbackGithubOAuth([FromBody]string code)
         {
             var githubLoginCommand = new LoginUserCommand.GithubLoginCommand(code);
@@ -56,7 +54,6 @@ namespace DNDocs.Web.Controllers
 
         [Authorize]
         [HttpPost]
-        [RateLimit(RLP.Login)]
         public async Task<IActionResult> Logout()
         {
             // todo remove token from database? (to no allow use this token in the future, al
@@ -66,7 +63,6 @@ namespace DNDocs.Web.Controllers
         }
 
         [HttpPost]
-        [RateLimit(RLP.Login)]
         public async Task<IActionResult> AdminLogin(AdminLoginModel model)
         {
             var cmd = new LoginUserCommand(null, new LoginUserCommand.AdminLoginCommand(model.Login, model.Password));

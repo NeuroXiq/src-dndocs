@@ -6,7 +6,6 @@ using DNDocs.Application.Commands;
 using DNDocs.Application.Queries;
 using DNDocs.Application.Queries.MyAccount;
 using DNDocs.Application.Shared;
-using DNDocs.Web.Application.RateLimit;
 using DNDocs.Web.Models.MyAccount;
 using DNDocs.Api.DTO;
 
@@ -67,7 +66,6 @@ namespace DNDocs.Web.Controllers
         // Post
         //
 
-        [RateLimit(RLP.Project)]
         [HttpPost]
         public async Task<IActionResult> ClearCache(string cacheName)
         {

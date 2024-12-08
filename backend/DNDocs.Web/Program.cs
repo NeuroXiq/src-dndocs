@@ -15,10 +15,9 @@ using DNDocs.Infrastructure.UnitOfWork;
 using DNDocs.Infrastructure.Utils;
 using DNDocs.Resources;
 using DNDocs.Shared.Configuration;
-using DNDocs.Shared.Log;
+
 using DNDocs.Web.Application;
 using DNDocs.Web.Application.Authorization;
-using DNDocs.Web.Application.RateLimit;
 using DNDocs.Web.Application.Validation;
 using System.Runtime.InteropServices;
 using static DNDocs.Infrastructure.Utils.RawRobiniaInfrastructure;
@@ -77,7 +76,6 @@ namespace DNDocs.Web
             app.UseVHttpExceptions();
 
             app.UseResponseCaching();
-            app.UseMiddleware<RateLimitMiddleware>();
 
             var cultures = new[] { "en-US" };
             var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(cultures[0])
@@ -93,7 +91,7 @@ namespace DNDocs.Web
                 if (!string.IsNullOrEmpty(token) &&
                     !context.Request.Headers.ContainsKey("Authorization"))
                 {
-                    context.Request.Headers.Add("Authorization", "Bearer " + token);
+                    context.Request.Headers.Append("Authorization", "Bearer " + token);
                 }
 
                 await next();
@@ -276,18 +274,6 @@ namespace DNDocs.Web
             }
 
             services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
-            services.AddSingleton<IRateLimitService, RateLimitService>(c =>
-            {
-                var logger = c.GetService<ILogger<RateLimitHandlerFixedWindow>>();
-                var handlers = new RateLimitHandler[]
-                {
-                     new RateLimitHandlerFixedWindow(RLP.Project, TimeSpan.FromMinutes(30), 20, RLStandardBoxId.ByHeaderAuthorization, logger),
-                     new RateLimitHandlerFixedWindow(RLP.TryItCreateProject, TimeSpan.FromMinutes(30), 5, RLStandardBoxId.ByIp, logger),
-                     new RateLimitHandlerFixedWindow(RLP.Login, TimeSpan.FromMinutes(15), 3, RLStandardBoxId.ByIp, logger)
-                };
-
-                return new RateLimitService(handlers);
-            });
 
             // Repositories
             IList<DIType> repos;

@@ -106,7 +106,7 @@ namespace DNDocs.Application.CommandHandlers.Projects
             await uow.GetSimpleRepository<Project>().CreateAsync(project);
             await uow.SaveChangesAsync();
 
-            abw.DoSystemWorkNow();
+            abw.RunBuildProjects();
 
             return project.Id;
         }

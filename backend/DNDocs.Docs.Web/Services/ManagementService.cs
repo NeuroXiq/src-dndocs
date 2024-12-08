@@ -174,7 +174,6 @@ namespace DNDocs.Docs.Web.Services
                     //    ".css", ".js", ".woff", ".woff2",
                     //    ".min.js", ".min.js.map", ".map", ".svg", ".ico"
                     //};
-                    // bool candidate = candidateToSharedSiteItemsExtensions.Any(t => si.Path.EndsWith(t, StringComparison.OrdinalIgnoreCase));
                     string[] names = new string[] { "/favicon.ico", "/logo.svg" };
                     bool candidate = si.Path.StartsWith("/public", StringComparison.OrdinalIgnoreCase);
                     candidate |= names.Any(t => string.Compare(t, si.Path, StringComparison.OrdinalIgnoreCase) == 0);

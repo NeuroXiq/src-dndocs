@@ -67,8 +67,25 @@ namespace DNDocs.Docs.IntegrationTests
             if (!File.Exists(TestsAppConfig.PathBigSiteZip))
                 throw new Exception($"Startup exception: big path site file does not exists in '{TestsAppConfig.PathBigSiteZip}'");
 
+
+
+            TrickKillExistingProcess();
             CleanupInfrastructureFiles();
             StartServer();
+        }
+
+        static void TrickKillExistingProcess()
+        {
+            var runningProcesses = Process.GetProcessesByName("DNDocs.Docs.Web");
+            if (runningProcesses.Any())
+            {
+                // todo: investigate, sometimes in tests debug process is still running
+                // (probably global TearDown not run when killing/stopping process from VS)
+                // so kill manually
+                runningProcesses.FirstOrDefault()?.Kill();
+                // wait second for OS kill process
+                Thread.Sleep(1000);
+            }
         }
 
         static void StartServer()
@@ -173,9 +190,10 @@ namespace DNDocs.Docs.IntegrationTests.Shared
 
         public Stream GetSmallSiteFileStream()
         {
-            //return new FileStream(TestsAppConfig.DdocsHttpsUrl)
-            return null;
+            return new FileStream(TestsAppConfig.PathSmallSizeZip, FileMode.Open, FileAccess.Read);
         }
+
+        
 
         public static DDocsApiClient CreateNewHttpClient()
         {
@@ -187,6 +205,11 @@ namespace DNDocs.Docs.IntegrationTests.Shared
                 {
                     return true;
                 };
+
+            var client = new HttpClient(handler);
+            
+            client.BaseAddress = new Uri(TestsAppConfig.DdocsHttpsUrl);
+            client.Timeout = TimeSpan.FromMinutes(1);
 
             var clientIgnoreTlsCert = new DDocsApiClient(
                 new DDocsApiClientOptions(TestsAppConfig.ApiKey, TestsAppConfig.DdocsHttpsUrl));

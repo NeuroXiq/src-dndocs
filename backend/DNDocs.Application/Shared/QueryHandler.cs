@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using DNDocs.Domain.Utils;
-using DNDocs.Shared.Log;
+
 using System.Diagnostics;
 
 namespace DNDocs.Application.Shared

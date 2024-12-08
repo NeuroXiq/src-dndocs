@@ -97,7 +97,7 @@ namespace DNDocs.Application.CommandHandlers.Integration
             await appUow.ProjectRepository.CreateAsync(p);
             await appUow.SaveChangesAsync();
 
-            bgw.DoSystemWorkNow();
+            bgw.RunBuildProjects();
         }
     }
 }

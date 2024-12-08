@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using DNDocs.Shared.Log;
+
 using DNDocs.Application.Application;
 using DNDocs.Application.Shared;
-using DNDocs.Shared.Log;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging.Configuration;
 using DNDocs.Domain.Utils;
@@ -18,7 +18,7 @@ namespace DNDocs.Application.Utils
         public static void AddRobiniaApplication(WebApplicationBuilder builder)
         {
             IServiceCollection serviceCollection = builder.Services;
-            AddDatabaseStoreLogger(builder.Logging);
+            // AddDatabaseStoreLogger(builder.Logging);
 
             serviceCollection.AddVBufferLogger(c => c.MaxLogsTreshold = 10000);
             serviceCollection.AddHostedService<ApiBackgroundWorker>();
@@ -26,7 +26,6 @@ namespace DNDocs.Application.Utils
 
             serviceCollection.AddScoped<ICommandDispatcher, CommandDispatcher>();
             serviceCollection.AddScoped<IQueryDispatcher, QueryDispatcher>();
-            serviceCollection.AddScoped(typeof(ILog<>), typeof(Logg<>));
             serviceCollection.AddSingleton<IBgJobQueue, BgJobQueue>();
 
             var allCommandAndQueryHandlers = ReflectionFindAllHandlers();
@@ -34,17 +33,17 @@ namespace DNDocs.Application.Utils
             foreach (var type in allCommandAndQueryHandlers) serviceCollection.AddScoped(type);
         }
 
-        private static ILoggingBuilder AddDatabaseStoreLogger(ILoggingBuilder builder)
-        {
-            builder.Services.TryAddEnumerable(
-                ServiceDescriptor.Singleton<ILoggerProvider, DatabaseStoreLoggerProvider>());
+        //private static ILoggingBuilder AddDatabaseStoreLogger(ILoggingBuilder builder)
+        //{
+        //    builder.Services.TryAddEnumerable(
+        //        ServiceDescriptor.Singleton<ILoggerProvider, DatabaseStoreLoggerProvider>());
 
-            LoggerProviderOptions.RegisterProviderOptions
-                <DatabaseStoreLoggerOptions, DatabaseStoreLoggerProvider>(builder.Services);
+        //    LoggerProviderOptions.RegisterProviderOptions
+        //        <DatabaseStoreLoggerOptions, DatabaseStoreLoggerProvider>(builder.Services);
 
 
-            return builder;
-        }
+        //    return builder;
+        //}
 
         internal static Type[] ReflectionFindAllHandlers()
         {
