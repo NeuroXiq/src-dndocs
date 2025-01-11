@@ -21,15 +21,19 @@ using Microsoft.Extensions.Options;
 
 namespace DNDocs.Docs.Web
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-#if DEBUG
-            SetupIfIntegrationTests(builder);
-#endif
+            if (builder.Environment.EnvironmentName == "IntegrationTests")
+            {
+                Console.Title = "DNDocs.Docs";
+                builder.Configuration.AddJsonFile("appsettings.Development.json", false);
+                builder.Configuration.AddJsonFile("appsettings.IntegrationTests.json", false);
+            }
+
             // Add services to the container.
             var settings = new DSettings();
 
@@ -161,6 +165,16 @@ namespace DNDocs.Docs.Web
             return true;
         }
 
+        /// <summary>
+        /// Method used to start program for integration tests.
+        /// Call this method on separate thread to run host and 
+        /// run IT
+        /// </summary>
+        public static void MainIT()
+        {
+            Program.Main(new string[] { "IntegrationTests" });
+        }
+
         class asdf : IHttpClientFactory
         {
             public HttpClient CreateClient(string name)
@@ -168,28 +182,5 @@ namespace DNDocs.Docs.Web
                 return new HttpClient();
             }
         }
-
-
-#if DEBUG
-        private static void SetupIfIntegrationTests(WebApplicationBuilder builder)
-        {
-            // trick for integration tests to attach VS debugger
-            var a = builder.Configuration.GetValue<string>("ASPNETCORE_ISINTEGRATIONTESTS");
-
-            if (a?.ToLower() == "true")
-            {
-                //var infrastructure = builder.Configuration.GetSection("DSettings:DFileSystemOptions:InfrastructureFolderOSPath").Value;
-
-                //if (infrastructure?.EndsWith("temp\\it-ddocs"))
-                //{
-                    
-                //}
-
-                // throw new Exception("ittest");
-                // Debugger.Launch();
-            }
-        }
-#endif
-
     }
 }

@@ -32,6 +32,12 @@ namespace DNDocs.Web
 {
     public class Program
     {
+        /// <summary>
+        /// Method used to start server for integration tests, start this method on separate thread
+        /// using this method and run integration tests
+        /// </summary>
+        public static void ITMain() { Main(new string[] { "IntegrationTests" }); }
+
         static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +45,7 @@ namespace DNDocs.Web
 
             if (builder.Environment.IsDevelopment()) builder.Logging.AddConsole();
 
-            if (builder.Environment.EnvironmentName == "IntegrationTests")
+            if (builder.Environment.EnvironmentName == "IntegrationTests" || args.Contains("IntegrationTests"))
             {
                 builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false);
                 builder.Configuration.AddJsonFile("appsettings.IntegrationTests.json", optional: false);
@@ -63,6 +69,7 @@ namespace DNDocs.Web
                 .AllowAnyHeader());
 
 
+            // todo remove this when get rid of node.js server when vite
             var fho = new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.All,

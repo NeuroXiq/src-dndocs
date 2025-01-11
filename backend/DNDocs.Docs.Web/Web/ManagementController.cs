@@ -66,7 +66,7 @@ namespace DNDocs.Docs.Web.Web
         {
             GetManagementEndpoint(HttpMethod.Get, "/ping/{reply?}", Ping),
             GetManagementEndpoint(HttpMethod.Post, "/createproject", CreateProject),
-            GetManagementEndpoint(HttpMethod.Get, "/deleteproject", DeleteProject),
+            GetManagementEndpoint(HttpMethod.Post, "/delete-project", DeleteProject),
             GetManagementEndpoint(HttpMethod.Get, "/metrics/{seconds:int?}", Metrics),
             GetManagementEndpoint(HttpMethod.Get, "/site-item-id-paged", GetSiteItemPaged),
         };
@@ -123,7 +123,7 @@ namespace DNDocs.Docs.Web.Web
 
         private static async Task<IResult> DeleteProject(
             HttpContext context,
-            [FromBody]DeleteProjectModel model,
+            [FromBody] DeleteProjectModel model,
             [FromServices] IManagementControllerContext mmc)
         {
             Authorized(context, mmc);
@@ -142,7 +142,6 @@ namespace DNDocs.Docs.Web.Web
             [FromServices] IManagementControllerContext mmc)
         {
             Authorized(context, mmc);
-
 
             using var tempFile = mmc.OSApi.CreateTempFile();
             using var stream = File.Create(tempFile.OSFullPath);

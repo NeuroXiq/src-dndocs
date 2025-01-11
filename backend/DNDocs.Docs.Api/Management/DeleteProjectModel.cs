@@ -3,5 +3,12 @@
     public class DeleteProjectModel
     {
         public int ProjectId { get; set; }
+
+        public DeleteProjectModel() { }
+
+        public DeleteProjectModel(int projectId)
+        {
+            ProjectId = projectId;
+        }
     }
 }

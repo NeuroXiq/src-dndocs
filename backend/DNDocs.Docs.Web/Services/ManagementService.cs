@@ -100,7 +100,7 @@ namespace DNDocs.Docs.Web.Services
                     DValidation.Throw(string.IsNullOrWhiteSpace(nPackageVersion), "nugetackagevernot null");
                     DValidation.Throw(!string.IsNullOrWhiteSpace(urlPrefix), "urlprefix must be null");
                     DValidation.Throw((
-                        await qrepository.SelectNugetProjectAsync(nPackageName, nPackageVersion))!= null,
+                        await qrepository.SelectNugetProjectAsync(nPackageName, nPackageVersion)) != null,
                         $"project with nuget package: {nPackageName} {nPackageVersion} already exists");
                     break;
                 default:
@@ -221,25 +221,21 @@ namespace DNDocs.Docs.Web.Services
             // maybe never delete and mark with 'deleted' flag?
             // not sure what to do
 
+            var currentProject = await repository.SelectProjectByIdAsync(dnProjectId);
 
-            // await PrivateDeleteProject(dnProjectId);
-            // await  this.repository.CommitAsync();
+            DValidation.Throw(currentProject == null, $"project with dnprojectid: '{dnProjectId}' does not exists");
+            var projectId = currentProject.DnProjectId;
+
+            logger.LogTrace("Deleting sitehtml, projectid: {0}", projectId);
+
+            await repository.DeleteSiteHtmlByProjectIdAsync(projectId);
+            await repository.DeleteProjectAsync(projectId);
+            await repository.CommitAsync();
         }
 
         public async Task PrivateDeleteProject(int dnProjectId)
         {
-            var currentProject = await repository.SelectProjectByIdAsync(dnProjectId);
-            
-            DValidation.Throw(currentProject == null, $"project with dnprojectid: '{dnProjectId}' does not exists");
-            var projectId = currentProject.DnProjectId;
 
-
-            logger.LogTrace("Deleting sitehtml, projectid: {0}", projectId);
-            
-            await repository.DeleteSiteHtmlByProjectIdAsync(projectId);
-            await repository.DeleteProjectAsync(projectId);
-
-            // todo what to do with shared_site_item?
         }
 
         public void Ping()

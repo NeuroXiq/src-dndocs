@@ -1,5 +1,6 @@
 ﻿using DNDocs.Docs.Api.Client;
 using DNDocs.Docs.IntegrationTests.Shared;
+using DNDocs.IntergrationTests.Shared;
 using Microsoft.Extensions.Options;
 using NUnit.Framework.Constraints;
 using System;
@@ -24,42 +25,7 @@ namespace DNDocs.Docs.IntegrationTests
 
 
         [OneTimeSetUp]
-        public void Start_OneTimeSetupGlobalSetup()
-        {
-            try
-            {
-                OneTimeSetup();
-            }
-            catch (Exception e)
-            {
-                TestsBase.HardAbortAll = true;
-                throw e;
-            }
-        }
-
-
-
-        [OneTimeTearDown]
-        public void Start_OneTimeGlobalTeardown()
-        {
-            ddocsProcess.Kill(true);
-            ddocsProcess.Dispose();
-        }
-
-        static void CleanupInfrastructureFiles()
-        {
-            var itpath = TestsAppConfig.PathDDocsTestsInfrastructureDir;
-            if (!(itpath?.EndsWith(@"\var\it-ddocs") == true))
-            {
-                TestsBase.HardAbortAll = true;
-                throw new Exception("'!(itpath?.EndsWith(@\"\\var\\it-ddocs\") == true)': is this corrent? throwing for safe purpose before delete");
-            }
-
-            var files = Directory.GetFiles(TestsAppConfig.PathDDocsTestsInfrastructureDir).ToList();
-            files.ForEach(File.Delete);
-        }
-
-        static void OneTimeSetup()
+        public async Task Start_OneTimeSetupGlobalSetup()
         {
             if (!File.Exists(TestsAppConfig.PathSmallSizeZip))
                 throw new Exception($"Startup exception: small path site  file does not exists in '{TestsAppConfig.PathSmallSizeZip}'");
@@ -67,87 +33,14 @@ namespace DNDocs.Docs.IntegrationTests
             if (!File.Exists(TestsAppConfig.PathBigSiteZip))
                 throw new Exception($"Startup exception: big path site file does not exists in '{TestsAppConfig.PathBigSiteZip}'");
 
-
-
-            TrickKillExistingProcess();
-            CleanupInfrastructureFiles();
-            StartServer();
+            ITSetup.StartServer_DDocs();
         }
 
-        static void TrickKillExistingProcess()
+        [OneTimeTearDown]
+        public void Start_OneTimeGlobalTeardown()
         {
-            var runningProcesses = Process.GetProcessesByName("DNDocs.Docs.Web");
-            if (runningProcesses.Any())
-            {
-                // todo: investigate, sometimes in tests debug process is still running
-                // (probably global TearDown not run when killing/stopping process from VS)
-                // so kill manually
-                runningProcesses.FirstOrDefault()?.Kill();
-                // wait second for OS kill process
-                Thread.Sleep(1000);
-            }
-        }
-
-        static void StartServer()
-        {
-            // need to start real server to perform http requests on real environment
-            // now starting with debug environment
-
-            var existing = Process.GetProcessesByName("DNDocs.Docs.Web");
-            if (existing.Length == 1) { existing[0].Kill(); }
-            else if (existing.Length > 1) throw new Exception("startup exception, more than 1 process dndocs.docs.web found. unexpected");
-            var startInfo = new ProcessStartInfo();
-
-            // false -> want to this process be child of current proceess
-            // to be destroyd after tests ends
-            startInfo.UseShellExecute = false;
-            startInfo.FileName = @"C:\Program Files\dotnet\dotnet.exe";
-            startInfo.Arguments = $"run --project  \"{TestsAppConfig.PathDndocsDocsCsproj}\" --launch-profile IntegrationTests";
-            startInfo.WindowStyle = ProcessWindowStyle.Normal;
-            startInfo.RedirectStandardError = true;
-            startInfo.RedirectStandardOutput = true;
-
-            ddocsProcess = Process.Start(startInfo);
-
-            // need to wait a second because 
-            // sometimes tests start before app setup finish
-            // question: when to know when app is ready to use?
-            
-            bool ok = false;
-            var clientCheckAlive = TestsBase.CreateNewHttpClient();
-            for (int i = 0; i < 10; i++)
-            {
-                try
-                {
-                    Thread.Sleep(500);
-                    clientCheckAlive.Public_Ping();
-                    ok = true;
-                } catch { }
-            }
-
-            if (!ok) throw new Exception("failed to ping or run ddocs.docs server after 5 seconds");
-
-            //if (p.HasExited) throw new Exception("dndocs.docs failed to start, exited right after start");
-            ObserveDndocsProcess(ddocsProcess);
-        }
-
-        static void ObserveDndocsProcess(Process process)
-        {
-            Task.Factory.StartNew((pObj) =>
-            {
-                Process p = pObj as Process;
-                var outReader = p.StandardOutput;
-                var outErrReader = p.StandardError;
-
-                while (true)
-                {
-                    Thread.Sleep(1000);
-                    var stdo = outReader.ReadToEnd();
-                    var stderr = outErrReader.ReadToEnd();
-
-                    Console.WriteLine("stdo: \r\n{0}\r\nstderr:\r\n{1}", stdo, stderr);
-                }
-            }, process);
+            ddocsProcess.Kill(true);
+            ddocsProcess.Dispose();
         }
 
         

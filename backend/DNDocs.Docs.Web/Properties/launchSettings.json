@@ -9,18 +9,6 @@
     }
   },
   "profiles": {
-    "IntegrationTests": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchUrl": "system/projects",
-      "applicationUrl": "https://localhost:7088;http://localhost:5139",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_ISINTEGRATIONTESTS": "true",
-        "DSettings__DFileSystemOptions__InfrastructureFolderOSPath": "C:\\my-files\\projects\\DNDocsRepo\\var\\it-ddocs"
-      }
-    },
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,

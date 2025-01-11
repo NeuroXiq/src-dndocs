@@ -167,7 +167,7 @@ namespace DNDocs.Docs.Web.Web
                 var compressed = new MemoryStream(byteData);
                 var decompressed = new MemoryStream();
 
-                BrotliStream brotliStream = new BrotliStream(compressed, CompressionMode.Decompress);
+                using BrotliStream brotliStream = new BrotliStream(compressed, CompressionMode.Decompress);
                 brotliStream.CopyTo(decompressed);
                 brotliStream.Flush();
                 brotliStream.Close();

@@ -32,6 +32,7 @@ namespace DNDocs.Domain.ServiceImpl
         private IUnitOfWorkFactory uowFactory;
         private IAppManager appManager;
         private IRepository<ProjectVersioning> projectVersioningRepo;
+        private IDDocsApiClient ddocsApiClient;
         private INugetRepositoryFacade nugetRepositoryFacade;
         private ISystemMessages systemMessages;
         private ICurrentUser user;
@@ -46,11 +47,13 @@ namespace DNDocs.Domain.ServiceImpl
             IAppManager appManager,
             IUnitOfWorkFactory uowFactory,
             IOptions<DNDocsSettings> rsettings,
-           ILogger<ProjectManager> logger,
+            ILogger<ProjectManager> logger,
             ICurrentUser user,
             ISystemMessages systemMessages,
+            IDDocsApiClient ddocsApiClient,
             INugetRepositoryFacade nugetRepositoryFacade)
         {
+            this.ddocsApiClient = ddocsApiClient;
             this.nugetRepositoryFacade = nugetRepositoryFacade;
             this.systemMessages = systemMessages;
             this.user = user;
@@ -80,6 +83,7 @@ namespace DNDocs.Domain.ServiceImpl
             await appUow.GetSimpleRepository<SystemMessage>().ExecuteDeleteAsync(t => t.ProjectId == id);
 
             await projectRepo.DeleteAsync(id);
+            await ddocsApiClient.Management_DeleteProject(id);
         }
 
         public async Task AutoupgradeSingleton(int projectId)
@@ -189,7 +193,6 @@ namespace DNDocs.Domain.ServiceImpl
             //    return newest;
             //}
         }
-        
 
         public async Task ValidateCreate(CreateProjectParams p, bool isRawUserInput = false)
         {
@@ -318,8 +321,6 @@ namespace DNDocs.Domain.ServiceImpl
 
         public async Task<int> CreateSingletonProject(CreateProjectParams p)
         {
-            
-
             var project = await InsertIntoDb(p);
 
             systemMessages.Success(project,

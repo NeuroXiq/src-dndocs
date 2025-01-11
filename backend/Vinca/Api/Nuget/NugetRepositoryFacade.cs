@@ -7,7 +7,9 @@ using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Vinca.Exceptions;
 using Vinca.Utils;
@@ -20,6 +22,8 @@ namespace Vinca.Api.Nuget
         PackageSearchMetadata GetLatestPackage(string packageName);
         PackageSearchMetadata GetPackageMetadata(string identityId, string identityVersion);
         PackageSearchMetadata[] GetPackageMetadata(string packageName);
+        Task<NugetCatalogRoot> GetCatalogRoot();
+        Task<NugetCatalogPage> GetCatalogPage(string id);
     }
 
     public class PackageSearchMetadata
@@ -57,6 +61,87 @@ namespace Vinca.Api.Nuget
         public byte[] ByteData { get; set; }
     }
 
+    public class NugetCatalogPageItem
+    {
+        [JsonPropertyName("@id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("@type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("commitId")]
+        public string CommitId { get; set; }
+
+        [JsonPropertyName("commitTimeStamp")]
+        public string CommitTimeStamp { get; set; }
+
+        [JsonPropertyName("nuget:id")]
+        public string NugetId { get; set; }
+
+        [JsonPropertyName("nuget:version")]
+        public string NugetVersion { get; set; }
+    }
+
+    public class NugetCatalogPage
+    {
+        [JsonPropertyName("@id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("@type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("commitId")]
+        public string CommitId { get; set; }
+
+        [JsonPropertyName("commitTimeStamp")]
+        public DateTime CommitTimeStamp { get; set; }
+
+        [JsonPropertyName("count")]
+        public int Count { get; set; }
+
+        [JsonPropertyName("parent")]
+        public string Parent { get; set; }
+
+        [JsonPropertyName("items")]
+        public NugetCatalogPageItem[] Items { get; set; }
+    }
+
+    public class NugetCatalogRootItem
+    {
+        [JsonPropertyName("@id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("@type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("commitId")]
+        public string CommitId { get; set; }
+
+        [JsonPropertyName("commitTimeStamp")]
+        public DateTime CommitTimeStamp { get; set; }
+
+        [JsonPropertyName("count")]
+        public int Count { get; set; }
+    }
+    
+    public class NugetCatalogRoot
+    {
+        [JsonPropertyName("commitId")]
+        public string CommitId { get; set; }
+        
+        [JsonPropertyName("commitTimeStamp")]
+        public DateTime CommitTimeStamp { get; set; }
+        
+        [JsonPropertyName("Count")]
+        public int Count { get; set; }
+        
+        [JsonPropertyName("@id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("items")]
+        public NugetCatalogRootItem[] Items { get; set; }
+    }
+
     internal class NugetRepositoryFacade : INugetRepositoryFacade
     {
         private IOSApi osapi;
@@ -65,10 +150,32 @@ namespace Vinca.Api.Nuget
         // private ICache cache;
         // private IAppManager appManager;
 
-        public NugetRepositoryFacade(IOSApi osapi, ILogger<NugetRepositoryFacade> logger)
+        public NugetRepositoryFacade(
+            IOSApi osapi,
+            ILogger<NugetRepositoryFacade> logger)
         {
             this.osapi = osapi;
             this.logger = logger;
+        }
+
+        public async Task<NugetCatalogRoot> GetCatalogRoot()
+        {
+            string url = "https://api.nuget.org/v3/catalog0/index.json";
+            var client = new HttpClient();
+            var json = await client.GetStringAsync(url);
+            var result = System.Text.Json.JsonSerializer.Deserialize<NugetCatalogRoot>(json);
+
+            return result;
+        }
+
+        public async Task<NugetCatalogPage> GetCatalogPage(string id)
+        {
+            string url = id;
+            var client = new HttpClient();
+            var json = await client.GetStringAsync(url);
+            var result = System.Text.Json.JsonSerializer.Deserialize<NugetCatalogPage>(json);
+
+            return result;
         }
 
         public PackageLibFile[] FetchDllAndXmlFromPackage(string packageName, string version)

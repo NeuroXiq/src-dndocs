@@ -34,6 +34,8 @@ namespace DNDocs.Docs.Api.Client
                 );
 
         Task<IList<SiteItemDto>> Management_GetSiteItemIdPaged(long startId, int count);
+
+        Task Management_DeleteProject(int projectId);
     }
 
     public class DDocsApiClient : IDDocsApiClient
@@ -65,6 +67,16 @@ namespace DNDocs.Docs.Api.Client
             result.EnsureSuccessStatusCode();
 
             return await result.Content.ReadAsStringAsync();
+        }
+
+        public async Task Management_DeleteProject(int projectId)
+        {
+            HandleResponse(await client.PostAsJsonAsync(DUrls.Management_DeleteProject, new DeleteProjectModel(projectId)));
+        }
+
+        private void HandleResponse(HttpResponseMessage response)
+        {
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<DDocsApiResult> Management_CreateProject(

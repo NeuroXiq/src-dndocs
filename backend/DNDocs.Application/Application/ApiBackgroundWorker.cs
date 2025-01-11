@@ -26,6 +26,11 @@ using DNDocs.Docs.Api.Client;
 using NuGet.Packaging;
 using DNDocs.Docs.Api.Management;
 using Vinca.Api;
+using System.Runtime.CompilerServices;
+using Vinca.Api.Nuget;
+using Microsoft.EntityFrameworkCore;
+using DNDocs.Domain.Service;
+using DNDocs.Application.Commands.Application;
 
 namespace DNDocs.Application.Application
 {
@@ -39,6 +44,7 @@ namespace DNDocs.Application.Application
         private Timer timerSaveLogs;
         private Timer timerBuildProjects;
         private Timer timerIndexNow;
+        private Timer timerProcessNugetCatalog;
         private IIndexNowApi indexNowApi;
         private IDDocsApiClient ddocsApiClient;
         private IVHttpLogService vHttpLogs;
@@ -47,7 +53,8 @@ namespace DNDocs.Application.Application
         private IServiceProvider services;
         private ILogger<ApiBackgroundWorker> logger;
         private Task taskIndexNow = Task.CompletedTask;
-        private int isBuildProjects;
+        private Task taskBuildProjects = Task.CompletedTask;
+        private Task taskProcessNuGetCatalog = Task.CompletedTask;
 
         public ApiBackgroundWorker(IServiceProvider services,
             ILogger<ApiBackgroundWorker> logger,
@@ -71,8 +78,6 @@ namespace DNDocs.Application.Application
             this.SleepSecondsDoWork = robiniaSettings.Value.BackendBackgroundWorkerDoWorkSleepSeconds;
             cancellationTokenSource = new CancellationTokenSource();
             this.bgjobQueue = bgjobQueue;
-
-            isBuildProjects = 0;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -82,11 +87,21 @@ namespace DNDocs.Application.Application
             timerSaveLogs = new Timer(BgWork_SaveLogs, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(SleepSecondsDoImportantWork));
             timerBuildProjects = new Timer(BgWork_BuildProjects, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(SleepSecondsDoWork));
             timerIndexNow = new Timer(OnTimerIndexNow, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24.1));
+            timerProcessNugetCatalog = new Timer(OnTimerProcessNugetCatalog, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24));
 
             await bgjobQueue.OnSystemStart();
 
             // 1. generate projects
             // 2. cleanup bgjob remote services
+        }
+
+        private void OnTimerProcessNugetCatalog(object _)
+        {
+            lock (_lock)
+            {
+                if (!taskProcessNuGetCatalog.IsCompleted) return;
+                taskProcessNuGetCatalog = Task.Run(() => RunCommand(new BgJobProcessNugetCatalogCommand()));
+            }
         }
 
         private void OnTimerIndexNow(object state)
@@ -159,7 +174,7 @@ namespace DNDocs.Application.Application
             {
                 Dispose(true);
                 logger.Log(LogLevel.Information, "On before stopping backend background service");
-                
+
                 BgWork_SaveLogs(null);
 
                 cancellationTokenSource.Cancel();
@@ -284,58 +299,66 @@ VALUES
 
         private void BgWork_BuildProjects(object _)
         {
-            if (Interlocked.Exchange(ref isBuildProjects, 1) != 0)
+            lock (_lock)
             {
-                return;
-            }
-
-            try
-            {
-                var t = new Thread(BuildProjectThreadHandler);
-
-                t.Priority = ThreadPriority.Normal;
-                t.IsBackground = true;
-                t.Start();
-            }
-            catch (Exception)
-            {
-                isBuildProjects = 0;
+                if (!taskBuildProjects.IsCompleted) return;
+                taskBuildProjects = Task.Run(() => RunCommand(new BuildProjectCommand()));
             }
         }
 
-        void BuildProjectThreadHandler()
+        async Task RunCommand(ICommand command)
         {
-            try
+            using (var scope = services.CreateScope())
             {
-                using (var scope = services.CreateScope())
+                try
                 {
-                    var uow = scope.ServiceProvider.GetRequiredService<IAppUnitOfWork>();
+                    var cd = scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
+                    var currentUser = scope.ServiceProvider.GetRequiredService<ICurrentUser>();
 
-                    try
-                    {
-                        var cd = scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
-                        var currentUser = scope.ServiceProvider.GetRequiredService<ICurrentUser>();
+                    currentUser.AuthenticateAsUser(fromUserLogin: User.AdministratorUserLogin);
 
-                        currentUser.AuthenticateAsUser(fromUserLogin: User.AdministratorUserLogin);
-
-                        var result = cd.Dispatch(new BuildProjectCommand(), cancellationTokenSource.Token);
-                    }
-                    catch (Exception e)
-                    {
-                        logger.LogError(e, "failed processing buildproject command");
-                    }
-                    uow.SaveChanges();
+                    var result = await cd.DispatchAsync(command, cancellationTokenSource.Token);
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "failed processing command");
                 }
             }
-            catch (Exception e)
-            {
-                this.logger.LogError(e, "failed to process bg job queue");
-            }
-            finally
-            {
-                isBuildProjects = 0;
-            }
         }
+
+        //void BuildProjectThreadHandler()
+        //{
+        //    try
+        //    {
+        //        using (var scope = services.CreateScope())
+        //        {
+        //            var uow = scope.ServiceProvider.GetRequiredService<IAppUnitOfWork>();
+
+        //            try
+        //            {
+        //                var cd = scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
+        //                var currentUser = scope.ServiceProvider.GetRequiredService<ICurrentUser>();
+
+        //                currentUser.AuthenticateAsUser(fromUserLogin: User.AdministratorUserLogin);
+
+        //                var result = cd.Dispatch(new BuildProjectCommand(), cancellationTokenSource.Token);
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                logger.LogError(e, "failed processing buildproject command");
+        //            }
+        //            uow.SaveChanges();
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        this.logger.LogError(e, "failed to process bg job queue");
+        //    }
+        //    finally
+        //    {
+        //        isBuildProjects = 0;
+        //    }
+        //}
 
         ~ApiBackgroundWorker() { Dispose(false); }
         public void Dispose() { Dispose(true); }
