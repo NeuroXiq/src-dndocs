@@ -156,7 +156,6 @@ namespace DNDocs.Docs.Api.Client
         }
     }
 
-
     public class DDocsApiResult
     {
         public HttpResponseMessage RawResponse { get; set; }

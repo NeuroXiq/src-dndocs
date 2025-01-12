@@ -63,11 +63,13 @@ namespace DNDocs.Web
 
             var app = builder.Build();
 
-            app.UseCors(c => c.WithOrigins(robiniaSettings.CorsAllowedOrigins)
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .AllowAnyHeader());
+            DeploySetup(app);
+            if (app.Environment.IsDevelopment()) DevDataSeedSetup(app.Services);
 
+            var cultures = new[] { "en-US" };
+            var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(cultures[0])
+                .AddSupportedCultures(cultures)
+                .AddSupportedUICultures(cultures);
 
             // todo remove this when get rid of node.js server when vite
             var fho = new ForwardedHeadersOptions
@@ -78,17 +80,15 @@ namespace DNDocs.Web
             fho.KnownNetworks.Clear();
             fho.KnownProxies.Clear();
 
+            app.UseCors(c => c.WithOrigins(robiniaSettings.CorsAllowedOrigins)
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .AllowAnyHeader());
+
             app.UseForwardedHeaders(fho);
             app.UseVHttpLogs();
             app.UseVHttpExceptions();
-
             app.UseResponseCaching();
-
-            var cultures = new[] { "en-US" };
-            var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(cultures[0])
-                .AddSupportedCultures(cultures)
-                .AddSupportedUICultures(cultures);
-
             app.UseRequestLocalization(localizationOptions);
 
             app.Use(async (context, next) =>
@@ -111,18 +111,27 @@ namespace DNDocs.Web
                 // app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
-                // is thi needed on linux?
             }
 
-            app.UseStaticFiles(new StaticFileOptions() { RequestPath = "/api" });
-
-            DeploySetup(app);
-
-            if (app.Environment.IsDevelopment()) DevDataSeedSetup(app.Services);
-
+            app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            app.Use(async (context, next) =>
+            {
+                // trick - investigate other solution
+                // how to determine if route starts with 'api' and this route is not frontend route?
+                // this temporary solution will work for now
+                if (context.Request.Path.StartsWithSegments("/api") && context.GetEndpoint()?.DisplayName.StartsWith("Fallback") == true)
+                {
+                    context.Response.StatusCode = 404;
+                    return;
+                }
+
+                await next(context);
+            });
+
+            app.MapFallbackToFile("index.html");
             app.Run();
         }
 

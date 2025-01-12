@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <Folder Include="AutoMapper\" />
-    <Folder Include="wwwroot\js\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +49,14 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+    <Content Update="wwwroot\.gitignore">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

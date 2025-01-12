@@ -21,23 +21,24 @@ namespace DNDocs.Docs.Web.Services
         Task CommitAsync();
         Task RollbackAsync();
 
-        Task InsertSharedSiteItem(SharedSiteItem newShared);
-
+        
         Task InsertSiteHtmlAsync(SiteItem item);
-        Task<Project> SelectProjectByIdAsync(long id);
-        Task UpdateProjectAsync(Project project);
-        Task InsertProjectAsync(Project project);
-
         Task InsertHttpLogAsync(IEnumerable<VHttpLog> logs);
-        Task<Project> SelectVersionProject(string urlPrefix, string version);
-        Task<Project> SelectSingletonProjectAsync(string urlPrefix);
         Task DeleteSiteHtmlByProjectIdAsync(long projectId);
         Task InsertAppLogAsync(IEnumerable<AppLog> logRows);
         
         Task<IEnumerable<string>> SelectSiteItemPathByProjectId(long projectId);
-        Task DeleteProjectAsync(long projectId);
         Task<long?> SelectSharedSiteItemIdBySha256(string sha256);
         Task InsertResourceMonitorUtilization(ResourceMonitorUtilization rmu);
+
+        // project
+        Task UpdateProjectAsync(Project project);
+        Task InsertProjectAsync(Project project);
+        Task<Project> SelectProjectByIdAsync(long id);
+        Task<Project> SelectProjectByDnIdAsync(int projectDnId);
+        Task DeleteProjectAsync(long projectId);
+        Task<Project> SelectVersionProject(string urlPrefix, string version);
+        Task<Project> SelectSingletonProjectAsync(string urlPrefix);
 
         // varsite
         Task InsertSitemap(Sitemap sitemap);
@@ -46,6 +47,7 @@ namespace DNDocs.Docs.Web.Services
         Task UpdatePublicHtml(PublicHtml publicHtml);
         Task DeleteSitemapIndex();
         Task<IEnumerable<Sitemap>> SelectAllSitemap();
+        Task InsertSharedSiteItem(SharedSiteItem newShared);
 
         // other
         Task<IEnumerable<long>> ScriptForSitemapGenerator();
@@ -300,6 +302,12 @@ namespace DNDocs.Docs.Web.Services
             return await connection.QuerySingleOrDefaultAsync<Project>(
                 sql,
                 new { NugetPackageName = nugetPackageName, NugetPackageVersion = nugetPackageVersion, ProjectType = ProjectType.Nuget });
+        }
+
+        public async Task<Project> SelectProjectByDnIdAsync(int dnProjectId)
+        {
+            var conn = GetSqliteConnection(DatabaseType.App);
+            return await conn.QueryFirstOrDefaultAsync<Project>($"{SqlText.SelectProject} WHERE dn_project_id = @dnProjectId", new { dnProjectId });
         }
 
         public async Task<Project> SelectProjectByIdAsync(long id)

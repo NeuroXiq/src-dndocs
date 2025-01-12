@@ -29,8 +29,12 @@ namespace DNDocs.Application.CommandHandlers.Application
 
         public override async Task Handle(BgJobProcessNugetCatalogCommand command)
         {
-            // fetch data from nuget catalog to check which packages were deleted
-            // and block/delete them (e.g. https://github.com/NuGet/NuGetGallery/issues/10055) 
+            // fetch data from nuget catalog to check which packages were deleted/modified
+            // 1. fetch page if not in our DB now
+            // 2. fetch page if nuget changed that page and process again
+            // then process: 
+            // 1. block/delete packages (e.g. https://github.com/NuGet/NuGetGallery/issues/10055) 
+            // 2. generate newest nuget package peemptively if it was changed and we already host it
             var maxOldToCheck = DateTime.Now.AddDays(-30);
 
             var pagesInDb = await uow.Query<DNDocs.Domain.Entity.App.NugetCatalogPage>()
@@ -42,10 +46,11 @@ namespace DNDocs.Application.CommandHandlers.Application
 
             foreach (var pageInDb in pagesInDb)
             {
-                // was modified?
+                // we have processed some nuget catalog page earlier, 
+                // was this page modified by nuget later?
                 if (catalogItems.FirstOrDefault(t => t.Id == pageInDb.NId)?.CommitId != pageInDb.CommitId)
                 {
-                    // yes so will need to fetch newest data and process again
+                    // yes so we will need to fetch newest data and process again
                     pageInDb.State = Domain.Enums.NugetCatalogPageState.ToProcess;
                 }
             }
@@ -68,6 +73,16 @@ namespace DNDocs.Application.CommandHandlers.Application
 
             logger.LogInformation("nuget catalog pages to process:\r\n{0}", toProcess.StringJoin("\r\n", t => t.NId));
 
+            /// todo TEST TEST TEST
+            var projectToDelete1 = await uow.ProjectRepository.Query()
+                            .FirstOrDefaultAsync();
+
+            if (projectToDelete1 != null)
+            {
+                // await projectManager.DeleteProject(projectToDelete1.Id);
+            }
+
+            /// END TEST TEST 
 
             foreach (var p in toProcess)
             {

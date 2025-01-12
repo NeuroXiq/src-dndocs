@@ -7,4 +7,7 @@ appfiles/publishedbin/**
 build/temp/**
 build/bin-zips
 var/**
+frontend/dist/**
+frontend/node_modules/**
+frontend-old/**
 .vimrc

@@ -66,7 +66,7 @@ namespace DNDocs.Docs.Web.Web
         {
             GetManagementEndpoint(HttpMethod.Get, "/ping/{reply?}", Ping),
             GetManagementEndpoint(HttpMethod.Post, "/createproject", CreateProject),
-            GetManagementEndpoint(HttpMethod.Post, "/delete-project", DeleteProject),
+            GetManagementEndpoint(HttpMethod.Post, "/delete-project-dnid", DeleteProjectByDnId),
             GetManagementEndpoint(HttpMethod.Get, "/metrics/{seconds:int?}", Metrics),
             GetManagementEndpoint(HttpMethod.Get, "/site-item-id-paged", GetSiteItemPaged),
         };
@@ -121,13 +121,13 @@ namespace DNDocs.Docs.Web.Web
             return PublicContentController.SimpleHtmlPage(sb);
         }
 
-        private static async Task<IResult> DeleteProject(
+        private static async Task<IResult> DeleteProjectByDnId(
             HttpContext context,
             [FromBody] DeleteProjectModel model,
             [FromServices] IManagementControllerContext mmc)
         {
             Authorized(context, mmc);
-            await mmc.ManagementService.DeleteProject(model.ProjectId);
+            await mmc.ManagementService.DeleteProjectByDNId(model.ProjectId);
 
             return Results.Ok();
         }
