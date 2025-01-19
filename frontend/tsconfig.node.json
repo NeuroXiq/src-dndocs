@@ -18,7 +18,16 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "baseUrl": ".",
+    /* remember update vite.config.ts */
+    "paths": { 
+      "@dn/*": ["./src/*"],
+      "@dn-shared/*": ["./src/shared/*"],
+      "@dn-services/*": ["./src/services/*"],
+      "@dn-pages/*": ["./src/pages/*"],
+    },
   },
   "include": ["vite.config.ts"]
 }
