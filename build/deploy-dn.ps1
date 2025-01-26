@@ -3,9 +3,7 @@ param(
     [ValidateSet('Staging', 'Production')]
     $environment,
     [Parameter()]
-    $backendZip,
-    [Parameter()]
-    $frontendZip
+    $dnAppZip
 )
 
 if ($environment -eq 'Staging') { $env = 'stag' } else { $env = 'prod' }
@@ -16,29 +14,21 @@ Set-strictmode -version latest
 . "$PSScriptRoot/../../dndocs-secret/deploy-secret.ps1" $environment 'DNDocs'
 . "$PSScriptRoot/deploy-tools.ps1"
 
-if ([string]::isnullorwhitespace($backendZip)) {
-    $backendZip = (Get-ChildItem "$PSScriptRoot\bin-zips" -filter "dn-$environment-*" | sort name -desc | Select-Object -first 1).fullname
+if ([string]::isnullorwhitespace($dnAppZip)) {
+    $dnAppZip = (Get-ChildItem "$PSScriptRoot\bin-zips" -filter "dn-$environment-*" | sort name -desc | Select-Object -first 1).fullname
 }
 
-if ([string]::isnullorwhitespace($frontendZip)) {
-    $frontendZip = (Get-ChildItem "$PSScriptRoot\bin-zips" -filter "front-$environment-*" | sort name -desc | Select-Object -first 1).fullname
-}
-
-if (![system.io.file]::Exists($backendZip)) { throw 'backend not exists' }
-if (![system.io.file]::Exists($frontendZip)) { throw 'backend not exists' }
+if (![system.io.file]::Exists($dnAppZip)) { throw 'backend not exists' }
 
 # upload front
 
-
-
-LinuxExec "sudo systemctl stop dnfe-$env.service; sudo systemctl stop dnbe-$env.service; exit 0" "stop frontend services"
-LinuxExec "rm -r -f /var/www/deploy-fe-unzip;rm -r -f /var/www/deploy-be-unzip " "remove old unzips if exists"
-LinuxExec "mkdir /var/www/deploy-fe-unzip; mkdir /var/www/deploy-be-unzip" "create dirs for unzipped"
-LinuxUploadFile $frontendZip "/var/www/deploy-fe.zip";
-LinuxUploadFile $backendZip "/var/www/deploy-be.zip";
-LinuxExec "unzip /var/www/deploy-fe.zip -d /var/www/deploy-fe-unzip ; unzip /var/www/deploy-be.zip -d /var/www/deploy-be-unzip" "unzip data"
-LinuxUploadFile "$PSScriptRoot\..\..\dndocs-secret\appsettings.dn.$environment.json" "/var/www/deploy-be-unzip/appsettings.$environment.json"
-LinuxExec "rm -r -f /var/www/dnfe-$env; rm -r -f /var/www/dnbe-$env" "remove old app files"
-LinuxExec "mv /var/www/deploy-fe-unzip /var/www/dnfe-$env && mv /var/www/deploy-be-unzip /var/www/dnbe-$env" "rename temp unzip folders to valid service folders"
-LinuxExec "sudo systemctl start dnfe-$env && sudo systemctl start dnbe-$env" "start services"
-LinuxExec "rm /var/www/deploy-be.zip; rm /var/www/deploy-fe.zip" "cleanup"
+LinuxExec "sudo systemctl stop dn-$env.service; exit 0" "stop dn service"
+LinuxExec "rm -r -f /var/www/deploy-dn-unzip;" "remove old unzip if exists"
+LinuxExec "mkdir /var/www/deploy-dn-unzip; " "create dn-unzip for unzipped app"
+LinuxUploadFile $dnAppZip "/var/www/deploy-dn.zip";
+LinuxExec "unzip /var/www/deploy-dn.zip -d /var/www/deploy-dn-unzip;" "unzip data"
+LinuxUploadFile "$PSScriptRoot\..\..\dndocs-secret\appsettings.dn.$environment.json" "/var/www/deploy-dn-unzip/appsettings.$environment.json"
+LinuxExec "rm -r -f /var/www/dn-$env" "remove old app files"
+LinuxExec "mv /var/www/deploy-dn-unzip /var/www/dn-$env " "rename temp unzip folder to valid service folders"
+LinuxExec "sudo systemctl start dn-$env" "start service"
+LinuxExec "rm /var/www/deploy-dn.zip;" "cleanup"

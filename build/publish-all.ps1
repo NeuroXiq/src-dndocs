@@ -64,29 +64,7 @@ $vi = Update-NextProjVersionInfo
 $pathBuildDir = $PSScriptRoot;
 $dateNow = (get-date).tostring('yyyymmdd-HHmmss');
 
-$publishOutFront = "$pathBuildDir\temp\frontend-$env-$dateNow";
-
 write-output ""
-
-# FRONTEND START
-write-host 'FRONTEND START'
-# Set env for NODEJS to compile with valid configuration
-$Env:NEXTJS_APPINFO_ENV = $env;
-#$Env:NEXTJS_APPINFO_VERSION = $vi.LongVersion;
-
-npm --prefix $pathFe run build;
-
-if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed: last exit code != 0' }
-
-# NextJS 'standalone' - need to manually copy 'static' folder
-# of build result into 'standalone' folder, this is by specification from NextJs
-copy-item -path "$pathFe/.next/static" -destination "$pathFe/.next/standalone/.next/" -recurse;
-copy-item -path "$pathFe/public" -destination "$pathFe/.next/standalone/" -recurse;
-copy-item -path "$pathFe/.next/standalone" -destination $publishOutFront -recurse
-
-$Env:NEXTJS_APPINFO_ENV = '';
-$Env:NEXTJS_APPINFO_VERSION = '';
-
 #FRONTEND END
 
 #BACKEND START
@@ -123,13 +101,11 @@ $publishParams2 = $publishPaths2 + $vsprops;
 $publishParams3 = $publishPaths3 + $vsprops;
 $publishParams4 = $publishPaths4 + $vsprops;
 
-
 function dotnetPublish($p) {
     dotnet publish $p
     if ($LASTEXITCODE -ne 0) { throw 'failed to dotnet publish' }
 }
 
-# run in parallel because too long to wait in sequence
 dotnet publish $publishParams1
 if ($LASTEXITCODE -ne 0) { throw 'failed to dotnet publish' }
 dotnet publish $publishParams2
@@ -139,7 +115,26 @@ if ($LASTEXITCODE -ne 0) { throw 'failed to dotnet publish' }
 dotnet publish $publishParams4
 if ($LASTEXITCODE -ne 0) { throw 'failed to dotnet publish' }
 
-## compress to zip
+# FRONTEND START
+# Build frontend and copy result to 'wwwroot'
+
+write-host 'FRONTEND START'
+# Set env for VITE to compile with valid configuration
+$Env:VITE_APPINFO_ENV = $env;
+$Env:VITE_APPINFO_VERSION = $vi.LongVersion;
+
+write-host 'build frontend with "npm run build"'
+npm --prefix $pathFe run build;
+
+if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed: last exit code != 0' }
+
+write-host 'copy frontend build files into wwwroot of DNDocs.Web project'
+copy-item -path "$pathFe/dist/*" -destination "$publishOutDn/wwwroot" -recurse
+
+$Env:VITE_APPINFO_ENV = '';
+$Env:VITE_APPINFO_VERSION = '';
+
+write-host 'compress all build folders into .zip files'
 function CompressZip ($src, $dest) {
     $j = start-job -script {
         Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -149,13 +144,11 @@ function CompressZip ($src, $dest) {
     return $j;
 }
 
-Write-Host '############# Starting to compress zip ###############'
 Start-Sleep -seconds 2
-$j1 = CompressZip "$publishOutFront" "$PathZips\front-$env-$($vi.version)-$dateNow.zip";
 $j2 = CompressZip "$publishOutDn" "$PathZips\dn-$env-$($vi.version)-$dateNow.zip";
 $j3 = CompressZip "$publishOutDDocs" "$PathZips\ddocs-$env-$($vi.version)-$dateNow.zip";
 $j4 = CompressZip "$publishOutDjob" "$PathZips\djob-$env-$($vi.version)-$dateNow.zip";
 
-wait-job @($j1, $j2, $j3, $j4)
+wait-job @($j2, $j3, $j4)
 
 write-host 'PUBLISHING COMPLETED'

@@ -150,6 +150,7 @@ namespace DNDocs.Docs.Web
 
         static bool IgnoreHttpLogsFor(HttpContext context)
         {
+            // ignore hot paths as there is no use of logs for e.g. '.js/.css' files when 99.99% will be 200 OK
             var path = context.Request.Path.Value;
             if ((context.Response.StatusCode == 200 || context.Response.StatusCode == 304) && path != null)
             {

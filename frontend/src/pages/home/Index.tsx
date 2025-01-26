@@ -94,7 +94,6 @@ export default function Home() {
 
     useEffect(() => {
         if (urlPackageName && urlPackageVersion) {
-
             setIPackageName(urlPackageName);
             setIPackageVersion(urlPackageVersion);
             startCreateProject(urlPackageName, urlPackageVersion);

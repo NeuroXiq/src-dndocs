@@ -2,16 +2,19 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Index from './pages/home/Index'
 import Layout from './pages/shared/Layout'
 import NotFound from './pages/shared/NotFound'
+import GlobalAppContextProvider from '@dn/shared/GlobalAppContext'
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Index />} />
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
+      <GlobalAppContextProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Index />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </GlobalAppContextProvider>
     </BrowserRouter>
   )
 }

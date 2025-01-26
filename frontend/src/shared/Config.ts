@@ -4,7 +4,7 @@
 // > $Env:NEXTJS_ROBINIADOCS_ENV='Staging'
 //
 
-const env : string = import.meta.env.VITE_NEXTJS_APPINFO_ENV || 'Development';
+const env : string = import.meta.env.VITE_APPINFO_ENV || 'Development';
 const versionInfo : string = import.meta.env.VITE_APPINFO_VERSION || '0.0.0.0-Development';
 
 // maybe move client_id=... to backend and fetch on login???
