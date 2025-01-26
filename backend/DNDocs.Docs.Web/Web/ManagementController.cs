@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Mime;
+using System.Reflection;
 using System.Text;
 using Vinca.Api;
 using Vinca.Http;
@@ -69,6 +70,8 @@ namespace DNDocs.Docs.Web.Web
             GetManagementEndpoint(HttpMethod.Post, "/delete-project-dnid", DeleteProjectByDnId),
             GetManagementEndpoint(HttpMethod.Get, "/metrics/{seconds:int?}", Metrics),
             GetManagementEndpoint(HttpMethod.Get, "/site-item-id-paged", GetSiteItemPaged),
+            
+            new ApiEndpoint(HttpMethod.Get, "/system", System)
         };
 
         private static async Task<IResult> GetSiteItemPaged(
@@ -130,6 +133,25 @@ namespace DNDocs.Docs.Web.Web
             await mmc.ManagementService.DeleteProjectByDNId(model.ProjectId);
 
             return Results.Ok();
+        }
+
+        private static IResult System(HttpContext context)
+        {
+            var ver = FileVersionInfo.GetVersionInfo((Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location);
+
+            var verinfo = new
+            {
+                ver.FileVersion,
+                ver.Comments,
+                ver.CompanyName,
+                ver.FileDescription,
+                ver.ProductName,
+                ver.ProductVersion,
+                ver.LegalCopyright,
+                EnvironmentVersion = Environment.Version.ToString()
+            };
+
+            return Results.Json(ver);
         }
 
         static ApiEndpoint GetManagementEndpoint(HttpMethod method, string path, Delegate delegateMethod)

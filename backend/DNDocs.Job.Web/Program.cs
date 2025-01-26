@@ -53,34 +53,10 @@ app.UseVHttpExceptions();
 app.UseHttpsRedirection();
 app.UseMiddleware<DJobMiddleware>();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-
+// map routes
 app.MapGet($"/api/{nameof(DJobApiController.Ping)}", DJobApiController.Ping);
 app.MapGet($"/api/{nameof(DJobApiController.PingAuthorized)}", DJobApiController.PingAuthorized);
 app.MapPost($"/api/{nameof(DJobApiController.BuildProject)}", DJobApiController.BuildProject);
-app.MapGet($"/api/{nameof(DJobApiController.SystemHtml)}", DJobApiController.SystemHtml);
-
-
-//app.MapGet("/weatherforecast", () =>
-//{
-//    var forecast = Enumerable.Range(1, 5).Select(index =>
-//        new WeatherForecast
-//        (
-//            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//            Random.Shared.Next(-20, 55),
-//            summaries[Random.Shared.Next(summaries.Length)]
-//        ))
-//        .ToArray();
-//    return forecast;
-//});
+app.MapGet($"/api/{nameof(DJobApiController.System)}", DJobApiController.System);
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

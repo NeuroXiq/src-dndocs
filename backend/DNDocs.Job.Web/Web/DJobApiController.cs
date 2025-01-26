@@ -4,7 +4,9 @@ using DNDocs.Job.Web.Shared;
 using DNDocs.Job.Web.ValueTypes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using System.Net;
+using System.Reflection;
 using Vinca.Exceptions;
 using Vinca.Http;
 using Vinca.Utils;
@@ -70,16 +72,28 @@ namespace DNDocs.Job.Web.Web
             else return Results.StatusCode((int)HttpStatusCode.TooManyRequests);
         }
 
-        internal static async Task SystemHtml(HttpContext context)
+        internal static IResult System(HttpContext context)
         {
+            var ver = FileVersionInfo.GetVersionInfo((Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location);
 
+            var verinfo = new
+            {
+                ver.FileVersion,
+                ver.Comments,
+                ver.CompanyName,
+                ver.FileDescription,
+                ver.ProductName,
+                ver.ProductVersion,
+                ver.LegalCopyright,
+                EnvironmentVersion = Environment.Version.ToString()
+            };
+
+            return Results.Json(verinfo);
         }
 
         private void SimpleTable<T>(string[] cols, Func<T, string>[] format, IEnumerable<T> values)
         {
             string[,] formatted = new string[cols.Length, values.Count()];
-
-
         }
     }
 }

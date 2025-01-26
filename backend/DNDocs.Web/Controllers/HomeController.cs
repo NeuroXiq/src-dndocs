@@ -90,29 +90,6 @@ namespace DNDocs.Web.Controllers
             return UseStatusCodePagesWithReExecute(500);
         }
 
-        //[HttpGet("/api/other/sitemaps/{sitemapname}")]
-        //public async Task<IActionResult> Sitemap(string sitemapname)
-        //{
-        //    var a = this.qd.DispatchSync(new GetSitemapFileQuery { FileName = sitemapname });
-
-        //    if (a.Result == null)
-        //    {
-        //        //Response.StatusCode = 404;
-        //        //var res = $"sitemap: {sitemapname} not found";
-        //        //Response.ContentLength = res.Length;
-        //        //await Response.WriteAsync(res);
-
-        //        return NotFound($"not found: '{sitemapname}'");
-        //    }
-
-        //    // var t = Encoding.UTF8.GetString(a.Result.FileContent);
-
-        //    //Response.ContentType = "application/xml;";
-        //    //wait Response.BodyWriter.WriteAsync(a.Result.FileContent);
-
-        //    return File(a.Result.FileContent, "text/xml");
-        //}
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         [HttpGet("/UseStatusCodePagesWithReExecute")]
         public IActionResult UseStatusCodePagesWithReExecute(int statuscode)
@@ -175,15 +152,10 @@ namespace DNDocs.Web.Controllers
             // return View("UseStatusCodePagesWithReExecute", vm);
         }
 
-        public Task<IActionResult> GetVersionInfo()
+        [Route("/api/system")]
+        public Task<IActionResult> System()
         {
-            Assembly runningAssembly = Assembly.GetEntryAssembly();
-            if (runningAssembly == null)
-            {
-                runningAssembly = Assembly.GetExecutingAssembly();
-            }
-            
-            var ver = FileVersionInfo.GetVersionInfo(runningAssembly.Location);
+            var ver = FileVersionInfo.GetVersionInfo((Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location);
 
             var verinfo = new
             {

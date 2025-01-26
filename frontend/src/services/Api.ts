@@ -283,10 +283,6 @@ class Api {
         return this.fetchGet(ApiUrls.home.GetAllProjects);
     }
 
-    public Home_GetVersionInfo() {
-        return this.fetchGet(ApiUrls.home.GetVersionInfo);
-    }
-
     public ProjectManage_DeleteProjectVersioning(projectVersioningId: number) {
         return this.fetchDelete(ApiUrls.projectmanage.DeleteProjectVersioning, {
             body: JSON.stringify(projectVersioningId)

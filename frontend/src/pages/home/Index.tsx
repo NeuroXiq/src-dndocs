@@ -1,6 +1,5 @@
 // import "@fontsource/space-grotesk/400.css"; // Specify weight
 import { Alert, Box, Button, Grid, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
-import PersonIcon from '@mui/icons-material/Person';
 import '@dn/assets/home.css';
 import SendIcon from '@mui/icons-material/Send';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -196,7 +195,7 @@ export default function Home() {
         <div className="home">
             <header className="header">
                 <h1>DNDocs</h1>
-                <Button href={Urls.accountDetails}><PersonIcon sx={{ color: 'white' }} fontSize="large" /></Button>
+                {/* <Button href={Urls.accountDetails}><PersonIcon sx={{ color: 'white' }} fontSize="large" /></Button> */}
                 <div className="logo">
                     <div className="nletter">.N</div>
                 </div>

@@ -135,6 +135,7 @@ $Env:VITE_APPINFO_ENV = '';
 $Env:VITE_APPINFO_VERSION = '';
 
 write-host 'compress all build folders into .zip files'
+
 function CompressZip ($src, $dest) {
     $j = start-job -script {
         Add-Type -AssemblyName System.IO.Compression.FileSystem

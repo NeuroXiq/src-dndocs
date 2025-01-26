@@ -36,7 +36,7 @@ let urls = {
         GetRecentProjects: getUrl(home, 'GetRecentProjects'),
         GetAllProjects: getUrl(home, 'GetAllProjects'),
         TryItCreateProject: getUrl(home, 'TryItCreateProject'),
-        GetVersionInfo: getUrl(home, 'GetVersionInfo')
+        System: getUrl(home, 'System')
     },
     myAccount: {
         GetGithubRepositories: getUrl(myaccount, 'GetGithubRepositories'),
