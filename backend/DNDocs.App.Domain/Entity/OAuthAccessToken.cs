@@ -1,6 +1,6 @@
 ﻿namespace DNDocs.Domain.Entity
 {
-    public class OAuthAccessToken : Entity
+    public class OAuthAccessToken : EntityBase
     {
         public int UserId { get; set; }
         public string AccessToken { get; set; }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DNDocs.Domain.Entity
 {
-    public class NugetPackage : Entity
+    public class NugetPackage : EntityBase
     {
         public string Title { get; set; }
         public string IdentityVersion { get; set; }

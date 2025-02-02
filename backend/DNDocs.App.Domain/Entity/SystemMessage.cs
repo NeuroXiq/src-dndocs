@@ -2,7 +2,7 @@
 
 namespace DNDocs.Domain.Entity
 {
-    public class SystemMessage : Entity
+    public class SystemMessage : EntityBase
     {
         public SystemMessageType Type { get; set; }
         public SystemMessageLevel Level { get; set; }

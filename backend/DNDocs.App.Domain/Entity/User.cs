@@ -2,7 +2,7 @@
 
 namespace DNDocs.Domain.Entity
 {
-    public class User : Entity, ICreateUpdateTimestamp
+    public class User : EntityBase, ICreateUpdateTimestamp
     {
         public const string AdministratorUserLogin = "Administrator";
         public const string RobiniaAppServiceUserLogin = "robinia-app-service";

@@ -27,7 +27,7 @@ namespace DNDocs.Infrastructure.UnitOfWork
             this.dbctx = dbctx;
         }
 
-        public IRepository<TEntity> GetSimpleRepository<TEntity>() where TEntity : Entity
+        public IRepository<TEntity> GetSimpleRepository<TEntity>() where TEntity : EntityBase
         {
             return new BaseRepository<TEntity>(dbctx);
         }
@@ -42,7 +42,7 @@ namespace DNDocs.Infrastructure.UnitOfWork
             await dbctx.SaveChangesAsync();
         }
 
-        public IQueryable<TEntity> Query<TEntity>() where TEntity : Entity
+        public IQueryable<TEntity> Query<TEntity>() where TEntity : EntityBase
         {
             return dbctx.Set<TEntity>();
         }

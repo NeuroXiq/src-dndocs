@@ -1,6 +1,6 @@
 ﻿namespace DNDocs.Domain.Entity
 {
-    public class AppLog : Entity
+    public class AppLog : EntityBase
     {
         public string Message { get; set; }
         public string CategoryName { get; set; }

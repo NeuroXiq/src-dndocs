@@ -1,6 +1,6 @@
 ﻿namespace DNDocs.Domain.Entity
 {
-    public class IndexNowLog : Entity
+    public class IndexNowLog : EntityBase
     {
         public long SiteItemIdStart { get; set; }
         public long SiteItemIdEnd { get; set; }

@@ -1,7 +1,7 @@
 ﻿using DNDocs.Domain.Enums;
 namespace DNDocs.Domain.Entity
 {
-    public class BgJob : Entity
+    public class BgJob : EntityBase
     {
         public int Id { get; set; }
         public DateTime QueuedDateTime { get; set; }

@@ -2,7 +2,7 @@
 
 namespace DNDocs.Domain.Entity
 {
-    public class UserProjectUrl : Entity
+    public class UserProjectUrl : EntityBase
     {
         public int UserId { get; set; }
         public string ProjectUrl { get; set; }

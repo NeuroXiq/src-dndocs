@@ -3,7 +3,7 @@ using DNDocs.Domain.Enums;
 
 namespace DNDocs.Domain.Entity
 {
-    public class NugetCatalogPage : Entity, ICreateUpdateTimestamp
+    public class NugetCatalogPage : EntityBase, ICreateUpdateTimestamp
     {
         public string NId { get; set; }
 

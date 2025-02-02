@@ -10,8 +10,8 @@ namespace DNDocs.Domain.UnitOfWork
         IBgJobRepository BgJobRepository { get; }
         IUserRepository UserRepository { get; }
 
-        IRepository<TEntity> GetSimpleRepository<TEntity>() where TEntity : Entity.Entity;
-        IQueryable<TEntity> Query<TEntity>() where TEntity : Entity.Entity;
+        IRepository<TEntity> GetSimpleRepository<TEntity>() where TEntity : Entity.EntityBase;
+        IQueryable<TEntity> Query<TEntity>() where TEntity : Entity.EntityBase;
         void SaveChanges();
         Task SaveChangesAsync();
     }

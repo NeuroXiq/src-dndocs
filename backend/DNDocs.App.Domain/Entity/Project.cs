@@ -11,7 +11,7 @@ namespace DNDocs.Domain.Entity
         NugetOrg = 3
     }
 
-    public class Project : Entity, ICreateUpdateTimestamp
+    public class Project : EntityBase, ICreateUpdateTimestamp
     {
         public string ProjectName { get; set; }
         public string UrlPrefix { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace DNDocs.Domain.Entity
 {
-    public class HttpLog : Entity
+    public class HttpLog : EntityBase
     {
         public int Id { get; set; }
         public string Method { get; set; }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DNDocs.Domain.Entity
 {
-    public class DJobRemoteService : Entity
+    public class DJobRemoteService : EntityBase
     {
         public string InstanceName { get; set; }
         public string ServerIpAddress { get; set; }

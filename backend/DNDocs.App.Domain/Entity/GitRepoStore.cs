@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DNDocs.Domain.Entity
 {
-    public class GitRepoStore : Entity, ICreateUpdateTimestamp
+    public class GitRepoStore : EntityBase, ICreateUpdateTimestamp
     {
         public Guid UUID { get; set; }
         public string GitRepoUrl { get; set; }

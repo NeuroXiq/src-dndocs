@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace DNDocs.Domain.Repository
 {
-    public interface IRepository<TEntity> : IKeyRepository<TEntity, int> where TEntity : Entity.Entity
+    public interface IRepository<TEntity> : IKeyRepository<TEntity, int> where TEntity : Entity.EntityBase
     {
 
     }

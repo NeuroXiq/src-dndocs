@@ -2,7 +2,7 @@
 
 namespace DNDocs.Domain.Entity
 {
-    public class SysVar : Entity
+    public class SysVar : EntityBase
     {
         public string Key { get; set; }
         public string Value { get; set; }

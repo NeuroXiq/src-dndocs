@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace DNDocs.Infrastructure.Repository
 {
-    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : Entity
+    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : EntityBase
     {
         protected DbContext dbcontext;
         protected DbSet<TEntity> dbset;

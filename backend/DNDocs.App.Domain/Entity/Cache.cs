@@ -3,7 +3,7 @@ using DNDocs.Domain.Utils;
 
 namespace DNDocs.Domain.Entity
 {
-    public class Cache : Entity, ICreateUpdateTimestamp
+    public class Cache : EntityBase, ICreateUpdateTimestamp
     {
         public DateTime CreatedOn { get; set; }
         public DateTime LastModifiedOn { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace DNDocs.Domain.Entity
 {
-    public class RefUserProject : Entity
+    public class RefUserProject : EntityBase
     {
         public int UserId { get; set; }
         public int ProjectId { get; set; }

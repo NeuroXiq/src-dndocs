@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DNDocs.Domain.Entity
 {
-    public class ProjectVersioning : Entity
+    public class ProjectVersioning : EntityBase
     {
         public string ProjectName { get; set; }
         public string ProjectWebsiteUrl { get; set; }
