@@ -35,7 +35,7 @@ namespace Vinca.Http.Logs
             //{
             //    var provider = serviceProvider.GetRequiredService<ObjectPoolProvider>();
             //    var policy = new StopwatchPolicy();
-                
+
             //    return provider.Create(policy);
             //});
         }

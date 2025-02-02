@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using NUnit.Framework.Interfaces;
 using DNDocs.Application.Application;
 using DNDocs.Application.Shared;
-using DNDocs.Domain.Entity.App;
 using DNDocs.Infrastructure.Utils;
 using DNDocs.Shared.Configuration;
 using DNDocs.Shared.Utils;
@@ -23,6 +22,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
+using DNDocs.Domain.Entity;
 
 namespace Web.IntegrationTests.Shared
 {

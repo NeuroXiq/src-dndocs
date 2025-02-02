@@ -345,6 +345,8 @@ namespace DNDocs.Docs.Web.Services
 
             private void ThreadSafeAddDouble(ref double counter, double valueToAdd)
             {
+                if (valueToAdd == 0) return;
+
                 while (true)
                 {
                     double valueBeforeSet = counter;

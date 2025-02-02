@@ -22,6 +22,7 @@
     <None Remove="Infrastructure\Migrations\App\_00001_init.sql" />
     <None Remove="Infrastructure\Migrations\Log\_00001_init.sql" />
     <None Remove="Infrastructure\Migrations\Log\_00002_metrics.sql" />
+    <None Remove="Infrastructure\Migrations\Log\_00003_metrics_index.sql" />
     <None Remove="Infrastructure\Migrations\Site\_00001_init.sql" />
     <None Remove="Infrastructure\Migrations\VarSite\_00002__sitemaps_.sql" />
     <None Remove="PublicHtml\cookies-consent.html" />
@@ -39,6 +40,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Infrastructure\Migrations\App\_00001_init.sql" />
+    <EmbeddedResource Include="Infrastructure\Migrations\Log\_00003_metrics_index.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\Log\_00002_metrics.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\Log\_00001_init.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\Site\_00001_init.sql" />

@@ -93,7 +93,7 @@ $publishOutDdocs = "$pathBuildDir\temp\ddocs-$env-$dateNow";
 $publishOutDConsole = "$publishOutDjob\DNDocs.ConsoleTools"
 
 $publishPaths1 = "$PathBe\DNDocs.Job.Web\DNDocs.Job.Web.csproj", "--output", $publishOutDjob;
-$publishPaths2 = "$PathBe\DNDocs.Web\DNDocs.Web.csproj", "--output", $publishOutDn;
+$publishPaths2 = "$PathBe\DNDocs.App.Web\DNDocs.App.Web.csproj", "--output", $publishOutDn;
 $publishPaths3 = "$PathBe\DNDocs.Docs.Web\DNDocs.Docs.Web.csproj", "--output", $publishOutDdocs;
 $publishPaths4 = "$PathBe\DNDocs.ConsoleTools\DNDocs.ConsoleTools.csproj", "--output", $publishOutDConsole;
 $publishParams1 = $publishPaths1 + $vsprops;

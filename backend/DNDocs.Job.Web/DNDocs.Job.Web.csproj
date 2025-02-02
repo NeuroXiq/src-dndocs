@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DNDocs.API.Model\DNDocs.Api.csproj" />
+    <ProjectReference Include="..\DNDocs.App.API.Model\DNDocs.App.Api.csproj" />
     <ProjectReference Include="..\DNDocs.Docs.Api\DNDocs.Docs.Api.csproj" />
     <ProjectReference Include="..\DNDocs.Job.Api\DNDocs.Job.Api.csproj" />
     <ProjectReference Include="..\DNDocs.Resources\DNDocs.Resources.csproj" />

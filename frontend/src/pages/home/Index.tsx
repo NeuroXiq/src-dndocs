@@ -54,9 +54,6 @@ export default function Home() {
     const [errors, setErrors] = useState<any>({ name: false, version: false });
     const [state, setState] = useState<string>('init');
     const [stepper, setStepper] = useState<any>(stepperInitialState());
-
-    console.log(urlPackageName, urlPackageVersion);
-
     const [jobStatus, setJobStatus] = useState<BgJobViewModel | null>(null);
     const [createResult, setCreateResult] = useState<any>(null);
     const [refreshJob, setRefreshJob] = useState<boolean>(false);
