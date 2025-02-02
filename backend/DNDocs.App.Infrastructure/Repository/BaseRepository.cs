@@ -97,11 +97,6 @@ namespace DNDocs.Infrastructure.Repository
             return dbcontext.Set<TEntity>().Where(e => e.Id == id).FirstOrDefault();
         }
 
-        public void Update(TEntity entity)
-        {
-            throw new NotImplementedException();
-        }
-
         public IList<TEntity> GetAll()
         {
             return dbcontext.Set<TEntity>().ToList();

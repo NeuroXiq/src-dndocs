@@ -18,6 +18,7 @@ namespace DNDocs.Domain.Entity
 
         public int? ProjectId { get; set; }
         public int? ProjectVersioningId { get; set; }
+        public int? NugetOrgProjectId { get; set; }
 
         public Project Project { get; set; }
         public ProjectVersioning ProjectVersioning { get; set; }

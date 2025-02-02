@@ -147,9 +147,6 @@ namespace Vinca.Api.Nuget
         private IOSApi osapi;
         private ILogger<NugetRepositoryFacade> logger;
 
-        // private ICache cache;
-        // private IAppManager appManager;
-
         public NugetRepositoryFacade(
             IOSApi osapi,
             ILogger<NugetRepositoryFacade> logger)
@@ -233,8 +230,6 @@ namespace Vinca.Api.Nuget
         {
             var allMetadata = GetNugetPackageMetadata(packageName);
 
-            // if (cache.TryGetOKM<Domain.ValueTypes.PackageSearchMetadata[]>(this, packageName, out var cached)) return cached;
-
             var result = allMetadata.Select(p => new PackageSearchMetadata(
                 p.Title,
                 p.Identity.HasVersion ? p.Identity.Version.ToString() : null,
@@ -245,25 +240,17 @@ namespace Vinca.Api.Nuget
                 p.IsListed))
                 .ToArray();
 
-            // cache.AddOKM(this, packageName, result, TimeSpan.FromMinutes(10));
-
             return result;
         }
 
         private IPackageSearchMetadata[] GetNugetPackageMetadata(string packageName)
         {
-            // string cachekey = cache.Key(nameof(NugetRepositoryFacade), nameof(GetPackageMetadata), packageName);
-
-            // if (cache.TryGetOKM<IPackageSearchMetadata[]>(this, packageName, out var cachedValue)) return cachedValue;
-
             var t = GetPackageMetadataAsync(packageName);
 
             t.Wait();
 
             if (t.Exception != null) throw t.Exception;
             var result = t.Result;
-
-            // cache.AddOKM(this, packageName, result, TimeSpan.FromMinutes(15));
 
             return result;
         }

@@ -21,6 +21,8 @@ using DNDocs.Application.Services;
 using DNDocs.Application.Commands.Projects;
 using Vinca.Api.Nuget;
 using DNDocs.Domain.Entity;
+using DNDocs.App.Domain.Entity;
+using DNDocs.Domain.Repository;
 
 namespace DNDocs.Application.CommandHandlers.Integration
 {
@@ -32,6 +34,7 @@ namespace DNDocs.Application.CommandHandlers.Integration
         private IAppUnitOfWork appUow;
         private IBgJobQueue bgjobQueue;
         private ApiBackgroundWorker bgw;
+        private IRepository<NugetOrgProject> nugetOrgProjectRepository;
 
         public NugetCreateProjectHandler(
             IProjectManager projectManager,
@@ -47,9 +50,44 @@ namespace DNDocs.Application.CommandHandlers.Integration
             this.appUow = appUow;
             this.bgjobQueue = bgjobQueue;
             this.bgw = bgw;
+            this.nugetOrgProjectRepository = appUow.GetSimpleRepository<NugetOrgProject>();
         }
 
         public override async Task Handle(NugetCreateProjectCommand command)
+        {
+            var packageName = command.PackageName;
+            var packageVersion = command.PackageVersion;
+            logger.LogInformation("starting to create nuget project: {0} {1}", packageName, packageVersion);
+
+            Validation.NotStringIsNullOrWhiteSpace(packageName, "PackageName is empty");
+            Validation.NotStringIsNullOrWhiteSpace(packageVersion, "PackageVersion is empty");
+
+            var existing = await appUow.Query<NugetOrgProject>()
+                .Where(t => t.PackageName == packageName && t.PackageVersion == packageVersion)
+                .FirstOrDefaultAsync();
+
+            if (existing == null)
+            {
+                var nugetProject = new NugetOrgProject(packageName, packageVersion);
+                await nugetOrgProjectRepository.CreateAsync(nugetProject);
+
+            }
+            else if (existing != null)
+            {
+                if (existing.State != Domain.Enums.NugetOrgProjectState.BuildFailed)
+                {
+                    Validation.ThrowError(existing != null, $"nuget project '{packageName} {packageVersion}' already exists");
+                }
+
+                existing.State = Domain.Enums.NugetOrgProjectState.WaitingToBuild;
+            }
+
+            await appUow.SaveChangesAsync();
+
+            bgw.RunBuildProjects();
+        }
+        
+        public async Task Handle2(NugetCreateProjectCommand command)
         {
             var packageName = command.PackageName;
             var packageVersion = command.PackageVersion;

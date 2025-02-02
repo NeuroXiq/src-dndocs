@@ -151,7 +151,7 @@ namespace DNDocs.Application.CommandHandlers.Projects
             {
                 try
                 {
-                    await djobclients[i].Ping();
+                    await djobclients[i].PingAsync();
                     djobservices[i].Alive = true;
                     aliveClients.Add(djobclients[i]);
                 }

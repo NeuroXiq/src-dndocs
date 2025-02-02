@@ -49,7 +49,7 @@ namespace DNDocs.Application.CommandHandlers.Integration
 
             try
             {
-                djobClient.Ping().Wait();
+                await djobClient.PingAsync();
                 pingOk = true;
             }
             catch (Exception e)

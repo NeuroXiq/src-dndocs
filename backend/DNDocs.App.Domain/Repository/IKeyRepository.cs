@@ -15,7 +15,6 @@ namespace DNDocs.Domain.Repository
         void Create(IEnumerable<TEntity> entity);
         TEntity GetById(TKey id);
         TEntity GetByIdChecked(TKey id);
-        void Update(TEntity entity);
         void Delete(TKey id);
         void ExecuteDelete(Expression<Func<TEntity, bool>> predicate);
         void Delete(IEnumerable<int> ids);

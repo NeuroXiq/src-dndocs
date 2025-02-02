@@ -17,7 +17,7 @@ namespace DNDocs.Job.Api.Client
     public interface IDJobClient
     {
         public string ServerUrl { get; }
-        public Task Ping();
+        public Task PingAsync();
         public Task<HttpResponseMessage> BuildProject(BuildProjectModel model);
     }
 
@@ -59,7 +59,7 @@ namespace DNDocs.Job.Api.Client
             client.DefaultRequestHeaders.Add("x-api-key", apiKey);
         }
 
-        public async Task Ping()
+        public async Task PingAsync()
         {
             var result = await client.GetAsync(Urls.Ping);
             
