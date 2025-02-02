@@ -51,21 +51,14 @@ namespace DNDocs.Job.Web.Web
             return Results.Ok();
         }
 
-        internal static async Task<IResult> BuildProject(HttpContext context, [FromServices] IApiControllerCtx ctx, [FromBody] BuildProjectModel model)
+        internal static async Task<IResult> BuildNugetOrgProject(HttpContext context, [FromServices] IApiControllerCtx ctx, [FromBody] BuildNugetOrgProjectModel model)
         {
             XApiKey.Validate(context, ctx.Settings.DJobApiKey, ctx.Logger);
 
             // do very basic validation only for safety reason
             VValidate.Throw(model.ProjectId < 1, "Id");
-            VValidate.Throw(string.IsNullOrWhiteSpace(model.ProjectName), "ProjectName");
-            VValidate.Throw(model.ProjectType != ProjectType.NugetOrg && string.IsNullOrWhiteSpace(model.UrlPrefix), "UrlPrefix");
-            VValidate.Throw(string.IsNullOrWhiteSpace(model.NugetOrgPackageName) && model.ProjectType == ProjectType.NugetOrg, "NugetOrgPackageName");
-            VValidate.Throw(string.IsNullOrWhiteSpace(model.NugetOrgPackageVersion) && model.ProjectType == ProjectType.NugetOrg, "NugetOrgPackageVersion");
-            VValidate.Throw(!Enum.IsDefined(model.ProjectType), "ProjectType");
-            VValidate.Throw(model.ProjectType == ProjectType.Version && model.PVProjectVersioningId < 1, "PVProjectVersioningId");
-            VValidate.Throw(model.ProjectType != ProjectType.NugetOrg && model.ProjectNugetPackages == null || model.ProjectNugetPackages.Count == 0, "nugetpackages");
 
-            if (await ctx.BgJobsService.TryQueueBuildProjectAsync(model))
+            if (await ctx.BgJobsService.TryQueueBuildNugetOrgProjectAsync(model))
             {
                 return Results.Ok();
             }

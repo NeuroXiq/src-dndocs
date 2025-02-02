@@ -48,18 +48,6 @@ namespace Web.IntegrationTests.Tests
         }
 
         [Test]
-        public void GetDashboardInfo_ReturnsSuccessAndNotNullObject()
-        {
-            // arrange & act
-            var result = base.HttpGetQ<AdminDashboardInfoDto>(Urls.Admin.GetDashboardInfo);
-
-            // assert
-            Assert.NotNull(result);
-            Assert.NotNull(result.Result);
-            Assert.Zero(result.Result.Projects.Data.Count());
-        }
-
-        [Test]
         public void ExecuteRawSql_ReturnsSuccessOnValidRequest()
         {
             // arrange

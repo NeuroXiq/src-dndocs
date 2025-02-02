@@ -27,7 +27,7 @@ namespace DNDocs.Docs.Web.Services
             ProjectType type,
             Stream zipStream);
 
-        public Task DeleteProjectByDNId(int projectDnId);
+        public Task TryDeleteProjectByDnId(int projectDnId, ProjectType type);
         public void Ping();
     }
 
@@ -215,22 +215,26 @@ namespace DNDocs.Docs.Web.Services
             await repository.CommitAsync();
         }
 
-        public async Task DeleteProjectByDNId(int dnProjectId)
+        public async Task TryDeleteProjectByDnId(int dnProjectId, ProjectType type)
         {
             // is this safe to delete project?
             // maybe never delete and mark with 'deleted' flag?
             // not sure what to do
             logger.LogInformation("starting to delete project dn_id: {0}", dnProjectId);
+            VValidate.EnumDefined(type);
 
-            var project = await repository.SelectProjectByDnIdAsync(dnProjectId);
+            var project = await repository.SelectProjectByDnIdAsync(dnProjectId, type);
 
-            DValidation.Throw(project == null, $"project with dnprojectid: '{dnProjectId}' does not exists");
+            if (project == null) logger.LogWarning($"trying delete project that does not exists: dnprojectid: '{dnProjectId}' type: '{type}'");
+            else logger.LogInformation("delete project (project exists): dnid '{0}', type: '{1}'", dnProjectId, type);
 
-            logger.LogTrace("Deleting sitehtml, project_id: {0} dn_project_id: {1}", project.Id, project.DnProjectId);
+            logger.LogTrace("Starting delete sitehtml, project_id: {0} dn_project_id: {1}", project.Id, project.DnProjectId);
 
             await repository.DeleteSiteHtmlByProjectIdAsync(project.Id);
             await repository.DeleteProjectAsync(project.Id);
             await repository.CommitAsync();
+
+            logger.LogTrace("deleted project: dnid: {0} type: {1}", dnProjectId, type);
         }
 
         public void Ping()

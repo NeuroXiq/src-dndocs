@@ -4,8 +4,6 @@ namespace DNDocs.Domain.UnitOfWork
 {
     public interface IAppUnitOfWork
     {
-        IAppLogRepository AppLogRepository { get; }
-        IHttpLogRepository HttpLogRepository { get; }
         IProjectRepository ProjectRepository { get; }
         IBgJobRepository BgJobRepository { get; }
         IUserRepository UserRepository { get; }

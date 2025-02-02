@@ -1,4 +1,5 @@
-﻿using DNDocs.Application.Commands.Application;
+﻿using DNDocs.App.Domain.Service;
+using DNDocs.Application.Commands.Application;
 using DNDocs.Application.Shared;
 using DNDocs.Domain.Service;
 using DNDocs.Domain.UnitOfWork;
@@ -17,14 +18,14 @@ namespace DNDocs.Application.CommandHandlers.Application
     class BgJobProcessNugetCatalogHandler : CommandHandlerA<BgJobProcessNugetCatalogCommand>
     {
         INugetRepositoryFacade nugetRepo;
-        IProjectManager projectManager;
+        private INugetOrgProjectService nugetOrgProjectService;
 
         public BgJobProcessNugetCatalogHandler(
             INugetRepositoryFacade nugetRepo,
-            IProjectManager projectManager)
+            INugetOrgProjectService nugetOrgProjectService)
         {
             this.nugetRepo = nugetRepo;
-            this.projectManager = projectManager;
+            this.nugetOrgProjectService = nugetOrgProjectService;
         }
 
         public override async Task Handle(BgJobProcessNugetCatalogCommand command)
@@ -42,7 +43,7 @@ namespace DNDocs.Application.CommandHandlers.Application
                 .OrderByDescending(t => t.CommitTimeStamp)
                 .ToListAsync();
 
-            var catalogItems = (await nugetRepo.GetCatalogRoot()).Items;
+            var catalogItems = (await nugetRepo.GetCatalogRootAsync()).Items;
 
             foreach (var pageInDb in pagesInDb)
             {
@@ -55,7 +56,7 @@ namespace DNDocs.Application.CommandHandlers.Application
                 }
             }
 
-            // get pages not in db (date > max date in db) or if nothing in db then take anything using fallback value
+            // get pages not in db (date > max date in db) or if nothing in db then take anything using fallback value (-10 days)
             var newPagesDate = pagesInDb.FirstOrDefault()?.CommitTimeStamp ?? DateTime.Now.AddDays(-10);
             var newPages = catalogItems
                 .Where(t => t.CommitTimeStamp > newPagesDate)
@@ -73,23 +74,12 @@ namespace DNDocs.Application.CommandHandlers.Application
 
             logger.LogInformation("nuget catalog pages to process:\r\n{0}", toProcess.StringJoin("\r\n", t => t.NId));
 
-            /// todo TEST TEST TEST
-            var projectToDelete1 = await uow.ProjectRepository.Query()
-                            .FirstOrDefaultAsync();
-
-            if (projectToDelete1 != null)
-            {
-                // await projectManager.DeleteProject(projectToDelete1.Id);
-            }
-
-            /// END TEST TEST 
-
             foreach (var p in toProcess)
             {
                 try
                 {
                     logger.LogTrace("starting to fetch nuget catalog page: Id: {0}, NId: {1}", p.Id, p.NId);
-                    var page = await nugetRepo.GetCatalogPage(p.NId);
+                    var page = await nugetRepo.GetCatalogPageAsync(p.NId);
                     var deletedItems = page.Items.Where(t => t.Type == "nuget:PackageDelete").ToList();
 
                     foreach (var deletedItem in deletedItems)
@@ -105,7 +95,7 @@ namespace DNDocs.Application.CommandHandlers.Application
                         if (projectToDelete != null)
                         {
                             logger.LogTrace("starting to delete: {0} {1} {2}", deletedItem.NugetId, deletedItem.NugetVersion, deletedItem.Id);
-                            await projectManager.DeleteProject(projectToDelete.Id);
+                            await nugetOrgProjectService.DeleteAsync(projectToDelete.Id);
                             logger.LogTrace("success delete: {0} {1} {2}", deletedItem.NugetId, deletedItem.NugetVersion, deletedItem.Id);
                         }
                     }

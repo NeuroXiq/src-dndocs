@@ -15,7 +15,7 @@ namespace DNDocs.Job.Web.Services
     {
         Task AppStart();
         Task AppStopAsync();
-        Task<bool> TryQueueBuildProjectAsync(BuildProjectModel BuildProjectModel);
+        Task<bool> TryQueueBuildNugetOrgProjectAsync(BuildNugetOrgProjectModel BuildProjectModel);
     }
 
     public class BgJobsService : IBgJobsService
@@ -66,7 +66,7 @@ namespace DNDocs.Job.Web.Services
 
         }
 
-        public async Task<bool> TryQueueBuildProjectAsync(BuildProjectModel BuildProjectModel)
+        public async Task<bool> TryQueueBuildNugetOrgProjectAsync(BuildNugetOrgProjectModel BuildProjectModel)
         {
             if (await repository.CountJobsWaiting() >= options.MaxParallelBuildCount * 2) return false;
 
@@ -122,7 +122,7 @@ namespace DNDocs.Job.Web.Services
 
                         await repository.UpdateBgJobAsync(nextJob);
 
-                        BuildProjectModel project = JsonSerializer.Deserialize<BuildProjectModel>(nextJob.BuildData);
+                        BuildNugetOrgProjectModel project = JsonSerializer.Deserialize<BuildNugetOrgProjectModel>(nextJob.BuildData);
 
                         logger.LogInformation("starting thread {0}, job id: {1}", threadId, nextJob.Id);
 
@@ -144,7 +144,7 @@ namespace DNDocs.Job.Web.Services
                     {
                     }
 
-                    repository.UpdateBgJobAsync(nextJob).Wait();
+                    await repository.UpdateBgJobAsync(nextJob);
                 }
 
                 logger.LogInformation("successfully completed task: {0}. Task exited infinite loop {1}", threadId, DateTime.UtcNow);

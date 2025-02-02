@@ -38,7 +38,10 @@ namespace DNDocs.Application.QueryHandlers.MyAccount
             {
                 if (!string.IsNullOrWhiteSpace(userEntity.GithubLogin))
                 {
-                    if (!query.FlushCache && cache.TryGetJKM<IList<GithubRepositoryDto>>(this, userEntity.GithubLogin, out var cachedResult))
+                    var cacheKey = $"GithubRepositoryDto_{userEntity.GithubLogin}";
+                    var cachedResult = await cache.TryGetDbAsync<IList<GithubRepositoryDto>>(cacheKey);
+
+                    if (!query.FlushCache && cachedResult != null)
                     {
                         return cachedResult;
                     }
@@ -51,7 +54,7 @@ namespace DNDocs.Application.QueryHandlers.MyAccount
                         .Select(t => new GithubRepositoryDto() { Name = t.name, GitUrl = t.git_url, CloneUrl = t.clone_url })
                         .ToList();
 
-                    cache.AddJKM(this, userEntity.GithubLogin, result, TimeSpan.FromDays(4));
+                    await cache.SetDbAsync(cacheKey, result, TimeSpan.FromDays(4));
 
                     return result;
                 }

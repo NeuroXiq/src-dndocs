@@ -183,7 +183,7 @@ namespace DNDocs.Docs.IntegrationTests.PublicContentTests
                 null,
                 NPknName,
                 NPknVer,
-                (int)ProjectType.Nuget,
+                ProjectType.NugetOrg,
                 GetSmallSiteFileStream()).Result;
         }
 

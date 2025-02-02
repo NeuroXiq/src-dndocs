@@ -29,13 +29,13 @@ namespace DNDocs.Docs.Api.Client
                 string pvVersionTag,
                 string nPackageName,
                 string nPackageVersion,
-                int projectType,
+                ProjectType projectType,
                 Stream zipStream
                 );
 
         Task<IList<SiteItemDto>> Management_GetSiteItemIdPaged(long startId, int count);
 
-        Task Management_DeleteProject(int projectId);
+        Task Management_TryDeleteProjectAsync(int projectId, ProjectType type);
     }
 
     public class DDocsApiClient : IDDocsApiClient
@@ -69,9 +69,9 @@ namespace DNDocs.Docs.Api.Client
             return await result.Content.ReadAsStringAsync();
         }
 
-        public async Task Management_DeleteProject(int projectId)
+        public async Task Management_TryDeleteProjectAsync(int projectId, ProjectType type)
         {
-            HandleResponse(await client.PostAsJsonAsync(DUrls.Management_DeleteProject, new DeleteProjectModel(projectId)));
+            HandleResponse(await client.PostAsJsonAsync(DUrls.Management_TryDeleteProject, new DeleteProjectModel(projectId, type)));
         }
 
         private void HandleResponse(HttpResponseMessage response)
@@ -87,7 +87,7 @@ namespace DNDocs.Docs.Api.Client
             string pvVersionTag,
             string nPackageName,
             string nPackageVersion,
-            int projectType,
+            ProjectType projectType,
             Stream zipStream
             )
         {
@@ -98,27 +98,10 @@ namespace DNDocs.Docs.Api.Client
             form.Add(new StringContent(projectName), nameof(CreateProjectModel.ProjectName));
             form.Add(new StringContent(urlPrefix ?? ""), nameof(CreateProjectModel.UrlPrefix));
             form.Add(new StringContent(pvVersionTag ?? ""), nameof(CreateProjectModel.PVVersionTag));
-            form.Add(new StringContent(projectType.ToString()), nameof(CreateProjectModel.ProjectType));
+            form.Add(new StringContent(((int)projectType).ToString()), nameof(CreateProjectModel.ProjectType));
             form.Add(new StringContent(nPackageName ?? ""), nameof(CreateProjectModel.NPackageName));
             form.Add(new StringContent(nPackageVersion ?? ""), nameof(CreateProjectModel.NPackageVersion));
-
-            //form.Add(new ByteArrayContent(siteZip, 0, siteZip.Length), "siteZip", "siteZip.zip");
             form.Add(new StreamContent(zipStream), "siteZip", "sitezip.zip");
-
-            // var multipartContent = new MultipartFormDataContent();
-            // 
-            // // Add string fields
-            // multipartContent.Add(new StringContent("your value here"), "field1");
-            // multipartContent.Add(new StringContent("another value"), "field2");
-            // 
-            // // Add a file
-            // var fileStream = new MemoryStream(new byte[] { 1, 2, 3 });
-            // var streamContent = new StreamContent(fileStream);
-            // streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
-            // 
-            // multipartContent.Add(streamContent, "file", "ery");
-
-            // HttpResponseMessage response = await httpClient.PostAsync(urls.Management_CreateOrReplaceProject, multipartContent);
             
             HttpResponseMessage response = await client.PostAsync(DUrls.Management_CreateProject, form);
             var rawResponse = await response.Content.ReadAsStringAsync();

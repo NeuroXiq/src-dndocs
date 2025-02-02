@@ -27,6 +27,7 @@ using DNDocs.Job.Api.Client;
 using Vinca.Http.Logs;
 using Vinca.Api;
 using DNDocs.Domain.Entity;
+using DNDocs.App.Domain.Service;
 
 namespace DNDocs.Web
 {
@@ -268,7 +269,7 @@ namespace DNDocs.Web
 
         private static void RegisterDomain(IServiceCollection services)
         {
-            var domainAssembly = typeof(AppLog).Assembly;
+            var domainAssembly = typeof(EntityBase).Assembly;
             var domainAllTypes = domainAssembly.GetTypes();
 
             // Services
@@ -290,6 +291,7 @@ namespace DNDocs.Web
             }
 
             services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
+            services.AddScoped<INugetOrgProjectService, NugetOrgProjectService>();
 
             // Repositories
             IList<DIType> repos;

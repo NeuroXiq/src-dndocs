@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DNDocs.Application.Commands.Projects
+namespace DNDocs.Application.CommandHandlers.Application
 {
-    internal class BuildProjectCommand : Command
+    internal class BuildNugetOrgProjectCommand : Command
     {
     }
 }

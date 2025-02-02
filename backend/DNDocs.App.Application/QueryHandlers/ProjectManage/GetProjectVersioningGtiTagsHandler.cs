@@ -38,8 +38,6 @@ namespace DNDocs.Application.QueryHandlers.ProjectManage
 
             // var cacheKey = cache.AddOKM(Handle, query.ProjectVersioningId.ToString(),  );
 
-            if (cache.TryGetOKM<string[]>(this, query.ProjectVersioningId.ToString(), out var cached)) return cached;
-
             throw new NotImplementedException();
             // using (var git = appManager.OpenGitRepo(versioning.GitDocsRepoUrl))
             // {

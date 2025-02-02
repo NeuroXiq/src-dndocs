@@ -31,7 +31,7 @@ namespace DNDocs.Application.CommandHandlers.Admin
             var nupks = project.ProjectNugetPackages.Select(t => new NugetPackageDto(t.IdentityId, t.IdentityVersion)).ToArray();
             var userid = project.RefUserProject.First().UserId;
 
-            projectManager.DeleteProject(command.ProjectId);
+            // projectManager.DeleteProject(command.ProjectId);
             
             var createParams = new CreateProjectParams(
                 project.ProjectName,

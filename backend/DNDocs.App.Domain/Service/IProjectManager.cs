@@ -8,7 +8,7 @@ namespace DNDocs.Domain.Service
     public interface IProjectManager
     {
         Task AutoupgradeSingleton(int projectid);
-        Task DeleteProject(int id);
+        // Task DeleteProject(int id);
         string NewestMdDocsCommit(string repoUrl, string docsFolderPath, string readmePath);
         Task ValidateGitRepository(
            string gitRepoUrl,

@@ -23,6 +23,7 @@ using Vinca.Api.Nuget;
 using DNDocs.Domain.Entity;
 using DNDocs.App.Domain.Entity;
 using DNDocs.Domain.Repository;
+using Vinca.Exceptions;
 
 namespace DNDocs.Application.CommandHandlers.Integration
 {
@@ -66,11 +67,32 @@ namespace DNDocs.Application.CommandHandlers.Integration
                 .Where(t => t.PackageName == packageName && t.PackageVersion == packageVersion)
                 .FirstOrDefaultAsync();
 
+            var cacheKey = $"NugetPackageMetadata_{command.PackageName}";
+            var packagesMetadata = await cache.TryGetDbAsync<PackageSearchMetadata[]>(cacheKey);
+
+            // if no cache or if not exists cache reload cache
+            if (packagesMetadata == null || !packagesMetadata.Any(t => t.IdentityId == packageName && t.IdentityVersion == packageVersion))
+            {
+                try
+                {
+                    packagesMetadata = await nugetRepositoryFacade.GetPackageMetadataAsync(command.PackageName);
+                    await cache.SetDbAsync(cacheKey, packagesMetadata, TimeSpan.FromDays(14));
+                }
+                catch
+                {
+                    Validation.ThrowError($"Failed to fetch nuget package: {packageName} {packageVersion}");
+                }
+            }
+
+            if (!packagesMetadata.Any(t => t.IdentityId == packageName && t.IdentityVersion == packageVersion))
+            {
+                Validation.ThrowError($"Failed to fetch nuget package: {packageName} {packageVersion}");
+            }
+
             if (existing == null)
             {
                 var nugetProject = new NugetOrgProject(packageName, packageVersion);
                 await nugetOrgProjectRepository.CreateAsync(nugetProject);
-
             }
             else if (existing != null)
             {
@@ -82,57 +104,6 @@ namespace DNDocs.Application.CommandHandlers.Integration
                 existing.State = Domain.Enums.NugetOrgProjectState.WaitingToBuild;
             }
 
-            await appUow.SaveChangesAsync();
-
-            bgw.RunBuildProjects();
-        }
-        
-        public async Task Handle2(NugetCreateProjectCommand command)
-        {
-            var packageName = command.PackageName;
-            var packageVersion = command.PackageVersion;
-            logger.LogInformation("starting to create nuget project: {0} {1}", packageName, packageVersion);
-
-            Validation.NotStringIsNullOrWhiteSpace(packageName, "PackageName is empty");
-            Validation.NotStringIsNullOrWhiteSpace(packageVersion, "PackageVersion is empty");
-
-            var existing = await appUow.ProjectRepository.GetNugetOrgProjectAsync(packageName, packageVersion);
-
-            if (existing != null)
-            {
-                // force run again?
-                if (existing.StateDetails == Domain.Enums.ProjectStateDetails.BuildFailed)
-                {
-                    await appUow.ProjectRepository.DeleteAsync(existing.Id);
-                }
-                else
-                {
-                    Validation.ThrowError(existing != null, $"nuget project '{packageName} {packageVersion}' already exists");
-                }
-            }
-
-            User nugetUser = await appUow.UserRepository.GetByLoginAsync(User.NuGetUserLogin);
-
-            Project p = new Project();
-            p.NugetOrgPackageName = packageName;
-            p.NugetOrgPackageVersion = packageVersion;
-            p.ProjectType = ProjectType.NugetOrg;
-            p.ProjectName = $"{packageName} {packageVersion}";
-            p.CreatedOn = DateTime.Now;
-            p.State = Domain.Enums.ProjectState.NotActive;
-            p.StateDetails = Domain.Enums.ProjectStateDetails.WaitingToBuild;
-            p.AddUser(nugetUser);
-            p.ProjectNugetPackages = await projectManager.ValidateAndCreateNugetPackages(new NugetPackageDto[] { new NugetPackageDto(packageName, packageVersion) }, false);
-
-            int nugetUserId = await cache.GetOrAddOKMAsync(
-                this,
-                "nuget-user-login",
-                async () => (await appUow.UserRepository.GetByLoginAsync(User.NuGetUserLogin)).Id,
-                TimeSpan.FromDays(1));
-
-            Validation.ThrowError(await (appUow.ProjectRepository.GetByNameAsync(p.ProjectName)) != null, "project already exists/queued to process");
-
-            await appUow.ProjectRepository.CreateAsync(p);
             await appUow.SaveChangesAsync();
 
             bgw.RunBuildProjects();

@@ -35,7 +35,7 @@ namespace DNDocs.Docs.Web.Services
         Task UpdateProjectAsync(Project project);
         Task InsertProjectAsync(Project project);
         Task<Project> SelectProjectByIdAsync(long id);
-        Task<Project> SelectProjectByDnIdAsync(int projectDnId);
+        Task<Project> SelectProjectByDnIdAsync(int projectDnId, ProjectType type);
         Task DeleteProjectAsync(long projectId);
         Task<Project> SelectVersionProject(string urlPrefix, string version);
         Task<Project> SelectSingletonProjectAsync(string urlPrefix);
@@ -304,10 +304,10 @@ namespace DNDocs.Docs.Web.Services
                 new { NugetPackageName = nugetPackageName, NugetPackageVersion = nugetPackageVersion, ProjectType = ProjectType.Nuget });
         }
 
-        public async Task<Project> SelectProjectByDnIdAsync(int dnProjectId)
+        public async Task<Project> SelectProjectByDnIdAsync(int dnProjectId, ProjectType type)
         {
             var conn = GetSqliteConnection(DatabaseType.App);
-            return await conn.QueryFirstOrDefaultAsync<Project>($"{SqlText.SelectProject} WHERE dn_project_id = @dnProjectId", new { dnProjectId });
+            return await conn.QueryFirstOrDefaultAsync<Project>($"{SqlText.SelectProject} WHERE dn_project_id = @dnProjectId AND project_type = @type", new { dnProjectId, type });
         }
 
         public async Task<Project> SelectProjectByIdAsync(long id)

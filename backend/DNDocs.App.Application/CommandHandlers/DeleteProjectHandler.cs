@@ -20,7 +20,8 @@ namespace DNDocs.Application.CommandHandlers
 
         public override void Handle(DeleteProjectCommand command)
         {
-            projectManager.DeleteProject(command.ProjectId);
+            throw new NotImplementedException();
+            // projectManager.DeleteProject(command.ProjectId);
         }
     }
 }

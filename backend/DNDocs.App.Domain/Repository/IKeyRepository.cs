@@ -11,7 +11,6 @@ namespace DNDocs.Domain.Repository
 
     public interface IKeyRepository<TEntity, TKey> : ICoreRepository<TEntity> where TEntity : class
     {
-        void Create(TEntity entity);
         void Create(IEnumerable<TEntity> entity);
         TEntity GetById(TKey id);
         TEntity GetByIdChecked(TKey id);

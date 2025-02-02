@@ -69,22 +69,22 @@ namespace DNDocs.Domain.ServiceImpl
             this.projectVersioningRepo = uow.GetSimpleRepository<ProjectVersioning>();
         }
 
-        public async Task DeleteProject(int projectId)
-        {
-            var id = projectId;
-            // user.AuthorizationProjectManage(id); // todo: reuired by nugetorg generator (delete if failed) what to do with this? param?? maybe just auth as nuget user
-            // in nugetcreateproject handler? (to not be anonymous here?)
-            var projectRepo = appUow.GetSimpleRepository<Project>();
+        //public async Task DeleteProject(int projectId)
+        //{
+        //    var id = projectId;
+        //    // user.AuthorizationProjectManage(id); // todo: reuired by nugetorg generator (delete if failed) what to do with this? param?? maybe just auth as nuget user
+        //    // in nugetcreateproject handler? (to not be anonymous here?)
+        //    var projectRepo = appUow.GetSimpleRepository<Project>();
 
-            Validation.ThrowError(projectRepo.GetById(id) == null, $"Project with id: '{id}' does not exists");
+        //    Validation.ThrowError(projectRepo.GetById(id) == null, $"Project with id: '{id}' does not exists");
 
-            await appUow.GetSimpleRepository<RefUserProject>().ExecuteDeleteAsync(t => t.ProjectId == id);
-            await appUow.GetSimpleRepository<NugetPackage>().ExecuteDeleteAsync(t => t.ProjectId == id);
-            await appUow.GetSimpleRepository<SystemMessage>().ExecuteDeleteAsync(t => t.ProjectId == id);
+        //    await appUow.GetSimpleRepository<RefUserProject>().ExecuteDeleteAsync(t => t.ProjectId == id);
+        //    await appUow.GetSimpleRepository<NugetPackage>().ExecuteDeleteAsync(t => t.ProjectId == id);
+        //    await appUow.GetSimpleRepository<SystemMessage>().ExecuteDeleteAsync(t => t.ProjectId == id);
 
-            await projectRepo.DeleteAsync(id);
-            await ddocsApiClient.Management_DeleteProject(id);
-        }
+        //    await projectRepo.DeleteAsync(id);
+        //    await ddocsApiClient.Management_DeleteProject(id);
+        //}
 
         public async Task AutoupgradeSingleton(int projectId)
         {
@@ -356,11 +356,11 @@ namespace DNDocs.Domain.ServiceImpl
                 {
                     if (useLatestPackageIfVersionNull && string.IsNullOrWhiteSpace(npkg.IdentityVersion))
                     {
-                        pm = nugetRepositoryFacade.GetLatestPackage(npkg.IdentityId);
+                        pm = await nugetRepositoryFacade.GetLatestPackageAsync(npkg.IdentityId);
                     }
                     else
                     {
-                        pm = nugetRepositoryFacade.GetPackageMetadata(npkg.IdentityId, npkg.IdentityVersion);
+                        pm = await nugetRepositoryFacade.GetPackageMetadataAsync(npkg.IdentityId, npkg.IdentityVersion);
                     }
                 }
                 catch (Exception e)
@@ -572,7 +572,7 @@ namespace DNDocs.Domain.ServiceImpl
 
             foreach (var package in vNugetPackages)
             {
-                var packageMetadata = nugetRepositoryFacade.GetPackageMetadata(package.IdentityId)
+                var packageMetadata = (await nugetRepositoryFacade.GetPackageMetadataAsync(package.IdentityId))
                     .Where(t => !string.IsNullOrWhiteSpace(t.IdentityVersion))
                     .OrderByDescending(t => t.IdentityVersion)
                     .ToList();

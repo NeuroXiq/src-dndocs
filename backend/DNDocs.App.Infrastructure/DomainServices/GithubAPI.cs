@@ -162,53 +162,53 @@ clientid:secret
             return mem.ToArray();
         }
 
-        public void DownloadRepositoryZip(RepoId repoId, string branch, Stream outputStream)
-        {
-            // https://github.com/dlemstra/Magick.NET/archive/refs/heads/main.zip
-            Validation.AppArgStringNotEmpty(branch, nameof(branch));
-            var urlWhereIsZip = UrlEncodeParams($"{GithubUrl(repoId)}/archive/refs/heads/{{0}}.zip", branch);
-            var whereIsRequest = new HttpRequestMessage(HttpMethod.Get, urlWhereIsZip);
-            var cacheKey = $"{nameof(GithubAPI)}_{whereIsRequest}";
-            var cached = cache.GetData(cacheKey);
+        //public void DownloadRepositoryZip(RepoId repoId, string branch, Stream outputStream)
+        //{
+        //    // https://github.com/dlemstra/Magick.NET/archive/refs/heads/main.zip
+        //    Validation.AppArgStringNotEmpty(branch, nameof(branch));
+        //    var urlWhereIsZip = UrlEncodeParams($"{GithubUrl(repoId)}/archive/refs/heads/{{0}}.zip", branch);
+        //    var whereIsRequest = new HttpRequestMessage(HttpMethod.Get, urlWhereIsZip);
+        //    var cacheKey = $"{nameof(GithubAPI)}_{whereIsRequest}";
+        //    var cached = cache.GetData(cacheKey);
 
-            if (cached != null)
-            {
-                var ms = new MemoryStream(cached);
-                ms.Seek(0, SeekOrigin.Begin);
-                ms.CopyTo(outputStream);
+        //    if (cached != null)
+        //    {
+        //        var ms = new MemoryStream(cached);
+        //        ms.Seek(0, SeekOrigin.Begin);
+        //        ms.CopyTo(outputStream);
 
-                return;
-            }
+        //        return;
+        //    }
 
-            var result = GitHttpRequest(whereIsRequest);
+        //    var result = GitHttpRequest(whereIsRequest);
 
-            Validation.AppEx(!result.IsSuccessStatusCode,
-                $"Github repo call not success status code, code: {result.StatusCode}\r\nbody: {result.Content.ReadAsStringAsync().Result}\r\ncontent-length {result.Content.Headers.ContentLength}");
+        //    Validation.AppEx(!result.IsSuccessStatusCode,
+        //        $"Github repo call not success status code, code: {result.StatusCode}\r\nbody: {result.Content.ReadAsStringAsync().Result}\r\ncontent-length {result.Content.Headers.ContentLength}");
 
-            var memStream = new MemoryStream();
-            result.Content.ReadAsStream().CopyTo(memStream);
+        //    var memStream = new MemoryStream();
+        //    result.Content.ReadAsStream().CopyTo(memStream);
 
-            cache.Add(cacheKey, memStream.ToArray(), TimeSpan.FromMinutes(3));
-            memStream.Seek(0, SeekOrigin.Begin);
-            memStream.CopyTo(outputStream);
+        //    cache.Add(cacheKey, memStream.ToArray(), TimeSpan.FromMinutes(3));
+        //    memStream.Seek(0, SeekOrigin.Begin);
+        //    memStream.CopyTo(outputStream);
 
-            // INFO
-            // Because in browser github redirects to other location (looking in devtools how downlaod zip repo works)
-            // but from the code, redirection not occur and can download directy
-            // leaving code maybe will be usefuf
+        //    // INFO
+        //    // Because in browser github redirects to other location (looking in devtools how downlaod zip repo works)
+        //    // but from the code, redirection not occur and can download directy
+        //    // leaving code maybe will be usefuf
 
-            // Validation.AppEx(result.StatusCode != System.Net.HttpStatusCode.Found, "Trying to find repo zip but result status code != found");
-            // Validation.AppEx(result.Headers.Location == null, "Location header is null");
+        //    // Validation.AppEx(result.StatusCode != System.Net.HttpStatusCode.Found, "Trying to find repo zip but result status code != found");
+        //    // Validation.AppEx(result.Headers.Location == null, "Location header is null");
 
-            // var zipUrl = result.Headers.Location;
-            // var getZip = new HttpRequestMessage(HttpMethod.Get, zipUrl);
-            // 
-            // var getZipResult = GitHttpRequest(getZip);
-            // 
-            // Validation.AppEx(getZipResult.IsSuccessStatusCode, "Get zip is not success status code");
+        //    // var zipUrl = result.Headers.Location;
+        //    // var getZip = new HttpRequestMessage(HttpMethod.Get, zipUrl);
+        //    // 
+        //    // var getZipResult = GitHttpRequest(getZip);
+        //    // 
+        //    // Validation.AppEx(getZipResult.IsSuccessStatusCode, "Get zip is not success status code");
 
-            // END INFO
-        }
+        //    // END INFO
+        //}
 
         public bool BranchExists(RepoId repoId, string branch)
         {

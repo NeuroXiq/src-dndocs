@@ -28,6 +28,11 @@ namespace Vinca.Exceptions
             if (shouldThrow) Throw(message);
         }
 
+        public static void EnumDefined<T>(T value) where T: struct, Enum
+        {
+            if (!Enum.IsDefined<T>(value)) { Throw($"'{typeof(T).Name}' enum value is not defined. Current value: '{value}'"); }
+        }
+
         static void Throw(string msg) => throw new VValidationException(msg);
     }
 }

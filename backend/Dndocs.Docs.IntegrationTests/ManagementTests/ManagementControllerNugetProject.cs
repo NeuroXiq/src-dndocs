@@ -53,7 +53,7 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
                 null,
                 samepkgver,
                 samepkgver,
-                3,
+                ProjectType.NugetOrg,
                 GetSuperSmallSiteFileStream());
 
 
@@ -67,7 +67,7 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
                 null,
                 samepkgver,
                 samepkgver,
-                3,
+                ProjectType.NugetOrg,
                 GetSuperSmallSiteFileStream()).Result;
             }, Throws.Exception);
         }
@@ -84,7 +84,7 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
                 null,
                 "IT-NugetPkg123",
                 "IT-NugetPkg-versoin1.2.3.4-suffix123-4",
-                3,
+                ProjectType.NugetOrg,
                 GetSuperSmallSiteFileStream());
 
         }
@@ -102,7 +102,7 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
                 null,
                 sameNugetPackage,
                 sameNugetPackage,
-                (int)ProjectType.Nuget,
+                ProjectType.NugetOrg,
                 GetSuperSmallSiteFileStream());
 
             Assert.That(() => {
@@ -114,7 +114,7 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
                     null,
                     sameNugetPackage,
                     sameNugetPackage,
-                    (int)ProjectType.Nuget,
+                    ProjectType.NugetOrg,
                     GetSuperSmallSiteFileStream()).Result;
             }, Throws.Exception);
         }
@@ -146,7 +146,7 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
                         null,
                         pname,
                         pver,
-                        (int)ProjectType.Nuget,
+                        ProjectType.NugetOrg,
                         GetSuperSmallSiteFileStream()).Result;
                 }, Throws.Exception);
             }

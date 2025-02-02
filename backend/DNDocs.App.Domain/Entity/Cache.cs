@@ -7,7 +7,6 @@ namespace DNDocs.Domain.Entity
     {
         public DateTime CreatedOn { get; set; }
         public DateTime LastModifiedOn { get; set; }
-
         public DateTime Expiration { get; set; }
         public string Key { get; set; }
         public byte[] Data { get; set; }

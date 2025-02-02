@@ -24,16 +24,5 @@
         public DateTime UpdatedOn { get; set; }
 
         public Project() { }
-
-        //public Project(long projectId,
-        //    string dndocsAppVersion,
-        //    string urlPrefix,
-        //    string version,
-        //    string nPkgName,
-        //    string nPkgVer,
-        //    ProjectType type)
-        //{
-            
-        //}
     }
 }

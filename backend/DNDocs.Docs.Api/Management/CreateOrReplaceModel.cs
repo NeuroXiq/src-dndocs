@@ -12,7 +12,7 @@ namespace DNDocs.Docs.Api.Management
     {
         Singleton = 1,
         Version = 2,
-        Nuget = 3,
+        NugetOrg = 3,
     }
 
     public class CreateProjectModel

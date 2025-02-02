@@ -18,7 +18,7 @@ namespace DNDocs.Job.Api.Client
     {
         public string ServerUrl { get; }
         public Task PingAsync();
-        public Task<HttpResponseMessage> BuildProject(BuildProjectModel model);
+        public Task<HttpResponseMessage> BuildNugetOrgProject(BuildNugetOrgProjectModel model);
     }
 
     class asdf : HttpClientHandler
@@ -66,7 +66,7 @@ namespace DNDocs.Job.Api.Client
             result.EnsureSuccessStatusCode();
         }
 
-        public async Task<HttpResponseMessage> BuildProject(BuildProjectModel model)
+        public async Task<HttpResponseMessage> BuildNugetOrgProject(BuildNugetOrgProjectModel model)
         {
             var result = await client.PostAsJsonAsync(Urls.BuildProject, model);
             result.EnsureSuccessStatusCode();

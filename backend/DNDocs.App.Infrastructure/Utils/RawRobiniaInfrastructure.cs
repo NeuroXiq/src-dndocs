@@ -136,7 +136,7 @@ namespace DNDocs.Infrastructure.Utils
             List<DIType> result = new List<DIType>();
 
             var allInfTypes = typeof(RawRobiniaInfrastructure).Assembly.GetTypes();
-            var allDomainTypes = typeof(AppLog).Assembly.GetTypes();
+            var allDomainTypes = typeof(EntityBase).Assembly.GetTypes();
             var baseRepoInterface = typeof(Domain.Repository.IKeyRepository<,>);
             repositories = result;
         }

@@ -28,8 +28,7 @@ namespace DNDocs.Job.Web.Application
             ILogger<DJobHostedService> logger,
             IDNClient dnclient,
             IOptions<DJobSettings> dsettings,
-            IHostApplicationLifetime applicationLifetime
-            )
+            IHostApplicationLifetime applicationLifetime)
         {
             this.dsettings = dsettings.Value;
             this.dnclient = dnclient;
@@ -44,7 +43,6 @@ namespace DNDocs.Job.Web.Application
         {
             logsTimer = new Timer(LogsTimerCallback, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
             await bgjobService.AppStart();
-
 
             // this is important to run after application started important for dev 
             // because DN sends ping immediately even before DJob for HTTP requests

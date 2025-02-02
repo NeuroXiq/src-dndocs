@@ -24,7 +24,7 @@ namespace DNDocs.Job.Web.Services
         string RootDirectory { get; }
         public string OSPathDocfxJson { get; }
 
-        void Init(string directory, BuildProjectModel p);
+        void Init(string directory);
 
         // void SetHomepageContent(string content);
         void CleanAfterBuild();
@@ -91,7 +91,7 @@ namespace DNDocs.Job.Web.Services
             Directory.Delete(directory, true);
         }
 
-        public void Init(string directory, BuildProjectModel project)
+        public void Init(string directory)
         {
             directory = Path.Combine(directory, "docfx_project");
 

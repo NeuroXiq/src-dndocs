@@ -38,12 +38,6 @@ namespace DNDocs.Web.Controllers
             this.resources = resources;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetDashboardInfo()
-        {
-            return await ApiResult2(this.qd.DispatchAsync(new GetDashboardInfoQuery()));
-        }
-
         [HttpPost]
         public async Task<IActionResult> GetTableData([FromBody] TableDataRequest model)
         {

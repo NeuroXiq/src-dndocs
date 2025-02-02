@@ -56,7 +56,7 @@ app.UseMiddleware<DJobMiddleware>();
 // map routes
 app.MapGet($"/api/{nameof(DJobApiController.Ping)}", DJobApiController.Ping);
 app.MapGet($"/api/{nameof(DJobApiController.PingAuthorized)}", DJobApiController.PingAuthorized);
-app.MapPost($"/api/{nameof(DJobApiController.BuildProject)}", DJobApiController.BuildProject);
+app.MapPost($"/api/{nameof(DJobApiController.BuildNugetOrgProject)}", DJobApiController.BuildNugetOrgProject);
 app.MapGet($"/api/{nameof(DJobApiController.System)}", DJobApiController.System);
 
 app.Run();

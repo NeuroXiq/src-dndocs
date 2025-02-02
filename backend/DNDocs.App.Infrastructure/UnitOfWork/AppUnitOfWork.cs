@@ -10,10 +10,6 @@ namespace DNDocs.Infrastructure.UnitOfWork
     {
         private AppDbContext dbctx;
 
-        public IAppLogRepository AppLogRepository => new AppLogRepository(dbctx);
-
-        public IHttpLogRepository HttpLogRepository => new HttpLogRepository(dbctx);
-
         public IBgJobRepository BgJobRepository => new BgJobRepository(dbctx);
 
         public IUserRepository UserRepository => new UserRepository(dbctx);

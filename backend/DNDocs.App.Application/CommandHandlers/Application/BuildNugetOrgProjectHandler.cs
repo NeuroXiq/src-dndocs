@@ -23,15 +23,16 @@ using DNDocs.Shared.Configuration;
 using DNDocs.Job.Api.Management;
 using System.Text.Json;
 using DNDocs.Domain.Entity;
+using DNDocs.App.Domain.Entity;
 
-namespace DNDocs.Application.CommandHandlers.Projects
+namespace DNDocs.Application.CommandHandlers.Application
 {
-    internal class BuildProjectHandler : CommandHandlerA<BuildProjectCommand>
+    internal class BuildNugetOrgProjectHandler : CommandHandlerA<BuildNugetOrgProjectCommand>
     {
         private IDJobClientFactory djobClientFactory;
         private DNDocsSettings settings;
 
-        public BuildProjectHandler(
+        public BuildNugetOrgProjectHandler(
             IDJobClientFactory djobClientFactory,
             IOptions<DNDocsSettings> settings)
         {
@@ -39,12 +40,12 @@ namespace DNDocs.Application.CommandHandlers.Projects
             this.settings = settings.Value;
         }
 
-        public override async Task Handle(BuildProjectCommand command)
+        public override async Task Handle(BuildNugetOrgProjectCommand command)
         {
             while (true)
             {
-                Project nextToBuild = await uow.ProjectRepository.Query()
-                    .Where(t => t.StateDetails == ProjectStateDetails.WaitingToBuild)
+                NugetOrgProject nextToBuild = await uow.GetSimpleRepository<NugetOrgProject>().Query()
+                    .Where(t => t.State == NugetOrgProjectState.WaitingToBuild)
                     .OrderBy(t => t.CreatedOn)
                     .FirstOrDefaultAsync();
 
@@ -61,11 +62,11 @@ namespace DNDocs.Application.CommandHandlers.Projects
 
         private IDJobClient[] djobClients = null;
 
-        private async Task SendBuildProjectAsync(Project nextToBuild)
+        private async Task SendBuildProjectAsync(NugetOrgProject nextToBuild)
         {
             bool retry = true;
             IDJobClient nextClient = null;
-            BuildProjectModel model = null;
+            BuildNugetOrgProjectModel model = null;
 
             do
             {
@@ -73,28 +74,23 @@ namespace DNDocs.Application.CommandHandlers.Projects
 
                 try
                 {
-                    model = new BuildProjectModel()
+                    model = new BuildNugetOrgProjectModel()
                     {
                         ProjectId = nextToBuild.Id,
-                        ProjectName = nextToBuild.ProjectName,
-                        DocfxTemplate = nextToBuild.DocfxTemplate,
-                        NugetOrgPackageName = nextToBuild.NugetOrgPackageName,
-                        NugetOrgPackageVersion = nextToBuild.NugetOrgPackageVersion,
-                        ProjectNugetPackages = nextToBuild.ProjectNugetPackages.Select(t => new BuildProjectModel.NugetPackage(t.IdentityId, t.IdentityVersion)).ToList(),
-                        ProjectType = (Job.Api.Management.ProjectType)nextToBuild.ProjectType,
-                        UrlPrefix = nextToBuild.UrlPrefix
+                        PackageName = nextToBuild.PackageName,
+                        PackageVersion = nextToBuild.PackageVersion
                     };
 
                     if (requestsCounter % 20 == 1) await FromTimeToTimeRevalidateIfClientsStillAlive();
 
                     nextClient = djobClients[requestsCounter % djobClients.Length];
 
-                    nextToBuild.StateDetails = ProjectStateDetails.Building;
-                    nextToBuild.LastBuildStartOn = DateTime.UtcNow;
-                    nextToBuild.LastBuildCompletedOn = null;
+                    nextToBuild.State = NugetOrgProjectState.Building;
+                    nextToBuild.BuildStartOn = DateTime.UtcNow;
+                    
                     await uow.SaveChangesAsync();
 
-                    await nextClient.BuildProject(model);
+                    await nextClient.BuildNugetOrgProject(model);
 
                     break;
                 }
@@ -111,8 +107,7 @@ namespace DNDocs.Application.CommandHandlers.Projects
                     {
                         logger.LogError(e, "failed to request build project - bad request: {0} \r\n data: {1}", nextClient?.ServerUrl, JsonSerializer.Serialize(model));
 
-                        nextToBuild.LastBuildErrorLog = Helpers.ExceptionToStringForLogs(e);
-                        nextToBuild.StateDetails = ProjectStateDetails.BuildFailed;
+                        nextToBuild.State = NugetOrgProjectState.BuildFailed;
 
                         await uow.SaveChangesAsync();
 
@@ -122,8 +117,7 @@ namespace DNDocs.Application.CommandHandlers.Projects
                     {
                         logger.LogError(e, "failed to request build project with unknown error. ServerUrl: {0} {1}", nextClient?.ServerUrl, JsonSerializer.Serialize(model));
 
-                        nextToBuild.LastBuildErrorLog = Helpers.ExceptionToStringForLogs(e);
-                        nextToBuild.StateDetails = ProjectStateDetails.BuildFailed;
+                        nextToBuild.State = NugetOrgProjectState.BuildFailed;
                         await uow.SaveChangesAsync();
 
                         retry = false;

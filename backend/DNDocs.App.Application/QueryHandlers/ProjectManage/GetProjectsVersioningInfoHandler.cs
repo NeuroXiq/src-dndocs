@@ -40,18 +40,6 @@ namespace DNDocs.Application.QueryHandlers.ProjectManage
             var versioning = await versioningRepo.GetByIdCheckedAsync(query.ProjectVersioningId);
             string[] tags = null;
 
-            if (!cache.TryGetJKM<string[]>(this, query.ProjectVersioningId.ToString(), out tags))
-            {
-                throw new NotImplementedException();
-                // using (var git = appManager.OpenGitRepo(versioning.GitDocsRepoUrl))
-                // {
-                //     git.Pull();
-                //     tags = git.GetAllTags();
-                // }
-
-                cache.AddJKM(this, query.ProjectVersioningId.ToString(), tags, TimeSpan.FromMinutes(15));
-            }
-
             tags = tags.OrderByDescending(t => t).ToArray();
             var tagsPage = tags.Skip(query.PageNo * 10).Take(10).ToArray();
             var projectsForTags = await projectRepo.Query().Where(t => tags.Contains(t.PVGitTag) && t.PVProjectVersioningId == versioning.Id).ToArrayAsync();

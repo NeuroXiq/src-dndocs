@@ -31,6 +31,7 @@ using Microsoft.EntityFrameworkCore;
 using DNDocs.Domain.Service;
 using DNDocs.Application.Commands.Application;
 using DNDocs.Domain.Entity;
+using DNDocs.Application.CommandHandlers.Application;
 
 namespace DNDocs.Application.Application
 {
@@ -302,7 +303,7 @@ VALUES
             lock (_lock)
             {
                 if (!taskBuildProjects.IsCompleted) return;
-                taskBuildProjects = Task.Run(() => RunCommand(new BuildProjectCommand()));
+                taskBuildProjects = Task.Run(() => RunCommand(new BuildNugetOrgProjectCommand()));
             }
         }
 

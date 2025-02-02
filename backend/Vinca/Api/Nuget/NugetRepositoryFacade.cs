@@ -19,11 +19,11 @@ namespace Vinca.Api.Nuget
     public interface INugetRepositoryFacade
     {
         PackageLibFile[] FetchDllAndXmlFromPackage(string packageName, string version);
-        PackageSearchMetadata GetLatestPackage(string packageName);
-        PackageSearchMetadata GetPackageMetadata(string identityId, string identityVersion);
-        PackageSearchMetadata[] GetPackageMetadata(string packageName);
-        Task<NugetCatalogRoot> GetCatalogRoot();
-        Task<NugetCatalogPage> GetCatalogPage(string id);
+        Task<PackageSearchMetadata> GetLatestPackageAsync(string packageName);
+        Task<PackageSearchMetadata> GetPackageMetadataAsync(string identityId, string identityVersion);
+        Task<PackageSearchMetadata[]> GetPackageMetadataAsync(string packageName);
+        Task<NugetCatalogRoot> GetCatalogRootAsync();
+        Task<NugetCatalogPage> GetCatalogPageAsync(string id);
     }
 
     public class PackageSearchMetadata
@@ -155,7 +155,7 @@ namespace Vinca.Api.Nuget
             this.logger = logger;
         }
 
-        public async Task<NugetCatalogRoot> GetCatalogRoot()
+        public async Task<NugetCatalogRoot> GetCatalogRootAsync()
         {
             string url = "https://api.nuget.org/v3/catalog0/index.json";
             var client = new HttpClient();
@@ -165,7 +165,7 @@ namespace Vinca.Api.Nuget
             return result;
         }
 
-        public async Task<NugetCatalogPage> GetCatalogPage(string id)
+        public async Task<NugetCatalogPage> GetCatalogPageAsync(string id)
         {
             string url = id;
             var client = new HttpClient();
@@ -197,12 +197,12 @@ namespace Vinca.Api.Nuget
             return null;
         }
 
-        public PackageSearchMetadata GetPackageMetadata(string packageName, string packageVersion)
+        public async Task<PackageSearchMetadata> GetPackageMetadataAsync(string packageName, string packageVersion)
         {
             VValidate.AppEx(string.IsNullOrWhiteSpace(packageName), "packagename null or empty");
             VValidate.AppEx(string.IsNullOrWhiteSpace(packageVersion), "packageVersion null or empty");
 
-            var allMetadata = GetPackageMetadata(packageName);
+            var allMetadata = await GetPackageMetadataAsync(packageName);
             var result = allMetadata.FirstOrDefault(t => t.IdentityVersion == packageVersion);
 
             VValidate.AppEx(result == null, $"Package '{packageName} {packageVersion}' not found. Current packages found:\r\n{allMetadata.StringJoin("\r\n", t => $"{t.IdentityId} {t.IdentityVersion}")}");
@@ -210,9 +210,9 @@ namespace Vinca.Api.Nuget
             return result;
         }
 
-        public PackageSearchMetadata GetLatestPackage(string packageName)
+        public async Task<PackageSearchMetadata> GetLatestPackageAsync(string packageName)
         {
-            var allMetadata = GetPackageMetadata(packageName);
+            var allMetadata = await GetPackageMetadataAsync(packageName);
 
             VValidate.Throw(allMetadata.Length == 0, $"Package does not exists: '{packageName}'");
 
@@ -226,9 +226,9 @@ namespace Vinca.Api.Nuget
             return p;
         }
 
-        public PackageSearchMetadata[] GetPackageMetadata(string packageName)
+        public async Task<PackageSearchMetadata[]> GetPackageMetadataAsync(string packageName)
         {
-            var allMetadata = GetNugetPackageMetadata(packageName);
+            var allMetadata = await NugetRequestPackageMetadataAsync(packageName);
 
             var result = allMetadata.Select(p => new PackageSearchMetadata(
                 p.Title,
@@ -239,18 +239,6 @@ namespace Vinca.Api.Nuget
                 p.PackageDetailsUrl?.ToString(),
                 p.IsListed))
                 .ToArray();
-
-            return result;
-        }
-
-        private IPackageSearchMetadata[] GetNugetPackageMetadata(string packageName)
-        {
-            var t = GetPackageMetadataAsync(packageName);
-
-            t.Wait();
-
-            if (t.Exception != null) throw t.Exception;
-            var result = t.Result;
 
             return result;
         }
@@ -352,7 +340,7 @@ namespace Vinca.Api.Nuget
             return result.ToArray();
         }
 
-        private async Task<IPackageSearchMetadata[]> GetPackageMetadataAsync(string packageName)
+        private async Task<IPackageSearchMetadata[]> NugetRequestPackageMetadataAsync(string packageName)
         {
             VValidate.AppEx(string.IsNullOrWhiteSpace(packageName), "null or empty");
 
