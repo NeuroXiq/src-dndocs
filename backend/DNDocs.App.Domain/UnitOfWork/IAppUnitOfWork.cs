@@ -4,8 +4,8 @@ namespace DNDocs.Domain.UnitOfWork
 {
     public interface IAppUnitOfWork
     {
-        IProjectRepository ProjectRepository { get; }
         IBgJobRepository BgJobRepository { get; }
+        INugetOrgProjectRepository NugetOrgProjectRepository { get; }
         IUserRepository UserRepository { get; }
 
         IRepository<TEntity> GetSimpleRepository<TEntity>() where TEntity : Entity.EntityBase;

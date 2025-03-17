@@ -28,6 +28,9 @@ using Vinca.Http.Logs;
 using Vinca.Api;
 using DNDocs.Domain.Entity;
 using DNDocs.App.Domain.Service;
+using DNDocs.Domain.Repository;
+using DNDocs.Infrastructure.Repository;
+using DNDocs.Infrastructure.DataContext;
 
 namespace DNDocs.Web
 {
@@ -65,7 +68,6 @@ namespace DNDocs.Web
             var app = builder.Build();
 
             DeploySetup(app);
-            if (app.Environment.IsDevelopment()) DevDataSeedSetup(app.Services);
 
             var cultures = new[] { "en-US" };
             var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(cultures[0])
@@ -208,9 +210,6 @@ namespace DNDocs.Web
             services.AddDJobClientFactory();
             services.AddScoped<RobiniaApiControllerActionFilter>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton<IAuthorizationPolicyProvider, RobiniaAuthorizationPolicyProvider>();
-            services.AddTransient<IAuthorizationHandler, RobiniaAuthorizationHandler>();
-            services.AddScoped<IScopeContext, ScopeContext>();
             services.AddScoped<IWebUser, WebUser>();
             services.AddDDocsApiClient(o => { o.ApiKey = dsettings.DDocsApiKey; o.ServerUrl = dsettings.DDocsServerUrl; });
             services.AddVNugetRepositoryFacade();
@@ -256,10 +255,6 @@ namespace DNDocs.Web
                 opt.Validate();
             });
 
-#if DEBUG
-            // builder.Services.BuildServiceProvider(new ServiceProviderOptions() { ValidateScopes = true });
-#endif
-
             builder.Services.Configure<ApiBehaviorOptions>(options
                 => options.SuppressModelStateInvalidFilter = true);
 
@@ -269,73 +264,12 @@ namespace DNDocs.Web
 
         private static void RegisterDomain(IServiceCollection services)
         {
-            var domainAssembly = typeof(EntityBase).Assembly;
-            var domainAllTypes = domainAssembly.GetTypes();
-
-            // Services
-
-            var serviceNamespace = typeof(DNDocs.Domain.Service.IProjectManager).Namespace;
-            var serviceImplNamespace = typeof(DNDocs.Domain.ServiceImpl.ProjectManager).Namespace;
-
-            var serviceInterfaces = domainAllTypes.Where(t => t.Namespace == serviceNamespace).ToList();
-            var serviceImpl = domainAllTypes.Where(t => t.Namespace == serviceImplNamespace);
-
-            // not sure, there are more classes than created in project (automatically created by framework?)
-            serviceImpl = serviceImpl.Where(impl => serviceInterfaces.Any(inter => inter.IsAssignableFrom(impl)));
-
-            foreach (var serviceImplementation in serviceImpl)
-            {
-                var serviceInterface = serviceInterfaces.First(iterf => iterf.IsAssignableFrom(serviceImplementation));
-
-                services.AddTransient(serviceInterface, serviceImplementation);
-            }
-
-            services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
+            // services.AddScoped<IBgJobRepository, BgJobRepository>();
+            // services.AddScoped<INugetOrgProjectRepository, NugetOrgProjectRepository>();
+            // services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<AppDbContext>();
             services.AddScoped<INugetOrgProjectService, NugetOrgProjectService>();
-
-            // Repositories
-            IList<DIType> repos;
-            RawRobiniaInfrastructure.ScanDI(out repos);
-
-            foreach (var repoDI in repos)
-            {
-                services.AddTransient(repoDI.InterfaceType, repoDI.ImplementationType);
-            }
-        }
-
-        private static void DevDataSeedSetup(IServiceProvider serviceProvider)
-        {
-            using (var scope = serviceProvider.CreateScope())
-            {
-                // var acs = scope.ServiceProvider.GetRequiredService<IAdminCommandService>();
-                // var aqs = scope.ServiceProvider.GetRequiredService<IAdminQueryService>();
-                // var allProjs = aqs.GetAllProjects().ToArray();
-                // 
-                // if (allProjs.Any()) return;
-
-
-                for (int i = 0; i < 2; i++)
-                {
-                    char l = (char)((int)'a' + i);
-                    // acs.RequestProject("DevSeedProject" + l,
-                    //     "Lorem ipsum dolor sit amet, consectetur adipiscing elit." +
-                    //     "Suspendisse sit amet massa turpis. In sem risus, congue sed neque vel, iaculis tristique elit." +
-                    //     "Suspendisse in ultrices ligula, at pharetra eros." +
-                    //     "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce ultrices nisl et nisi placerat vestibulum",
-                    //     "githuburl" + l,
-                    //     "robiniaurl" + l,
-                    //     new List<BlobDataInfoDto>(),
-                    //     new List<BlobDataInfoDto>(),
-                    //     null,
-                    //     null,
-                    //     -1);
-                }
-
-                Thread.Sleep(1000);
-                // allProjs = aqs.GetAllProjects().ToArray();
-
-                // foreach (var p in allProjs) acs.DeployProject(p.Id, null);
-            }
+            services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
         }
 
         private static void DeploySetup(WebApplication app)

@@ -24,12 +24,14 @@
     <None Remove="Migrations\_00002_djob.sql" />
     <None Remove="Migrations\_00003_indexnow.sql" />
     <None Remove="Migrations\_00004_nuget_catalog.sql" />
+    <None Remove="Migrations\_00005_nugetorg_project.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="LogMigrations\_00001_init.sql" />
     <EmbeddedResource Include="Migrations\_00002_djob.sql" />
     <EmbeddedResource Include="Migrations\_00001_init.sql" />
+    <EmbeddedResource Include="Migrations\_00005_nugetorg_project.sql" />
     <EmbeddedResource Include="Migrations\_00004_nuget_catalog.sql" />
     <EmbeddedResource Include="Migrations\_00003_indexnow.sql" />
   </ItemGroup>

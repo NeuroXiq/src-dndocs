@@ -1,14 +1,12 @@
 ﻿using DNDocs.Application.Commands.Integration;
 using DNDocs.Application.Shared;
 using DNDocs.Domain.Service;
-using DNDocs.Domain.ValueTypes.Project;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DNDocs.Domain.ValueTypes;
-using DNDocs.Domain.ValueTypes.Project;
 using DNDocs.Domain.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using DNDocs.Infrastructure.Utils;
@@ -18,7 +16,6 @@ using DNDocs.Application.Application;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using DNDocs.Application.Services;
-using DNDocs.Application.Commands.Projects;
 using Vinca.Api.Nuget;
 using DNDocs.Domain.Entity;
 using DNDocs.App.Domain.Entity;
@@ -29,7 +26,6 @@ namespace DNDocs.Application.CommandHandlers.Integration
 {
     internal class NugetCreateProjectHandler : CommandHandlerA<NugetCreateProjectCommand>
     {
-        private IProjectManager projectManager;
         private INugetRepositoryFacade nugetRepositoryFacade;
         private ICache cache;
         private IAppUnitOfWork appUow;
@@ -38,14 +34,12 @@ namespace DNDocs.Application.CommandHandlers.Integration
         private IRepository<NugetOrgProject> nugetOrgProjectRepository;
 
         public NugetCreateProjectHandler(
-            IProjectManager projectManager,
             INugetRepositoryFacade nugetRepositoryFacade,
             ICache cache,
             IAppUnitOfWork appUow,
             IBgJobQueue bgjobQueue,
             ApiBackgroundWorker bgw)
         {
-            this.projectManager = projectManager;
             this.nugetRepositoryFacade = nugetRepositoryFacade;
             this.cache = cache;
             this.appUow = appUow;

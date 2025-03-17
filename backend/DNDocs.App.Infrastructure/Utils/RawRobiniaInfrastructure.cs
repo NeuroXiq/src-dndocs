@@ -42,9 +42,7 @@ namespace DNDocs.Infrastructure.Utils
         const string AppDbName = "appdb.sqlite";
         const string LogDbName = "log.sqlite";
         const string TempFilesFolderName = "temp";
-        const string GitStore = "gitstore";
         public static string TempFilesFolderFullPath => $"{filesysPath}/{TempFilesFolderName}";
-        public static string GitStoreFullPath => Path.Combine(filesysPath, GitStore);
         public static string OSPathAppDb => Path.Combine(filesysPath, AppDbName);
         public static string OSPathLogDb => Path.Combine(filesysPath, LogDbName);
 
@@ -100,10 +98,6 @@ namespace DNDocs.Infrastructure.Utils
             // });
 
             serviceCollection.AddSingleton<IDNInfrastructure, RobiniaInfrastructure>();
-            serviceCollection.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
-            serviceCollection.AddScoped<IAppManager, AppManager>();
-            serviceCollection.AddScoped<ICurrentUser, CurrentUserImpl>();
-            serviceCollection.AddScoped<ISystemMessages, SystemMessages>();
             serviceCollection.AddMemoryCache();
             serviceCollection.AddScoped<IGithubAPI, GithubAPI>();
             serviceCollection.AddSingleton<ICache, CacheService>();
@@ -112,7 +106,6 @@ namespace DNDocs.Infrastructure.Utils
 
         private static void CreateInfrastructureFileSystem(string infrastructureRootDirectoryPath)
         {
-            if (!Directory.Exists(GitStoreFullPath)) Directory.CreateDirectory(GitStoreFullPath);
         }
 
         public static void Startup(DNDocsSettings settings)
@@ -130,27 +123,5 @@ namespace DNDocs.Infrastructure.Utils
             }
         }
         
-        //todo remove this
-        public static void ScanDI(out IList<DIType> repositories)
-        {
-            List<DIType> result = new List<DIType>();
-
-            var allInfTypes = typeof(RawRobiniaInfrastructure).Assembly.GetTypes();
-            var allDomainTypes = typeof(EntityBase).Assembly.GetTypes();
-            var baseRepoInterface = typeof(Domain.Repository.IKeyRepository<,>);
-            repositories = result;
-        }
-
-        public class DIType
-        {
-            public Type InterfaceType;
-            public Type ImplementationType;
-
-            public DIType(Type interfaceType, Type implementedType)
-            {
-                InterfaceType = interfaceType;
-                ImplementationType = implementedType;
-            }
-        }
     }
 }

@@ -37,25 +37,6 @@ namespace DNDocs.Infrastructure.Mapping.App
 
             builder.Property(t => t.IsListed)
                 .HasColumnName("is_listed");
-
-            builder.Property(t => t.ProjectId)
-                .HasColumnName("project_id")
-                .IsRequired(false);
-
-            builder.Property(t => t.ProjectVersioningId)
-                .HasColumnName("project_versioning_id")
-                .IsRequired(false);
-
-            builder.HasOne(t => t.Project)
-                .WithMany(t => t.ProjectNugetPackages)
-                .HasForeignKey(t => t.ProjectId)
-                .IsRequired(false);
-
-            builder.HasOne(t => t.ProjectVersioning)
-                .WithMany(t => t.NugetPackages)
-                .HasForeignKey(t => t.ProjectVersioningId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

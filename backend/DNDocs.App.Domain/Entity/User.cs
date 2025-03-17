@@ -22,8 +22,6 @@ namespace DNDocs.Domain.Entity
         public string GithubAvatarUrl { get; set; }
         public string GithubType { get; set; }
 
-        public List<SystemMessage> SystemMessages { get; private set; }
-        public List<RefUserProject> RefUserProject { get; set; }
         public List<BgJob> CreatedBgJobs { get; private set; }
         public DateTime CreatedOn { get; set; }
         public DateTime LastModifiedOn { get; set; }
@@ -53,8 +51,6 @@ namespace DNDocs.Domain.Entity
             GithubHtmlUrl = htmlurl;
             GithubAvatarUrl = avatarurl;
             GithubType = type;
-
-            SystemMessages = new List<SystemMessage>();
         }
     }
 }

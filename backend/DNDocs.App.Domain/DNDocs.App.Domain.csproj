@@ -33,9 +33,4 @@
     <ProjectReference Include="..\Vinca\Vinca.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Shared\" />
-    <Folder Include="ValueTypes\DTO\" />
-  </ItemGroup>
-
 </Project>

@@ -16,6 +16,7 @@ using DNDocs.Application.Services;
 using Microsoft.Extensions.Caching.Memory;
 using DNDocs.Domain.Enums;
 using DNDocs.Domain.Entity;
+using DNDocs.App.Domain.Entity;
 
 namespace DNDocs.Application.QueryHandlers.DocfxExplorer
 {
@@ -49,7 +50,9 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
 
         protected override async Task<BgJobViewModel> Handle(GetNugetCreateProjectStatusQuery query)
         {
-            var project = await appUow.ProjectRepository.GetNugetOrgProjectAsync(query.PackageName, query.PackageVersion);
+            var project = await appUow.NugetOrgProjectRepository.Query()
+                .Where(t => t.PackageName == query.PackageName && t.PackageVersion == query.PackageVersion)
+                .FirstOrDefaultAsync();
 
             if (project == null) return null;
 
@@ -57,10 +60,10 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
             double estimateBuildTime = await GetEstimateBuildTime();
             double estimateStartIn = 0;
 
-            if (project.State == Domain.Enums.ProjectState.NotActive && project.StateDetails == Domain.Enums.ProjectStateDetails.WaitingToBuild)
+            if (project.State == Domain.Enums.NugetOrgProjectState.WaitingToBuild)
             {
-                countBeforeStart = await appUow.Query<Project>()
-                    .Where(t => t.CreatedOn < project.CreatedOn && t.StateDetails == Domain.Enums.ProjectStateDetails.WaitingToBuild)
+                countBeforeStart = await appUow.Query<NugetOrgProject>()
+                    .Where(t => t.CreatedOn < project.CreatedOn && t.State == Domain.Enums.NugetOrgProjectState.WaitingToBuild)
                     .CountAsync();
 
                 countBeforeStart++;
@@ -74,10 +77,9 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
                 EstimateOtherJobsBeforeThis = countBeforeStart,
                 EstimateBuildTime = estimateBuildTime,
                 EstimateStartIn = estimateStartIn,
-                State = (int)project.State,
-                StateDetails = (int)project.StateDetails,
-                LastDocfxBuildTime = project.LastBuildStartOn,
-                ProjectApiFolderUrl = settings.GetUrlNugetOrgProject(project.NugetOrgPackageName, project.NugetOrgPackageVersion),
+                State = (int)2,
+                StateDetails = (int)project.State,
+                ProjectApiFolderUrl = settings.GetUrlNugetOrgProject(project.PackageName, project.PackageVersion),
             };
 
             abw.RunBuildProjects();
@@ -87,25 +89,7 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
 
         async Task<double> GetEstimateBuildTime()
         {
-            string key = "estimated_build_time";
-            if (!memoryCache.TryGetValue<double>(key, out var value))
-            {
-                var last50SuccessBuilds = await appUow.Query<Project>()
-                    .Where(t => t.State == Domain.Enums.ProjectState.Active && t.LastBuildStartOn != null && t.LastBuildCompletedOn != null)
-                    .OrderByDescending(t => t.LastBuildStartOn)
-                    .Take(50)
-                    .ToListAsync();
-
-                if (last50SuccessBuilds.Count == 0) return 0;
-
-                var estimatedBuildTime = last50SuccessBuilds.Average(t => (t.LastBuildCompletedOn.Value - t.LastBuildStartOn.Value).TotalSeconds);
-                estimatedBuildTime = Math.Round(estimatedBuildTime, 2);
-
-                memoryCache.Set(key, estimatedBuildTime, TimeSpan.FromSeconds(30));
-                value = estimatedBuildTime;
-            }
-
-            return value;
+            return 10;
         }
     }
 }

@@ -8,8 +8,6 @@ namespace DNDocs.App.Domain.Enums
 {
     public enum ProjectType
     {
-        Singleton = 1,
-        Version = 2,
         NugetOrg = 3,
     }
 }

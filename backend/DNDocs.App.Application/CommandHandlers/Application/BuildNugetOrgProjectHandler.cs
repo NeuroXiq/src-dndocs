@@ -1,5 +1,4 @@
 ﻿
-using DNDocs.Application.Commands.Projects;
 using DNDocs.Application.Shared;
 using DNDocs.Docs.Api.Client;
 using DNDocs.Domain.Enums;
@@ -52,7 +51,8 @@ namespace DNDocs.Application.CommandHandlers.Application
                 if (nextToBuild == null) break;
 
                 // load related data (ef automatically binds this to 'nexttobuild')
-                await uow.Query<NugetPackage>().Where(t => t.ProjectId == nextToBuild.Id).ToListAsync();
+                throw new NotImplementedException();
+                // await uow.Query<NugetPackage>().Where(t => t.ProjectId == nextToBuild.Id).ToListAsync();
 
                 await SendBuildProjectAsync(nextToBuild);
             }

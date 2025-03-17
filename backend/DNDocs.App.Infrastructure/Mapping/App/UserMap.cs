@@ -59,16 +59,6 @@ namespace DNDocs.Infrastructure.Mapping.App
                 .HasColumnName("github_type")
                 .IsRequired(false);
 
-            builder.HasMany(t => t.RefUserProject)
-                .WithOne(t => t.User)
-                .HasForeignKey(t => t.UserId);
-
-            builder.HasMany(t => t.SystemMessages)
-                .WithOne(t => t.User)
-                .HasForeignKey(t => t.UserId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
-
             builder.HasMany(t => t.CreatedBgJobs)
                 .WithOne(t => t.CreatedByUser)
                 .HasForeignKey(t => t.ExecuteAsUserId)

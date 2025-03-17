@@ -13,6 +13,5 @@ namespace DNDocs.Api.DTO.MyAccount
         public double EstimateStartIn { get; set; }
         public int StateDetails { get; set; }
         public int State { get; set; }
-        public DateTime? LastDocfxBuildTime { get; set; }
     }
 }

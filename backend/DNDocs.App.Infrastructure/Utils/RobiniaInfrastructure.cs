@@ -8,7 +8,6 @@ namespace DNDocs.Infrastructure.Utils
     public interface IDNInfrastructure
     {
         void RunAppMigrations();
-        string GetOSPathGitRepoStoreRepo(Guid repoid);
     }
 
 
@@ -25,19 +24,10 @@ namespace DNDocs.Infrastructure.Utils
             this.logger = logger;
         }
 
-        static string FID(Guid guid)
-        {
-            if (Guid.Empty == guid) throw new ArgumentException("Empty guid not allowed to use in infrastucture (safe guard)");
-
-            return guid.ToString().ToUpper();
-        }
-
-        public string GetOSPathGitRepoStoreRepo(Guid repoid) => Path.Combine(RawRobiniaInfrastructure.GitStoreFullPath, FID(repoid));
-
         public void RunAppMigrations()
         {
-            RunMigrations(RawRobiniaInfrastructure.AppDatabaseConnectionString(), s => s.StartsWith("DNDocs.Infrastructure.Migrations."));
-            RunMigrations(RawRobiniaInfrastructure.LogDbConnectionString(), s => s.StartsWith("DNDocs.Infrastructure.LogMigrations."));
+            RunMigrations(RawRobiniaInfrastructure.AppDatabaseConnectionString(), s => s.StartsWith("DNDocs.App.Infrastructure.Migrations."));
+            RunMigrations(RawRobiniaInfrastructure.LogDbConnectionString(), s => s.StartsWith("DNDocs.App.Infrastructure.LogMigrations."));
         }
 
         public static void RunMigrations(string connectionString, Func<string, bool> filter)

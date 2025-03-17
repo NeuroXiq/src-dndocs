@@ -74,47 +74,6 @@ namespace DNDocs.Application.Shared
             return dest;
         }
 
-        public static ProjectDto Map(Project project)
-        {
-            if (project == null) return null;
-
-            ProjectDto result = null;
-            try
-            {
-                result = SimpleAutoMap<Project, ProjectDto>(project);
-            }
-            catch (Exception e)
-            {
-
-                throw;
-            }
-            
-
-            result.ProjectNugetPackages = project.ProjectNugetPackages?.Select(Map).ToList() ?? new List<DNDocs.Api.DTO.ProjectManage.NugetPackageDto>();
-
-            return result;
-        }
-
-        public static IList<SystemMessageDto> Map(IEnumerable<SystemMessage> messages)
-        {
-            return messages.Select(Map).ToArray();
-        }
-
-        public static SystemMessageDto Map(SystemMessage m)
-        {
-            return new SystemMessageDto
-            {
-                Id = m.Id,
-                DateTime = m.DateTime,
-                Level = (DNDocs.Api.DTO.Enum.SystemMessageLevel)m.Level,
-                Message = m.Message,
-                ProjectId = m.ProjectId,
-                Title = m.Title,
-                Type = (DNDocs.Api.DTO.Enum.SystemMessageType)m.Type,
-                UserId = m.UserId
-            };
-        }
-
         public static IList<DNDocs.Api.DTO.ProjectManage.NugetPackageDto> Map(IEnumerable<NugetPackage> nugetPackages)
         {
             if (nugetPackages == null) return null;
@@ -143,15 +102,6 @@ namespace DNDocs.Application.Shared
                 commandResult.FieldErrors?.Select(t => new FieldErrorDto(t.FieldName, t.ErrorMessage)));
         }
 
-        internal static TableDataDto<ProjectDto> Map(TableDataResponse<Project> projects)
-        {
-            return new TableDataDto<ProjectDto>(
-                projects.RowsCount,
-                projects.CurrentPage,
-                projects.RowsPerPage,
-                projects.Result.Select(Mapper.Map).ToArray());
-        }
-
         public static CommandResultDto<TResult> MapCR<TResult>(CommandResult<TResult> commandResult)
         {
             return new CommandResultDto<TResult>(
@@ -164,26 +114,6 @@ namespace DNDocs.Application.Shared
         public static QueryResultDto<TResult> MapQR<TResult>(QueryResult<TResult> qr)
         {
             return new QueryResultDto<TResult>() { Result = qr.Result };
-        }
-
-        internal static List<ProjectVersioningDto> Map(List<ProjectVersioning> v)
-        {
-            return v?.Select(Map).ToList();
-        }
-
-        internal static ProjectVersioningDto Map(ProjectVersioning v)
-        {
-            return new ProjectVersioningDto(
-                v.Id,
-                v.ProjectName,
-                v.ProjectWebsiteUrl,
-                v.UrlPrefix,
-                v.GitDocsRepoUrl,
-                v.GitDocsBranchName,
-                v.GitDocsRelativePath,
-                v.GitHomepageRelativePath,
-                v.Autoupgrage,
-                v.NugetPackages?.Select(Map)?.ToList());
         }
     }
 }

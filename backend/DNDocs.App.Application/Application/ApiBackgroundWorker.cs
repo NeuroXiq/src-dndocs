@@ -13,7 +13,6 @@ using System.Diagnostics;
 using DNDocs.Application.Services;
 using DNDocs.Shared.Utils;
 using System.Reflection;
-using DNDocs.Application.Commands.Projects;
 using Vinca.BufferLogger;
 using DNDocs.Infrastructure.Utils;
 using Microsoft.Data.Sqlite;
@@ -32,6 +31,8 @@ using DNDocs.Domain.Service;
 using DNDocs.Application.Commands.Application;
 using DNDocs.Domain.Entity;
 using DNDocs.Application.CommandHandlers.Application;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DNDocs.Application.Application
 {
@@ -46,6 +47,7 @@ namespace DNDocs.Application.Application
         private Timer timerBuildProjects;
         private Timer timerIndexNow;
         private Timer timerProcessNugetCatalog;
+        private IWebHostEnvironment webHostEnvironment;
         private IIndexNowApi indexNowApi;
         private IDDocsApiClient ddocsApiClient;
         private IVHttpLogService vHttpLogs;
@@ -65,9 +67,11 @@ namespace DNDocs.Application.Application
             IDNInfrastructure dinfrastructure,
             IVHttpLogService vHttpLogs,
             IDDocsApiClient ddocsApiClient,
-            IIndexNowApi indexNowApi
+            IIndexNowApi indexNowApi,
+            IWebHostEnvironment webHostEnvironment
             )
         {
+            this.webHostEnvironment = webHostEnvironment;
             this.indexNowApi = indexNowApi;
             this.ddocsApiClient = ddocsApiClient;
             this.vHttpLogs = vHttpLogs;
@@ -113,6 +117,8 @@ namespace DNDocs.Application.Application
 
         private async Task DoIndexNow()
         {
+            if (webHostEnvironment.IsDevelopment()) return;
+
             logger.LogTrace("starting doindexnow");
 
             using var scope = services.CreateScope();
@@ -314,9 +320,6 @@ VALUES
                 try
                 {
                     var cd = scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
-                    var currentUser = scope.ServiceProvider.GetRequiredService<ICurrentUser>();
-
-                    currentUser.AuthenticateAsUser(fromUserLogin: User.AdministratorUserLogin);
 
                     var result = await cd.DispatchAsync(command, cancellationTokenSource.Token);
                 }
@@ -326,40 +329,6 @@ VALUES
                 }
             }
         }
-
-        //void BuildProjectThreadHandler()
-        //{
-        //    try
-        //    {
-        //        using (var scope = services.CreateScope())
-        //        {
-        //            var uow = scope.ServiceProvider.GetRequiredService<IAppUnitOfWork>();
-
-        //            try
-        //            {
-        //                var cd = scope.ServiceProvider.GetRequiredService<ICommandDispatcher>();
-        //                var currentUser = scope.ServiceProvider.GetRequiredService<ICurrentUser>();
-
-        //                currentUser.AuthenticateAsUser(fromUserLogin: User.AdministratorUserLogin);
-
-        //                var result = cd.Dispatch(new BuildProjectCommand(), cancellationTokenSource.Token);
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                logger.LogError(e, "failed processing buildproject command");
-        //            }
-        //            uow.SaveChanges();
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        this.logger.LogError(e, "failed to process bg job queue");
-        //    }
-        //    finally
-        //    {
-        //        isBuildProjects = 0;
-        //    }
-        //}
 
         ~ApiBackgroundWorker() { Dispose(false); }
         public void Dispose() { Dispose(true); }

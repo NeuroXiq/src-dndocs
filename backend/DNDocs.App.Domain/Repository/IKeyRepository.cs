@@ -21,7 +21,6 @@ namespace DNDocs.Domain.Repository
         void Delete(TEntity entity);
 
         IList<TEntity> GetAll();
-        TableDataResponse<TEntity> GetTableData(TableDataRequest request);
         IQueryable<TEntity> Query(params Expression<Func<TEntity, object>>[] includes);
         IList<TEntity> GetByIdsChecked(IEnumerable<TKey> ids);
 
@@ -34,7 +33,6 @@ namespace DNDocs.Domain.Repository
         Task DeleteAsync(IEnumerable<int> ids);
         Task DeleteAsync(IEnumerable<TEntity> entities);
         Task<IList<TEntity>> GetAllAsync();
-        Task<TableDataResponse<TEntity>> GetTableDataAsync(TableDataRequest request);
         Task<IList<TEntity>> GetByIdsCheckedAsync(IEnumerable<TKey> ids);
     }
 }

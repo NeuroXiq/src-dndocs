@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DNDocs.Infrastructure.Repository
 {
-    internal class UserRepository : BaseRepository<User>, IUserRepository
+    public class UserRepository : BaseRepository<User>, IUserRepository
     {
         public UserRepository(DbContext dbcontext) : base(dbcontext)
         {

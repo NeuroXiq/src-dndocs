@@ -20,20 +20,15 @@ namespace DNDocs.Application.CommandHandlers.Integration
                 projectId = (int)cmd.ProjectId;
             }
 
-            var project = await uow.ProjectRepository.GetByIdCheckedAsync(projectId);
-
-            project.LastBuildCompletedOn = DateTime.UtcNow;
+            var project = await uow.NugetOrgProjectRepository.GetByIdCheckedAsync(projectId);
 
             if (cmd.Success)
             {
-                project.State = Domain.Enums.ProjectState.Active;
-                project.StateDetails = Domain.Enums.ProjectStateDetails.Ready;
+                project.State = Domain.Enums.NugetOrgProjectState.Online;
             }
             else
             {
-                project.State = Domain.Enums.ProjectState.NotActive;
-                project.StateDetails = Domain.Enums.ProjectStateDetails.BuildFailed;
-                project.LastBuildErrorLog = cmd.Exception;
+                project.State = Domain.Enums.NugetOrgProjectState.BuildFailed;
             }
         }
     }

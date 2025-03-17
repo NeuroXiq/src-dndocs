@@ -8,7 +8,6 @@ namespace DNDocs.Infrastructure.DataContext
     public class AppDbContext : DbContext
     {
         public DbSet<HttpLog> HttpLog { get; set; }
-        public DbSet<Project> Project { get; set; }
         public DbSet<BgJob> BgJob { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)

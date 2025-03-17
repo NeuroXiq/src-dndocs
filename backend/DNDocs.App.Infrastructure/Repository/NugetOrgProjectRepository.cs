@@ -3,12 +3,13 @@ using DNDocs.Domain.Enums;
 using DNDocs.Domain.Repository;
 using System.Diagnostics;
 using DNDocs.Domain.Entity;
+using DNDocs.App.Domain.Entity;
 
 namespace DNDocs.Infrastructure.Repository
 {
-    public class BgJobRepository : BaseRepository<BgJob>, IBgJobRepository
+    public class NugetOrgProjectRepository: BaseRepository<NugetOrgProject>, INugetOrgProjectRepository
     {
-        public BgJobRepository(DbContext dbcontext) : base(dbcontext)
+        public NugetOrgProjectRepository(DbContext dbcontext) : base(dbcontext)
         {
         }
     }

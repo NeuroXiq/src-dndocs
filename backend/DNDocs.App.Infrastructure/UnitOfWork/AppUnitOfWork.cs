@@ -14,9 +14,7 @@ namespace DNDocs.Infrastructure.UnitOfWork
 
         public IUserRepository UserRepository => new UserRepository(dbctx);
 
-        // public ITopicRepository TopicRepository => new TopicRepository(dbctx);
-
-        public IProjectRepository ProjectRepository => new ProjectRepository(dbctx);
+        public INugetOrgProjectRepository NugetOrgProjectRepository => new NugetOrgProjectRepository(dbctx);
 
         public AppUnitOfWork(AppDbContext dbctx)
         {

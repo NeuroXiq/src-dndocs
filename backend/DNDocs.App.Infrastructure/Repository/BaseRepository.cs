@@ -109,35 +109,6 @@ namespace DNDocs.Infrastructure.Repository
             set.Where(predicate).ExecuteDelete();
         }
 
-        public TableDataResponse<TEntity> GetTableData(TableDataRequest request)
-        {
-            //TODO rename this method to 'GetTAbleData' and remove method above. test if this work
-            var tableName = dbcontext.Model.FindEntityType(typeof(TEntity)).GetTableName();
-            var fsql = ApplyFilters(request.Filters);
-            var orderBy = GenerateOrderBySql(request.OrderBy);
-            string sql = $"SELECT * FROM {tableName} t ";
-
-            if (!string.IsNullOrEmpty(fsql)) sql += $" WHERE ({fsql}) ";
-            if (!string.IsNullOrWhiteSpace(orderBy)) sql += orderBy;
-
-
-            var query = dbset.FromSqlRaw(sql);
-
-            var rows = query
-                .Skip((request.Page) * request.RowsPerPage)
-                .Take(request.RowsPerPage)
-                .ToList();
-
-            int count = -1;
-
-            if (request.GetRowsCount)
-            {
-                count = query.Count();
-            }
-
-            return new TableDataResponse<TEntity>(count, request.Page, request.RowsPerPage, rows);
-        }
-
         private string GenerateOrderBySql(IList<TableDataRequest.OrderByInfo> orderBy)
         {
             if (orderBy == null || orderBy.Count == 0) return null;
@@ -304,11 +275,6 @@ namespace DNDocs.Infrastructure.Repository
         public async Task<IList<TEntity>> GetAllAsync()
         {
             return await dbset.Where(t => true).ToListAsync();
-        }
-
-        public Task<TableDataResponse<TEntity>> GetTableDataAsync(TableDataRequest request)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<IList<TEntity>> GetByIdsCheckedAsync(IEnumerable<int> ids)

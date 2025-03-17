@@ -86,10 +86,10 @@ namespace DNDocs.Application.CommandHandlers.Application
                     {
                         logger.LogTrace("starting to check db for package to delete: {0} {1} {2}", deletedItem.NugetId, deletedItem.NugetVersion, deletedItem.Id);
 
-                        var projectToDelete = await uow.ProjectRepository.Query()
+                        var projectToDelete = await uow.NugetOrgProjectRepository.Query()
                             .Where(t =>
-                                t.NugetOrgPackageName == deletedItem.NugetId &&
-                                t.NugetOrgPackageVersion == deletedItem.NugetVersion)
+                                t.PackageName == deletedItem.NugetId &&
+                                t.PackageVersion == deletedItem.NugetVersion)
                             .FirstOrDefaultAsync();
 
                         if (projectToDelete != null)
