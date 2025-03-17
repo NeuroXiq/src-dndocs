@@ -45,7 +45,12 @@ namespace DNDocs.Infrastructure.DataContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            //options.UseSqlite(
+
+#if DEBUG
+            options.EnableSensitiveDataLogging(true);
+            options.LogTo(Console.WriteLine);
+
+#endif
         }
     }
 }

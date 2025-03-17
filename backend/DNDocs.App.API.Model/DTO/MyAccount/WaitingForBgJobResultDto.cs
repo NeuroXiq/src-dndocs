@@ -11,7 +11,6 @@ namespace DNDocs.Api.DTO.MyAccount
         public int EstimateOtherJobsBeforeThis { get; set; }
         public double EstimateBuildTime { get; set; }
         public double EstimateStartIn { get; set; }
-        public int StateDetails { get; set; }
         public int State { get; set; }
     }
 }

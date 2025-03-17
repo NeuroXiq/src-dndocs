@@ -20,11 +20,8 @@ namespace DNDocs.Infrastructure.Mapping.App
                 .HasColumnName("id")
                 .ValueGeneratedOnAdd();
 
-            b.Property(t => t.PackageName)
-                .HasColumnName("package_name");
-
-            b.Property(t => t.PackageVersion)
-                .HasColumnName("package_version");
+            b.Property(t => t.NugetPackageId)
+                .HasColumnName("nuget_package_id");
 
             b.Property(t => t.IsOnline)
                 .HasColumnName("is_online");
@@ -40,6 +37,10 @@ namespace DNDocs.Infrastructure.Mapping.App
 
             b.Property(t => t.LastModifiedOn)
                 .HasColumnName("last_modified_on");
+
+            b.HasOne(t => t.NugetPackage)
+                .WithMany()
+                .HasForeignKey(t => t.NugetPackageId);
         }
     }
 }

@@ -54,8 +54,6 @@ namespace DNDocs.Infrastructure.Mapping.App
             builder.Property(t => t.ExeThreadId)
                 .HasColumnName("exe_thread_id")
                 .IsRequired(false);
-
-            builder.Property(t => t.BuildsProjectId).HasColumnName("builds_project_id").IsRequired(false);
         }
     }
 }

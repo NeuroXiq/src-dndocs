@@ -11,10 +11,6 @@ namespace DNDocs.App.Domain.Entity
 {
     public class NugetOrgProject : EntityBase, ICreateUpdateTimestamp
     {
-        public string PackageName { get; set; }
-
-        public string PackageVersion { get; set; }
-
         public bool IsOnline { get; set; }
 
         public NugetOrgProjectState State { get; set; }
@@ -25,12 +21,16 @@ namespace DNDocs.App.Domain.Entity
 
         public DateTime LastModifiedOn { get; set; }
 
+        public int NugetPackageId { get; set; }
+
+        public NugetPackage NugetPackage { get; set; }
+
         public NugetOrgProject() { }
-        
-        public NugetOrgProject(string packageName, string packageVersion)
+
+        public NugetOrgProject(NugetPackage nugetPackage, NugetOrgProjectState state)
         {
-            PackageName = packageName;
-            PackageVersion = packageVersion;
+            NugetPackage = nugetPackage;
+            State = state;
         }
     }
 }

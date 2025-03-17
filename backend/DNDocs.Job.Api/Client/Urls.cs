@@ -10,6 +10,6 @@ namespace DNDocs.Job.Api.Client
     public class Urls
     {
         public const string Ping = "api/ping";
-        public const string BuildProject = "api/buildproject";
+        public const string BuildProject = "api/build-nugetorg-project";
     }
 }

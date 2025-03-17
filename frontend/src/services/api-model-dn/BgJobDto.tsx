@@ -5,7 +5,6 @@ export default interface BgJobViewModel {
     estimateOtherJobsBeforeThis: number,
     estimateBuildTime: number,
     estimateStartIn: number,
-    stateDetails: number,
     state: number,
     lastDocfxBuildTime: string,
 }

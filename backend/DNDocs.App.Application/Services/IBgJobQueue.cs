@@ -42,7 +42,6 @@ namespace DNDocs.Application.Services
             var uow = scope.ServiceProvider.GetRequiredService<IAppUnitOfWork>();
 
             var job = new BgJob(command?.GetType().FullName, JsonConvert.SerializeObject(command), userId);
-            job.BuildsProjectId = buildsProjectId;
 
             await uow.BgJobRepository.CreateAsync(job);
             await uow.SaveChangesAsync();

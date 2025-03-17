@@ -51,7 +51,10 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
         protected override async Task<BgJobViewModel> Handle(GetNugetCreateProjectStatusQuery query)
         {
             var project = await appUow.NugetOrgProjectRepository.Query()
-                .Where(t => t.PackageName == query.PackageName && t.PackageVersion == query.PackageVersion)
+                .Include(t => t.NugetPackage)
+                .Where(t =>
+                    t.NugetPackage.IdentityId == query.PackageName &&
+                    t.NugetPackage.IdentityVersion == query.PackageVersion)
                 .FirstOrDefaultAsync();
 
             if (project == null) return null;
@@ -77,9 +80,11 @@ namespace DNDocs.Application.QueryHandlers.DocfxExplorer
                 EstimateOtherJobsBeforeThis = countBeforeStart,
                 EstimateBuildTime = estimateBuildTime,
                 EstimateStartIn = estimateStartIn,
-                State = (int)2,
-                StateDetails = (int)project.State,
-                ProjectApiFolderUrl = settings.GetUrlNugetOrgProject(project.PackageName, project.PackageVersion),
+                State = (int)project.State,
+                ProjectApiFolderUrl = 
+                settings.GetUrlNugetOrgProject(
+                    project.NugetPackage.IdentityId,
+                    project.NugetPackage.IdentityVersion),
             };
 
             abw.RunBuildProjects();

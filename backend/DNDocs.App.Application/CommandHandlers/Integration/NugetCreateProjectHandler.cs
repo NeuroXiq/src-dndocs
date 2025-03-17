@@ -58,7 +58,7 @@ namespace DNDocs.Application.CommandHandlers.Integration
             Validation.NotStringIsNullOrWhiteSpace(packageVersion, "PackageVersion is empty");
 
             var existing = await appUow.Query<NugetOrgProject>()
-                .Where(t => t.PackageName == packageName && t.PackageVersion == packageVersion)
+                .Where(t => t.NugetPackage.IdentityId == packageName && t.NugetPackage.IdentityVersion == packageVersion)
                 .FirstOrDefaultAsync();
 
             var cacheKey = $"NugetPackageMetadata_{command.PackageName}";
@@ -78,6 +78,8 @@ namespace DNDocs.Application.CommandHandlers.Integration
                 }
             }
 
+            var nugetPackageData = packagesMetadata.First(t => t.IdentityId == packageName && t.IdentityVersion == packageVersion);
+
             if (!packagesMetadata.Any(t => t.IdentityId == packageName && t.IdentityVersion == packageVersion))
             {
                 Validation.ThrowError($"Failed to fetch nuget package: {packageName} {packageVersion}");
@@ -85,7 +87,16 @@ namespace DNDocs.Application.CommandHandlers.Integration
 
             if (existing == null)
             {
-                var nugetProject = new NugetOrgProject(packageName, packageVersion);
+                var nugetPackage = new NugetPackage(
+                    nugetPackageData.Title,
+                    nugetPackageData.IdentityId,
+                    nugetPackageData.IdentityVersion,
+                    nugetPackageData.Published,
+                    nugetPackageData.ProjectUrl,
+                    nugetPackageData.PackageDetailsUrl,
+                    nugetPackageData.IsListed);
+
+                var nugetProject = new NugetOrgProject(nugetPackage, Domain.Enums.NugetOrgProjectState.WaitingToBuild);
                 await nugetOrgProjectRepository.CreateAsync(nugetProject);
             }
             else if (existing != null)

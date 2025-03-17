@@ -20,8 +20,8 @@ namespace DNDocs.Domain.Entity
 
         public NugetPackage(
             string title,
-            string identityVersion,
             string identityId,
+            string identityVersion,
             DateTimeOffset? publishedDate,
             string projectUrl,
             string packageDetailsUrl,

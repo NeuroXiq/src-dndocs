@@ -118,11 +118,11 @@ export default function Home() {
         } else if (createResult?.success === false) {
             newState.currentStep = 0;
             newState.steps[0].failed = true;
-        } else if (jobStatus?.stateDetails === 2) {
+        } else if (jobStatus?.state === 2) {
             newState.currentStep = 1;
-        } else if (jobStatus?.stateDetails === 3) {
+        } else if (jobStatus?.state === 3) {
             newState.currentStep = 2;
-        } else if (jobStatus?.stateDetails !== 6) {
+        } else if (jobStatus?.state === 4) {
             // failed
             newState.currentStep = 3;
             newState.steps[3].failed = true;
@@ -139,7 +139,7 @@ export default function Home() {
         setJobStatus(jobStatus);
         setStepper(newState);
 
-        if (jobStatus?.stateDetails !== 2 && jobStatus?.stateDetails !== 3) { setRefreshJob(false); }
+        if (jobStatus?.state !== 2 && jobStatus?.state !== 3) { setRefreshJob(false); }
     }
 
     useEffect(() => {
@@ -180,7 +180,7 @@ export default function Home() {
 
         api.Integration_NugetCreateProjectCheckStatus(pkgName, pkgVer)
             .then((r: any) => {
-                if (r.result == null) {
+                if (r.result == null || r.result.state === 4) {
                     createProject(pkgName, pkgVer);
                 } else {
                     onRefreshJobCompleted(r.result);
@@ -311,7 +311,7 @@ export default function Home() {
                                 {JSON.stringify(createResult, null, 4)}
                             </pre>
                         </Alert>}
-                        {(jobStatus?.stateDetails === 4) && <Alert severity="error">Build failed. Project Id: {jobStatus.projectId}</Alert>}
+                        {(jobStatus?.state === 4) && <Alert severity="error">Build failed. Project Id: {jobStatus.projectId}</Alert>}
                     </Grid>
                     <Grid item lg={3}></Grid>
                 </Grid>

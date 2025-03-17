@@ -43,16 +43,14 @@ namespace DNDocs.Application.CommandHandlers.Application
         {
             while (true)
             {
-                NugetOrgProject nextToBuild = await uow.GetSimpleRepository<NugetOrgProject>().Query()
+                NugetOrgProject nextToBuild = await uow.GetSimpleRepository<NugetOrgProject>()
+                    .Query()
+                    .Include(t => t.NugetPackage)
                     .Where(t => t.State == NugetOrgProjectState.WaitingToBuild)
                     .OrderBy(t => t.CreatedOn)
                     .FirstOrDefaultAsync();
 
                 if (nextToBuild == null) break;
-
-                // load related data (ef automatically binds this to 'nexttobuild')
-                throw new NotImplementedException();
-                // await uow.Query<NugetPackage>().Where(t => t.ProjectId == nextToBuild.Id).ToListAsync();
 
                 await SendBuildProjectAsync(nextToBuild);
             }
@@ -77,8 +75,8 @@ namespace DNDocs.Application.CommandHandlers.Application
                     model = new BuildNugetOrgProjectModel()
                     {
                         ProjectId = nextToBuild.Id,
-                        PackageName = nextToBuild.PackageName,
-                        PackageVersion = nextToBuild.PackageVersion
+                        PackageName = nextToBuild.NugetPackage.IdentityId,
+                        PackageVersion = nextToBuild.NugetPackage.IdentityVersion
                     };
 
                     if (requestsCounter % 20 == 1) await FromTimeToTimeRevalidateIfClientsStillAlive();

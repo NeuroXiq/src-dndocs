@@ -88,8 +88,8 @@ namespace DNDocs.Application.CommandHandlers.Application
 
                         var projectToDelete = await uow.NugetOrgProjectRepository.Query()
                             .Where(t =>
-                                t.PackageName == deletedItem.NugetId &&
-                                t.PackageVersion == deletedItem.NugetVersion)
+                                t.NugetPackage.IdentityId == deletedItem.NugetId &&
+                                t.NugetPackage.IdentityVersion == deletedItem.NugetVersion)
                             .FirstOrDefaultAsync();
 
                         if (projectToDelete != null)

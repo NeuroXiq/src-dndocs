@@ -15,7 +15,6 @@ namespace DNDocs.Domain.Entity
         public string CommandHandlerResult { get; set; }
         public string Exception { get; set; }
         public string ExeThreadId { get; set; }
-        public int? BuildsProjectId { get; set; }
         public User CreatedByUser { get; set; }
 
         public BgJob() { }
