@@ -174,7 +174,6 @@ namespace DNDocs.Docs.Web.Web
                 m.Metadata,
                 m.ProjectName,
                 m.UrlPrefix,
-                m.PVVersionTag,
                 m.NPackageName,
                 m.NPackageVersion,
                 (Model.ProjectType)m.ProjectType,

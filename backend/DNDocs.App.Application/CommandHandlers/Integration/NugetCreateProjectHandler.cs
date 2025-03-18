@@ -71,6 +71,8 @@ namespace DNDocs.Application.CommandHandlers.Integration
                 {
                     packagesMetadata = await nugetRepositoryFacade.GetPackageMetadataAsync(command.PackageName);
                     await cache.SetDbAsync(cacheKey, packagesMetadata, TimeSpan.FromDays(14));
+
+                    if (!packagesMetadata.Any(t => t.IdentityId == packageName && t.IdentityVersion == packageVersion)) Validation.ThrowError("no nuget package");
                 }
                 catch
                 {

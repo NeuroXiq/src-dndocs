@@ -37,8 +37,6 @@ namespace DNDocs.Docs.Web.Services
         Task<Project> SelectProjectByIdAsync(long id);
         Task<Project> SelectProjectByDnIdAsync(int projectDnId, ProjectType type);
         Task DeleteProjectAsync(long projectId);
-        Task<Project> SelectVersionProject(string urlPrefix, string version);
-        Task<Project> SelectSingletonProjectAsync(string urlPrefix);
 
         // varsite
         Task InsertSitemap(Sitemap sitemap);
@@ -278,22 +276,6 @@ namespace DNDocs.Docs.Web.Services
             await connection.ExecuteAsync(sql, new { Id = id });
         }
 
-        public async Task<Project> SelectVersionProject(string urlPrefix, string version)
-        {
-            var connection = GetSqliteConnection(DatabaseType.App);
-            var sql = $"{SqlText.SelectProject} WHERE url_prefix = @UrlPrefix AND project_version = @ProjectVersion";
-            var result = await connection.QueryFirstOrDefaultAsync<Project>(sql, new { UrlPRefix = urlPrefix, ProjectVersion = version });
-
-            return result;
-        }
-
-        public async Task<Project> SelectSingletonProjectAsync(string urlPrefix)
-        {
-            var connection = GetSqliteConnection(DatabaseType.App);
-            var sql = $"{SqlText.SelectProject} WHERE url_prefix = @UrlPrefix AND project_type = @ProjectType";
-            return await connection.QuerySingleOrDefaultAsync<Project>(sql, new { UrlPrefix = urlPrefix, ProjectType = ProjectType.Singleton });
-        }
-
         public async Task<Project> SelectNugetProjectAsync(string nugetPackageName, string nugetPackageVersion)
         {
             var connection = GetSqliteConnection(DatabaseType.App);
@@ -323,7 +305,7 @@ namespace DNDocs.Docs.Web.Services
             var connection = GetSqliteConnection(DatabaseType.App);
             var sql = $"UPDATE project SET " +
                 "dn_project_id = @DnProjectId, metadata = @Metadata, " +
-                "url_prefix = @UrlPrefix, project_version = @ProjectVersion, " +
+                "url_prefix = @UrlPrefix, " +
                 "nuget_package_name = @NugetPackageName, nuget_package_version = @NugetPackageVersion, " +
                 "project_type = @ProjectType, created_on = @CreatedOn, updated_on = @UpdatedOn " +
                 $"WHERE id = {project.Id}";
@@ -335,9 +317,9 @@ namespace DNDocs.Docs.Web.Services
         {
             var connection = GetSqliteConnection(DatabaseType.App);
             var sql = $"INSERT INTO project" +
-                "(dn_project_id, metadata, url_prefix, project_version, nuget_package_name, " +
+                "(dn_project_id, metadata, url_prefix, nuget_package_name, " +
                 "nuget_package_version, project_type, created_on, updated_on) " +
-                "VALUES (@DnProjectId, @Metadata, @UrlPrefix, @ProjectVersion, @NugetPackageName, " +
+                "VALUES (@DnProjectId, @Metadata, @UrlPrefix, @NugetPackageName, " +
                 "@NugetPackageVersion, @ProjectType, @CreatedOn, @UpdatedOn); " +
                 "select last_insert_rowid();";
 

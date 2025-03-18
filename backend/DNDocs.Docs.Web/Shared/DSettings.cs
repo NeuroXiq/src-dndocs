@@ -28,12 +28,6 @@
         public string GetUrlNugetProjectGenerate(string nugetPackageName, string nugetPackageVersion) =>
             string.Format(Strings.UrlNugetProjectGenerate, nugetPackageName, nugetPackageVersion);
 
-        public string GetUrlSingletonProject(string urlprefix, string path) =>
-            string.Format(this.Strings.UrlProjectSingletonFormat, urlprefix, path);
-        
-        public string GetUrlVersionProject(string urlprefix, string version, string path) =>
-            string.Format(this.Strings.UrlProjectVersionFormat, urlprefix, version);
-        
         public string GetUrlNugetOrgProject(string nugetPackageName, string nugetPackageVersion, string path) =>
             string.Format(this.Strings.UrlProjectNugetOrgFormat, nugetPackageName, nugetPackageVersion, path);
     }

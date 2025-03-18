@@ -76,9 +76,6 @@ is_listed BOOLEAN
 create table nugetorg_project
 (
 id integer primary key autoincrement,
-package_name text,
-package_version text,
-is_online bool,
 [state] int,
 build_starton text,
 created_on text,

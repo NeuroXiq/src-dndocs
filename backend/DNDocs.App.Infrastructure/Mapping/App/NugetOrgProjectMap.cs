@@ -23,9 +23,6 @@ namespace DNDocs.Infrastructure.Mapping.App
             b.Property(t => t.NugetPackageId)
                 .HasColumnName("nuget_package_id");
 
-            b.Property(t => t.IsOnline)
-                .HasColumnName("is_online");
-
             b.Property(t => t.State)
                 .HasColumnName("state");
 

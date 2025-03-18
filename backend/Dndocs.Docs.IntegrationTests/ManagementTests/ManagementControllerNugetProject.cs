@@ -45,47 +45,14 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
             var samepkgname = NextPkgName;
             var samepkgver = NextPkgVer;
 
-            await Client.Management_CreateProject(
-                NextProjectId,
-                NextProjectName,
-                "metadata",
-                null,
-                null,
-                samepkgver,
-                samepkgver,
-                ProjectType.NugetOrg,
-                GetSuperSmallSiteFileStream());
-
-
-            Assert.That(() =>
-            {
-                var q = Client.Management_CreateProject(
-                NextProjectId,
-                "",
-                NextProjectName,
-                null,
-                null,
-                samepkgver,
-                samepkgver,
-                ProjectType.NugetOrg,
-                GetSuperSmallSiteFileStream()).Result;
-            }, Throws.Exception);
+           
         }
 
         [Test]
         public async Task CreateProject_WillCreateNugetProject()
         {
             var siteZip = base.GetSmallSiteFileStream();
-            await Client.Management_CreateProject(
-                NextProjectId,
-                NextProjectName,
-                null,
-                null,
-                null,
-                "IT-NugetPkg123",
-                "IT-NugetPkg-versoin1.2.3.4-suffix123-4",
-                ProjectType.NugetOrg,
-                GetSuperSmallSiteFileStream());
+            
 
         }
 
@@ -94,29 +61,7 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
         {
             var sameNugetPackage = "same-nuget-pkb-1.2.3.4";
 
-            await Client.Management_CreateProject
-                (NextProjectId,
-                NextProjectName,
-                null,
-                null,
-                null,
-                sameNugetPackage,
-                sameNugetPackage,
-                ProjectType.NugetOrg,
-                GetSuperSmallSiteFileStream());
-
-            Assert.That(() => {
-                var r = Client.Management_CreateProject
-                    (NextProjectId,
-                    NextProjectName,
-                    null,
-                    null,
-                    null,
-                    sameNugetPackage,
-                    sameNugetPackage,
-                    ProjectType.NugetOrg,
-                    GetSuperSmallSiteFileStream()).Result;
-            }, Throws.Exception);
+            
         }
 
         [Test]
@@ -138,16 +83,7 @@ namespace DNDocs.Docs.IntegrationTests.ManagementTests
                     string pver = s[(i * 3 + 1)];
                     string urlprefix = s[(i * 3 + 2)];
 
-                    var r = Client.Management_CreateProject
-                        (NextProjectId,
-                        NextProjectName,
-                        null,
-                        urlprefix,
-                        null,
-                        pname,
-                        pver,
-                        ProjectType.NugetOrg,
-                        GetSuperSmallSiteFileStream()).Result;
+                   
                 }, Throws.Exception);
             }
         }

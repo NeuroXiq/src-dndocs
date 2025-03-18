@@ -174,17 +174,6 @@ namespace DNDocs.Docs.IntegrationTests.PublicContentTests
         public void SetUpOneProject()
         {
             hclient = CreateHttpClientForContent();
-
-            _ = Client.Management_CreateProject(
-                NextProjectId,
-                NextProjectName,
-                null,
-                null,
-                null,
-                NPknName,
-                NPknVer,
-                ProjectType.NugetOrg,
-                GetSmallSiteFileStream()).Result;
         }
 
         public static HttpClient CreateHttpClientForContent()

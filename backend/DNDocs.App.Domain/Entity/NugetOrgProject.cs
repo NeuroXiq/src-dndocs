@@ -11,8 +11,6 @@ namespace DNDocs.App.Domain.Entity
 {
     public class NugetOrgProject : EntityBase, ICreateUpdateTimestamp
     {
-        public bool IsOnline { get; set; }
-
         public NugetOrgProjectState State { get; set; }
 
         public DateTime? BuildStartOn { get; set; }

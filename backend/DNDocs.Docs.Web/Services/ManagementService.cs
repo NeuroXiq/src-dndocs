@@ -21,7 +21,6 @@ namespace DNDocs.Docs.Web.Services
             string metadata,
             string projectName,
             string urlPrefix,
-            string pvVersion,
             string nPackageName,
             string nPackageVersion,
             ProjectType type,
@@ -56,7 +55,6 @@ namespace DNDocs.Docs.Web.Services
             string metadata,
             string projectName,
             string urlPrefix,
-            string pvVersion,
             string nPackageName,
             string nPackageVersion,
             ProjectType type,
@@ -65,10 +63,9 @@ namespace DNDocs.Docs.Web.Services
             var sw = Stopwatch.StartNew();
             metrics.CreateProjectZipSize(zipStream.Length);
 
-            logger.LogInformation("Starting CreateOrReplace: {0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}",
-                projectId, projectName, urlPrefix, pvVersion, nPackageName, nPackageVersion, type, metadata);
+            logger.LogInformation("Starting CreateOrReplace: {0}, {1}, {2}, {3}, {4}, {5}, {6}",
+                projectId, projectName, urlPrefix, nPackageName, nPackageVersion, type, metadata);
 
-            pvVersion = string.IsNullOrEmpty(pvVersion) ? null : pvVersion;
             nPackageName = string.IsNullOrEmpty(nPackageName) ? null : nPackageName;
             nPackageVersion = string.IsNullOrEmpty(nPackageVersion) ? null : nPackageVersion;
 
@@ -81,20 +78,6 @@ namespace DNDocs.Docs.Web.Services
 
             switch (type)
             {
-                case ProjectType.Singleton:
-                    DValidation.Throw(string.IsNullOrWhiteSpace(urlPrefix), "urlprefix != null");
-                    DValidation.Throw((pvVersion ?? nPackageName ?? nPackageVersion) != null,
-                        "Singleton proj - some fileds must be null");
-                    DValidation.Throw(
-                        (await repository.SelectSingletonProjectAsync(urlPrefix))?.DnProjectId == projectId,
-                        $"Singleton project with different id and same url already exists. ProjectId: {projectId}, urlprefix: {urlPrefix}");
-                    break;
-                case ProjectType.Version:
-                    DValidation.Throw(string.IsNullOrWhiteSpace(urlPrefix), "urlprefix != null");
-                    DValidation.Throw(string.IsNullOrWhiteSpace(pvVersion), "Version proj - version is null");
-                    DValidation.Throw((await repository.SelectVersionProject(urlPrefix, pvVersion)).DnProjectId == projectId,
-                        $"Version project with different id and same url and save version already exists. ProjectId: {projectId}, urlprefix: {urlPrefix}, version: {pvVersion}");
-                    break;
                 case ProjectType.Nuget:
                     DValidation.Throw(string.IsNullOrWhiteSpace(nPackageName), "nugetackagename not null");
                     DValidation.Throw(string.IsNullOrWhiteSpace(nPackageVersion), "nugetackagevernot null");

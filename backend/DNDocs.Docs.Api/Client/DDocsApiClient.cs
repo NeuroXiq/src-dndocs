@@ -26,7 +26,6 @@ namespace DNDocs.Docs.Api.Client
                 string projectName,
                 string metadata,
                 string urlPrefix,
-                string pvVersionTag,
                 string nPackageName,
                 string nPackageVersion,
                 ProjectType projectType,
@@ -84,7 +83,6 @@ namespace DNDocs.Docs.Api.Client
             string projectName,
             string metadata,
             string urlPrefix,
-            string pvVersionTag,
             string nPackageName,
             string nPackageVersion,
             ProjectType projectType,
@@ -97,7 +95,6 @@ namespace DNDocs.Docs.Api.Client
             form.Add(new StringContent(metadata ?? ""), nameof(CreateProjectModel.Metadata));
             form.Add(new StringContent(projectName), nameof(CreateProjectModel.ProjectName));
             form.Add(new StringContent(urlPrefix ?? ""), nameof(CreateProjectModel.UrlPrefix));
-            form.Add(new StringContent(pvVersionTag ?? ""), nameof(CreateProjectModel.PVVersionTag));
             form.Add(new StringContent(((int)projectType).ToString()), nameof(CreateProjectModel.ProjectType));
             form.Add(new StringContent(nPackageName ?? ""), nameof(CreateProjectModel.NPackageName));
             form.Add(new StringContent(nPackageVersion ?? ""), nameof(CreateProjectModel.NPackageVersion));

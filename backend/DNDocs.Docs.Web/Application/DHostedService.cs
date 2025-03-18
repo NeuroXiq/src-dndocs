@@ -221,8 +221,6 @@ namespace DNDocs.Docs.Web.Application
 
                 switch (p.ProjectType)
                 {
-                    case ProjectType.Singleton: urls = urls.Select(u => settings.GetUrlSingletonProject(p.UrlPrefix, u)).ToList(); break;
-                    case ProjectType.Version: urls = urls.Select(u => settings.GetUrlVersionProject(p.UrlPrefix, p.ProjectVersion, u)).ToList(); break;
                     case ProjectType.Nuget: urls = urls.Select(u => settings.GetUrlNugetOrgProject(p.NugetPackageName, p.NugetPackageVersion, u)).ToList(); break;
                     default: throw new NotImplementedException();
                 }

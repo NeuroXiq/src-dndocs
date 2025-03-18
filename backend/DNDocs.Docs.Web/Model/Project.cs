@@ -2,8 +2,6 @@
 {
     public enum ProjectType : byte
     {
-        Singleton = 1,
-        Version = 2,
         Nuget = 3
     }
 
@@ -13,7 +11,6 @@
         public long DnProjectId { get; set; }
         public string Metadata { get; set; }
         public string UrlPrefix { get; set; }
-        public string ProjectVersion { get; set; }
 
         public string NugetPackageName { get; set; }
         public string NugetPackageVersion { get; set; }

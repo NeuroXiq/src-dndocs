@@ -86,51 +86,6 @@ namespace DNDocs.ConsoleTools
             //return 0;
         }
 
-        private static int Docfx_OLD_15082024(string[] args)
-        {
-            var docfxJsonPath = args[1];
-
-            var tempLogger = new DocfxLogListener();
-
-            var ao = new Microsoft.DocAsCode.BuildOptions
-            {
-                // now website is very unsafe because XSS are possible without any problems
-                // need to find fix
-                // ConfigureMarkdig = pipeline => pipeline.DisableHtml()
-            };
-
-            Microsoft.DocAsCode.Common.Logger.RegisterListener(tempLogger);
-
-            var t2 = Microsoft.DocAsCode.Dotnet.DotnetApiCatalog.GenerateManagedReferenceYamlFiles(docfxJsonPath);
-            var r = tempLogger.FormatString();
-            //Debugger.Break();
-
-            // t2.Wait();
-            Task.WaitAny(t2);
-            // if (t2.Exception != null) throw t2.Exception;
-
-
-            tempLogger = new DocfxLogListener();
-            Microsoft.DocAsCode.Common.Logger.RegisterListener(tempLogger);
-            var t = Microsoft.DocAsCode.Docset.Build(docfxJsonPath, ao);
-
-            t.Wait();
-
-            var docfxBuildLogs = tempLogger.FormatString();
-
-            if (tempLogger.LogItems.Any(l => l.LogLevel == Microsoft.DocAsCode.Common.LogLevel.Error))
-            {
-                return -1;
-            }
-
-            if (t.Exception != null)
-            {
-                return -1;
-            }
-
-            return 0;
-        }
-
         class DocfxLogListener : Microsoft.DocAsCode.Common.ILoggerListener
         {
             List<string> logs = new List<string>();

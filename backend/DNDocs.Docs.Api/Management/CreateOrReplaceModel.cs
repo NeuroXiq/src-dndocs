@@ -10,8 +10,6 @@ namespace DNDocs.Docs.Api.Management
 {
     public enum ProjectType
     {
-        Singleton = 1,
-        Version = 2,
         NugetOrg = 3,
     }
 
@@ -22,9 +20,6 @@ namespace DNDocs.Docs.Api.Management
         public string ProjectName { get; set; }
         public string UrlPrefix { get; set; }
         public int ProjectType { get; set; }
-
-        public string PVVersionTag { get; set; }
-
         public string NPackageName { get; set; }
         public string NPackageVersion { get; set; }
         public IFormFile SiteZip { get; set; }

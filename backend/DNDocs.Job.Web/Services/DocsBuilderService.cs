@@ -149,7 +149,6 @@ namespace DNDocs.Job.Web.Services
                             $"nuget.org project | {project.PackageName} {project.PackageVersion}",
                             $"",
                             null,
-                            null,
                             project.PackageName,
                             project.PackageVersion,
                             Docs.Api.Management.ProjectType.NugetOrg,

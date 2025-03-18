@@ -27,7 +27,7 @@
 
 
         public const string SelectProject = @" SELECT
-                    id AS Id, dn_project_id as DnProjectId, metadata as Metadata, url_prefix as UrlPrefix, project_version as ProjectVersion, 
+                    id AS Id, dn_project_id as DnProjectId, metadata as Metadata, url_prefix as UrlPrefix, 
                     nuget_package_name as NugetPackageName, nuget_package_version as NugetPackageVersion, project_type as ProjectType, 
                     created_on as CreatedOn, updated_on as UpdatedOn 
                     FROM project";

@@ -25,8 +25,6 @@ namespace DNDocs.Docs.Web.Web
             var endpoints = new List<ApiEndpoint>()
             {
                 GetEndpoint(HttpMethod.Get, "/n/{nugetPackageName}/{nugetPackageVersion}/{*slug}", GetNugetProjectSiteHtml),
-                GetEndpoint(HttpMethod.Get, "/v/{urlPrefix}/{versionTag}/{*slug}", GetVersionProjectSiteHtml),
-                GetEndpoint(HttpMethod.Get, "/s/{urlPrefix}/{*slug}", GetSingletonProjectSiteHtml),
                 GetEndpoint(HttpMethod.Get, "/public/ping", Ping),
                 GetEndpoint(HttpMethod.Get, "/system/projects/{pageNo?}", SystemAllProjects),
                 GetEndpoint(HttpMethod.Get, "/system/site-items/{pageNo?}", SystemSiteItems),
@@ -91,20 +89,6 @@ namespace DNDocs.Docs.Web.Web
             return Results.File(byteData, contentType);
         }
 
-        static async Task<IResult> GetSingletonProjectSiteHtml(
-            HttpContext context,
-            [FromServices] IDMemCache memCache,
-            [FromServices] IOptions<DSettings> dsettings,
-            [FromRoute] string urlPrefix, string slug)
-        {
-            return await ReturnSiteItem(context, memCache, ProjectType.Singleton, slug, null, null, urlPrefix, null);
-        }
-
-        static async Task<IResult> GetVersionProjectSiteHtml([FromRoute] string urlPrefix, [FromRoute] string versionTag, string slug)
-        {
-            return Results.Content("not implemented", "text/plain");
-        }
-
         [VCacheControl(CacheType = CacheControlType.Public, MaxAge = 30 * 60)]
         static async Task<IResult> GetNugetProjectSiteHtml(
             HttpContext context,
@@ -145,8 +129,6 @@ namespace DNDocs.Docs.Web.Web
             
             switch (projectType)
             {
-                case ProjectType.Singleton: project = await memCache.GetSingletonProject(urlPrefix); break;
-                case ProjectType.Version: throw new NotImplementedException(); break;
                 case ProjectType.Nuget: project = await memCache.GetNugetProject(nugetPackageName, nugetPackageVersion); break;
                 default: throw new NotImplementedException();
             }
@@ -250,7 +232,7 @@ namespace DNDocs.Docs.Web.Web
 
             var sb = new StringBuilder();
 
-            AppendHtmlTable(sb, new[] { "id", "dn id", "type", "packagename", "packagever", "urlprefix", "version", "dn-url-generate", "ddocs-url" },
+            AppendHtmlTable(sb, new[] { "id", "dn id", "type", "packagename", "packagever", "urlprefix", "dn-url-generate", "ddocs-url" },
             new Func<Project, string>[]
             {
                 (Project p) => p.Id.ToString(),
@@ -259,7 +241,6 @@ namespace DNDocs.Docs.Web.Web
                 (Project p) => p.NugetPackageName ?? "",
                 (Project p) => p.NugetPackageVersion ?? "",
                 (Project p) => p.UrlPrefix ?? "",
-                (Project p) => p.ProjectVersion ?? "",
                 (Project p) => { var u = settings.Value.GetUrlNugetProjectGenerate(p.NugetPackageName, p.NugetPackageVersion);  return $"<a href=\"{u}\">{u}</a>"; },
                 (Project p) => { var u = FullProjectUrl(settings.Value, p); return $"<a href=\"{u}\">{u}</a>"; }
             }, projects);
@@ -305,9 +286,7 @@ namespace DNDocs.Docs.Web.Web
 
         public static string FullProjectUrl(DSettings s, Project p, string path = "/api/index.html")
         {
-            if (p.ProjectType == ProjectType.Nuget) return s.GetUrlNugetOrgProject(p.NugetPackageName, p.NugetPackageVersion, path);
-            else if (p.ProjectType == ProjectType.Singleton) return s.GetUrlSingletonProject(p.UrlPrefix, path);
-            else return s.GetUrlVersionProject(p.UrlPrefix, p.ProjectVersion, path);
+            return s.GetUrlNugetOrgProject(p.NugetPackageName, p.NugetPackageVersion, path);
         }
 
         #endregion
