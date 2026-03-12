@@ -1,2 +1,17 @@
-1.emails if critical/fatal error
-2. vinca -> ddns as hostedservice
+. emails if critical/fatal error, send e.g. once per day criticals, once per week errors
+. vinca -> ddns as hostedservice
+. tools build (?) that check current env if correct
+. move service ocnfig (systemctl) -> move this scripts to repo, may be useful
+. clear logs e.g. after 2 months (very large log db file)
+. maybe log less (?) or e.g. httplog to log less (e.g. headers or only failed or ignore all ok logs from visiting docs.dndocs.com e.g. ignore 200 ok when loaded .html/.js/.css - probably not needed)
+. check http caching again - important to note e.g. change file hash if file changed
+. store critical bugs e.g. project not 
+. temp directory - create single temp directory and delete it on app startup instead of creating it each time
+ e.g. create single dir 'temp-fiels-dndocs' and there create files/directories etc.
+ easier to maintain, and this folder should be in application data folder not in system
+ temp folder - easier to known how much space it takes (in same folder where db is)
+
+not important:
+. ip rate limiters e.g. no 100k requests per day for single ip?
+. refactory metrics, delete old metrics, make reports of metrics e.g. save metrics per day
+. do separate page to show/search metrics in nice way
