@@ -1,0 +1,2 @@
+1.emails if critical/fatal error
+2. vinca -> ddns as hostedservice
