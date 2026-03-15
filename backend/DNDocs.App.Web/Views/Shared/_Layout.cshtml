@@ -1,0 +1,19 @@
+﻿<!DOCKTYPE html>
+<html>
+    <head>
+    <link rel="stylesheet" type="text/css" href="/css-shared/main.css">
+    <script type="text/javascript" src="~/scripts/global.js"></script>
+            @RenderSection("Scripts", required: false)
+    </head>
+    <body>
+        <header>
+            header
+        </header>
+        <main>
+        <div>main</div>
+        <div>@RenderBody()</div>
+
+        </main>
+        <footer>footer</footer>
+    </body>
+</html>

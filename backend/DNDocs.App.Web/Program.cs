@@ -17,7 +17,6 @@ using DNDocs.Shared.Configuration;
 
 using DNDocs.Web.Application;
 using DNDocs.Web.Application.Authorization;
-using DNDocs.Web.Application.Validation;
 using System.Runtime.InteropServices;
 using static DNDocs.Infrastructure.Utils.RawRobiniaInfrastructure;
 using DNDocs.Docs.Api.Client;
@@ -55,24 +54,82 @@ namespace DNDocs.Web
                 builder.Configuration.AddJsonFile("appsettings.IntegrationTests.json", optional: false);
             }
 
+            var services = builder.Services;
+
             SetupSettings(builder.Configuration);
 
             var robiniaSettings = new DNDocsSettings();
             builder.Configuration.GetSection("DNDocsSettings").Bind(robiniaSettings);
 
             // Add services to the container.
-            RegisterWebApp(builder);
-            RegisterDomain(builder.Services);
+            
+            // asp.net framework services
+            builder.Services.AddControllersWithViews();
+
+            // dndocs.app
+            var dsettings = new DNDocsSettings();
+            builder.Configuration.GetSection($"{nameof(DNDocsSettings)}").Bind(dsettings);
+
+            services.AddHttpClient();
+            services.Configure<CookiePolicyOptions>(opt =>
+            {
+                opt.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None;
+            });
+
+            services.AddVIndexNowApi(
+                dsettings.IndexNowSubmitUrl,
+                dsettings.IndexNowHost,
+                dsettings.IndexNowApiKey,
+                dsettings.IndexNowKeyLocation);
+            
+            services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
+            services.Configure<DNDocsSettings>(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
+            services.AddDJobClientFactory();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IWebUser, WebUser>();
+            services.AddVNugetRepositoryFacade();
+            services.AddDDocsApiClient(o => { o.ApiKey = dsettings.DDocsApiKey; o.ServerUrl = dsettings.DDocsServerUrl; });
+            builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+            builder.Services.Configure<FormOptions>(opt =>
+            {
+                // 16 Megabytes limit for all forms in system
+                opt.MultipartBodyLengthLimit = 16 * 1024 * 1024;
+            });
+
+            builder.Services.AddRobiniaInfrastructure(dsettings.OSPathInfrastructureDirectory);
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+            {
+                opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = dsettings.Jwt.Issuer,
+                    ValidAudience = dsettings.Jwt.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(dsettings.Jwt.GetBytes_SymmetricSecurityKey()),
+                };
+
+                opt.Validate();
+            });
+
+            services.AddOptions<DNDocsSettings>()
+                .Bind(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
+
+
+            // dndocs.app.domain
+            services.AddScoped<AppDbContext>();
+            services.AddScoped<INugetOrgProjectService, NugetOrgProjectService>();
+            services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
+
+
             StartupRobiniaApplication.AddRobiniaApplication(builder);
 
             var app = builder.Build();
 
             DeploySetup(app);
-
-            var cultures = new[] { "en-US" };
-            var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(cultures[0])
-                .AddSupportedCultures(cultures)
-                .AddSupportedUICultures(cultures);
 
             // todo remove this when get rid of node.js server when vite
             var fho = new ForwardedHeadersOptions
@@ -91,8 +148,6 @@ namespace DNDocs.Web
             app.UseForwardedHeaders(fho);
             app.UseVHttpLogs();
             app.UseVHttpExceptions();
-            app.UseResponseCaching();
-            app.UseRequestLocalization(localizationOptions);
 
             app.Use(async (context, next) =>
             {
@@ -116,34 +171,21 @@ namespace DNDocs.Web
                 app.UseHsts();
             }
 
-            app.UseStaticFiles();
-            app.UseAuthentication();
+            app.UseRouting();
             app.UseAuthorization();
-            app.MapControllers();
-            app.Use(async (context, next) =>
-            {
-                // trick - investigate other solution
-                // how to determine if route starts with 'api' and this route is not frontend route?
-                // this temporary solution will work for now
-                if (context.Request.Path.StartsWithSegments("/api") && context.GetEndpoint()?.DisplayName.StartsWith("Fallback") == true)
-                {
-                    context.Response.StatusCode = 404;
-                    return;
-                }
+            app.UseAuthentication();
+            app.UseStaticFiles();
 
-                await next(context);
-            });
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            app.MapFallbackToFile("index.html");
             app.Run();
         }
 
         private static void SetupSettings(ConfigurationManager configuration)
         {
-            var sRobiniaSettings = nameof(DNDocsSettings);
-
             // expected to be in same directory as web.dll (as current executing code)
-
             // only for safety purpose - throw on startup if something is wrong with settings
             // smoke-test instead of throwing something unexpected in runtime
             var rs = configuration.GetSection($"{nameof(DNDocsSettings)}").Get<DNDocsSettings>();
@@ -164,11 +206,6 @@ namespace DNDocs.Web
                     $"Invalid setting (must not be empty): {fullpath}");
             }
 
-            // ThrowStartupException(
-            //     !rs.Strings.FSProjectUrlForSitemapIndex.Contains("{0}") ||
-            //     !rs.Strings.FSProjectUrlForSitemapIndex.Contains("{1}")
-            //     , "Strings.DSProjectUrlForSitemapIndex must contain '{0}' and '{1}' for string.format(), 0 - project url prefix, {1} relative docfx file path");
-            // ThrowStartupException(!rs.Strings.FSProjectDocsIndexUrl.Contains("{0}"), "FSProjectDocsIndexUrl does not contain '{0}' - this will be used to inject projetc url prefix");
             ThrowStartupException(!Directory.Exists(rs.OSPathInfrastructureDirectory),
                 $"RobiniaSettings: {nameof(rs.OSPathInfrastructureDirectory)} does not exists." +
                 "Create this directory to setup/deploy project or change appsettings to other location.");
@@ -184,92 +221,6 @@ namespace DNDocs.Web
             {
                 throw new Exception(msg);
             }
-        }
-
-        private static void RegisterWebApp(WebApplicationBuilder builder)
-        {
-            IServiceCollection services = builder.Services;
-            var dsettings = new DNDocsSettings();
-            builder.Configuration.GetSection($"{nameof(DNDocsSettings)}").Bind(dsettings);
-
-            services.AddHttpClient();
-            services.Configure<CookiePolicyOptions>(opt =>
-            {
-                opt.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None;
-            });
-
-            services.AddVIndexNowApi(
-                dsettings.IndexNowSubmitUrl,
-                dsettings.IndexNowHost,
-                dsettings.IndexNowApiKey,
-                dsettings.IndexNowKeyLocation);
-
-            services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
-            builder.Services.AddResponseCaching();
-            services.Configure<DNDocsSettings>(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
-            services.AddDJobClientFactory();
-            services.AddScoped<RobiniaApiControllerActionFilter>();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<IWebUser, WebUser>();
-            services.AddDDocsApiClient(o => { o.ApiKey = dsettings.DDocsApiKey; o.ServerUrl = dsettings.DDocsServerUrl; });
-            services.AddVNugetRepositoryFacade();
-            builder.Services.AddAutoMapper(typeof(Program).Assembly);
-            builder.Services.AddSingleton<IRobiniaResources, RobiniaResources>();
-
-            builder.Services.AddControllers()
-                .AddDataAnnotationsLocalization(opt =>
-                {
-                    opt.DataAnnotationLocalizerProvider = (type, factory) =>
-                    {
-                        return factory.Create(typeof(DefaultResources));
-                    };
-                });
-
-            builder.Services.AddLocalization(opt =>
-            {
-                opt.ResourcesPath = "Resources";
-            });
-
-            builder.Services.Configure<FormOptions>(opt =>
-            {
-                // 16 Megabytes limit for all forms in system
-                opt.MultipartBodyLengthLimit = 16 * 1024 * 1024;
-            });
-
-            builder.Services.AddRobiniaInfrastructure(dsettings.OSPathInfrastructureDirectory);
-            builder.Services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
-
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
-            {
-                opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = dsettings.Jwt.Issuer,
-                    ValidAudience = dsettings.Jwt.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(dsettings.Jwt.GetBytes_SymmetricSecurityKey()),
-                };
-
-                opt.Validate();
-            });
-
-            builder.Services.Configure<ApiBehaviorOptions>(options
-                => options.SuppressModelStateInvalidFilter = true);
-
-            services.AddOptions<DNDocsSettings>()
-                .Bind(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
-        }
-
-        private static void RegisterDomain(IServiceCollection services)
-        {
-            // services.AddScoped<IBgJobRepository, BgJobRepository>();
-            // services.AddScoped<INugetOrgProjectRepository, NugetOrgProjectRepository>();
-            // services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<AppDbContext>();
-            services.AddScoped<INugetOrgProjectService, NugetOrgProjectService>();
-            services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
         }
 
         private static void DeploySetup(WebApplication app)

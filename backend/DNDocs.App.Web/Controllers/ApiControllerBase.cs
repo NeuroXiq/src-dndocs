@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using DNDocs.Application.Shared;
-using DNDocs.Web.Application.Validation;
 using DNDocs.Api.DTO;
 using System.Text.Json;
 
@@ -19,7 +18,6 @@ namespace DNDocs.Web.Controllers
         }
     }
 
-    [ServiceFilter(typeof(RobiniaApiControllerActionFilter))]
     [Route("/api/[controller]/[action]")]
     [ApiController]
     public class ApiControllerBase : ControllerBase

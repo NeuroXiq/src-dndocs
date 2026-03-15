@@ -20,7 +20,9 @@
 
   <ItemGroup>
     <Folder Include="AutoMapper\" />
-    <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\js-views\" />
+    <Folder Include="wwwroot\js-shared\" />
+    <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,26 +45,9 @@
 
 
   <ItemGroup>
-    <Compile Update="Resources\DefaultResources.Designer.cs">
-      <DependentUpon>DefaultResources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
-
-
-
-  <ItemGroup>
     <Content Update="wwwroot\.gitignore">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\DefaultResources.resx">
-      <LastGenOutput>DefaultResources.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
