@@ -22,7 +22,6 @@
     <Folder Include="AutoMapper\" />
     <Folder Include="wwwroot\js-views\" />
     <Folder Include="wwwroot\js-shared\" />
-    <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 
   <ItemGroup>

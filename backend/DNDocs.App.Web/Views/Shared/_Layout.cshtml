@@ -2,6 +2,7 @@
 <html>
     <head>
     <link rel="stylesheet" type="text/css" href="/css-shared/main.css">
+    <link rel="stylesheet" type="text/css" href="/lib/bulma-1.0.4/css/bulma.css">
     <script type="text/javascript" src="~/scripts/global.js"></script>
             @RenderSection("Scripts", required: false)
     </head>
@@ -9,11 +10,13 @@
         <header>
             header
         </header>
-        <main>
-        <div>main</div>
-        <div>@RenderBody()</div>
-
+        <main style="min-height: 100vh">
+            @RenderBody()
         </main>
-        <footer>footer</footer>
+        <footer class="footer">
+            <div class="content has-text-centered">
+                footer text
+            </div>
+        </footer>
     </body>
 </html>
