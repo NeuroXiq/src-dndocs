@@ -1,6 +1,11 @@
 ﻿@{
 }
 
+@section Scripts
+{
+    <script type="text/javascript" src="~/js-views/home/index.js"></script>
+}
+
 <h1>hello world!</h1>
 <button class="button">Button</button>
 
@@ -11,17 +16,22 @@
     </div>
     <div class="column"></div>
 </div> *@
-<form class="box">
+<form class="box" id="form">
     <div class="field">
         <label class="label">Package Name</label>
         <div class="control">
-        <input class="input" type="text" />
+        <input class="input" type="text" name="packagename" />
         </div>
     </div>
         <div class="field">
             <label class="label">Package Version</label>
             <div class="control">
-            <input class="input" type="text" />
+            <input class="input" type="text" name="packageversion"/>
             </div>
+    </div>
+    <div class="field">
+        <div class="control">
+            <button class="button is-link">Explore</button>
+        </div>
     </div>
 </form>
