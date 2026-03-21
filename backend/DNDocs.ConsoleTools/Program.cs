@@ -53,12 +53,10 @@ namespace DNDocs.ConsoleTools
             using var p = new Process();
             p.StartInfo.FileName = "docfx";
             p.StartInfo.WorkingDirectory = Path.GetDirectoryName(docfxPath);
-            // p.StartInfo.Arguments = $@"build {osPathDocfxJson}";
             p.StartInfo.Arguments = @$"build docfx.json";
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
-            // bool started = p.Start(
 
             var psi = new ProcessStartInfo("docfx", new string[] { docfxPath });
             psi.RedirectStandardError = true;
@@ -74,16 +72,6 @@ namespace DNDocs.ConsoleTools
             var q = p2.ExitCode;
             Debugger.Break();
             return 0;
-            //var t1 = Docfx.Dotnet.DotnetApiCatalog.GenerateManagedReferenceYamlFiles(docfxPath);
-            //Task.WaitAll(t1);
-            //var t2 = Docfx.Docset.Build(docfxPath);
-            //Task.WaitAll(t2);
-            //// Task.WaitAny(t);
-
-            //t1.Wait();
-            //t2.Wait();
-
-            //return 0;
         }
 
         class DocfxLogListener : Microsoft.DocAsCode.Common.ILoggerListener

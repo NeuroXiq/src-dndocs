@@ -1,21 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis.FlowAnalysis;
-using Newtonsoft.Json;
-using DNDocs.Application.Shared;
-using DNDocs.Api.Client;
+﻿using DNDocs.Api.Client;
 using DNDocs.Api.DTO;
 using DNDocs.Api.DTO.MyAccount;
 using DNDocs.Api.DTO.ProjectManage;
 using DNDocs.Api.MyAccount;
 using DNDocs.Api.Project;
 using DNDocs.Api.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Schema;
-using DNDocs.Api.DTO;
+using Newtonsoft.Json;
 
 namespace Web.IntegrationTests.Shared
 {
@@ -172,15 +162,18 @@ namespace Web.IntegrationTests.Shared
 
         internal void AssertProjectDocsHttpOk(string urlPrefix)
         {
-            var indexHtmlUrl = testBase.AppSettings.ProjectDocsIndexUrl(urlPrefix);
+            throw new Exception();
+            // todo
+            // AppSettings.ProjectDocsIndexUrl == throw ("remove this")
+            // var indexHtmlUrl = testBase.AppSettings.ProjectDocsIndexUrl(urlPrefix);
 
-            var result = testBase.httpClient.GetAsync(indexHtmlUrl).Result;
+            // var result = testBase.httpClient.GetAsync(indexHtmlUrl).Result;
 
-            Assert.True(result.IsSuccessStatusCode, "project docs request not success");
-            Assert.That(
-                result.Content.Headers.Contains("content-length") &&
-                int.Parse(result.Content.Headers.GetValues("content-length").Single()) > 100,
-                "Content length not exists or less than 101");
+            //Assert.True(result.IsSuccessStatusCode, "project docs request not success");
+            //Assert.That(
+            //    result.Content.Headers.Contains("content-length") &&
+            //    int.Parse(result.Content.Headers.GetValues("content-length").Single()) > 100,
+            //    "Content length not exists or less than 101");
         }
 
         internal BgJobViewModel WaitForBgJob(int jobid, DNDocs.Api.DTO.Enum.WaitingForBgJobType type)

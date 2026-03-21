@@ -50,22 +50,10 @@ namespace DNDocs.Shared.Configuration
 
         public class StringsSettings
         {
-            public string UrlProjectSingletonApiFolder { get; set; }
-            public string UrlProjectVersionApiFolder { get; set; }
             public string UrlProjectNugetOrgApiFolder { get; set; }
-            public string UrlProjectAllVersionsList { get; set; }
         }
 
-        public string ProjectDocsIndexUrl(string urlPrefix) => throw new Exception("remove this");
-        public string GetUrlSingletonProject(string ulrPrefix) => string.Format(this.Strings.UrlProjectSingletonApiFolder, ulrPrefix);
-        public string GetUrlVersionProject(string urlprefix, string version) =>
-            string.Format(this.Strings.UrlProjectVersionApiFolder, urlprefix, version);
         public string GetUrlNugetOrgProject(string nugetPackageName, string nugetPackageVersion) =>
             string.Format(this.Strings.UrlProjectNugetOrgApiFolder, nugetPackageName, nugetPackageVersion);
-
-        public string GetUrlProjectAllVersionsList(int id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
