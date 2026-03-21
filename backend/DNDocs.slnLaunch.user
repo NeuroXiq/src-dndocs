@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "DNDocs.App.Web\\DNDocs.App.Web.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "DNDocs.Docs.Web\\DNDocs.Docs.Web.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "DNDocs.Job.Web\\DNDocs.Job.Web.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

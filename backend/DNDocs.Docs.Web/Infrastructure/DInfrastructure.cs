@@ -41,7 +41,7 @@ namespace DNDocs.Docs.Web.Infrastructure
             this.metrics = metrics;
             this.options = fsOptions.Value;
             if (!Directory.Exists(options.InfrastructureFolderOSPath))
-                throw new ArgumentException($"(Safety): Directory for instrastructure not exists: '{options.InfrastructureFolderOSPath}'. Create this directory manually");
+                throw new ArgumentException($"(Safety): Directory for instrastructure not exists: '{options.InfrastructureFolderOSPath}'. Create this directory manually on dev env.");
 
             OSPath_AppDb = Path.Combine(options.InfrastructureFolderOSPath, options.AppDbSqliteFileName);
             OSPath_SiteDb = Path.Combine(options.InfrastructureFolderOSPath, options.SiteDbSqliteFileName);

@@ -43,7 +43,7 @@
                 </form>
 
             </section>
-            <section class="section pt-0">
+            <section class="section pt-2 pb-0">
 
                 <div style="display: flex; flex-wrap: wrap; justify-content: center;">
 
@@ -83,20 +83,22 @@
                     </a>
                 </div>
             </section>
-            <section class="section pt-0">
-                <div class="stepper columns" id="progress-stepper">
-                    <div class="column notification m-2">Queued for build</div>
-                    <div class="column notification m-2">Building</div>
-                    <div class="column notification m-2">Completed</div>
+            <section class="section pt-2 pb-0">
+                <div class="stepper" id="progress-stepper" style="display: flex; flex-wrap: wrap;">
+                    <div class="notification" style="flex: 1 0 1px; margin: 0.5rem; margin-left: 0">Queued for build</div>
+                    <div class="notification" style="flex: 1 0 1px; margin: 0.5rem;">Building</div>
+                    <div class="notification" style="flex: 1 0 1px; margin: 0.5rem; margin-right: 0">Completed</div>
                 </div>
             </section>
-            <section class="section is-hidden" id="id-success-section">
+            <section class="section pt-2 pb-0 is-hidden" id="id-success-section">
                 <div class="notification is-success">
                     <p>Build succeed. You can find documentation here:</p>
-                    <a id="id-success-url"  href=""></a>
+                    <a id="id-success-url" href="" target="_blank">
+                        <h4 id="id-success-text" class="title is-4">Title 4</h4>
+                    </a>
                 </div>
             </section>
-            <section class="section is-hidden" id="section-errors">
+            <section class="section is-hidden pt-2" id="section-errors">
                 <div class="notification is-danger" id="error-message">
                 </div>
             </section>

@@ -1,4 +1,4 @@
-﻿import { toggleHide, toggleHideById, setInnerHTMLById } from '/js-shared/tools.js';
+﻿import { toggleHide, getById, toggleHideById, setInnerHTMLById } from '/js-shared/tools.js';
 
 
 var homeIndex = function () {
@@ -144,9 +144,8 @@ var homeIndex = function () {
                 stepper.setStep({ index: 1, status: 'success' });
                 stepper.setStep({ index: 2, status: 'success' });
                 toggleHideById('id-success-section', false);
-                let aTag = getById('id-success-url');
-                aTag.href = r.ProjectApiFolderUrl;
-                aTag.innerHTML = r.ProjectApiFolderUrl;
+                getById('id-success-url').href = r.projectApiFolderUrl;
+                setInnerHTMLById('id-success-text', r.projectApiFolderUrl);
             } else if (r.state === 2) {
                 // waiting to start build
                 stepper.setStep({ index: 0, status: 'inprogress' });
