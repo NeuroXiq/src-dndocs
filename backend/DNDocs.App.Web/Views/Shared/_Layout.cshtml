@@ -1,23 +1,12 @@
 ﻿<!DOCKTYPE html>
-<html>
+<html class="theme-light">
     <head>
     <link rel="stylesheet" type="text/css" href="/css-shared/main.css">
     <link rel="stylesheet" type="text/css" href="/lib/bulma-1.0.4/css/bulma.css">
+    @RenderSection("Css", required: false)
     <script type="text/javascript" src="~/js-shared/main.js"></script>
     @RenderSection("Scripts", required: false)
 
     </head>
-    <body>
-        <header>
-            header
-        </header>
-        <main style="min-height: 100vh">
             @RenderBody()
-        </main>
-        <footer class="footer">
-            <div class="content has-text-centered">
-                footer text
-            </div>
-        </footer>
-    </body>
 </html>

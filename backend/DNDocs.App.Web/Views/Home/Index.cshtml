@@ -1,21 +1,32 @@
 ﻿@{
 }
+@section Css
+{
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="~/css-views/home/index.css">
+}
 
 @section Scripts
 {
     <script type="text/javascript" src="~/js-views/home/index.js"></script>
 }
 
-<h1>hello world!</h1>
-<button class="button">Button</button>
-
-@* <div class="columns">
-    <div class="column"></div>
-    <div class="column">
-
+<body>
+    <div class="home">
+    <header class="header">
+        <h1>DNDocs</h1>
+        <div class="logo">
+            <div class="nletter">.N</div>
+        </div>
+    </header>
+    <main class="main" style="min-height: 100vh">
+    </main>
     </div>
-    <div class="column"></div>
-</div> *@
+</body>
+
+@* <div class="container is-max-tablet">
 <form class="box" id="form">
     <div class="field">
         <label class="label">Package Name</label>
@@ -35,3 +46,4 @@
         </div>
     </div>
 </form>
+</div> *@
