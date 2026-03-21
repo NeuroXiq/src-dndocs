@@ -2,7 +2,7 @@
     document.getElementById(elementId).innerHTML = innerHTML;
 }
 
-export function getElById(elementId) {
+export function getById(elementId) {
     return document.getElementById(elementId);
 }
 

@@ -2,20 +2,13 @@
 
 
 var homeIndex = function () {
+    console.log('init home index');
     var Stepper = function (element) {
         let container = element;
         let steps = container.children;
         let inProgressTimeout = null;
 
-        function resetStep(index) {
-            steps[index].classList.remove('is-success');
-            steps[index].classList.remove('is-danger');
-            steps[index].classList.remove('is-info');
-            clearTimeout(inProgressTimeout);
-        }
-
         function animationInProgress(stepElement, i) {
-
             let dotsDiv = stepElement.querySelector('.dots');
 
             if (!dotsDiv) {
@@ -30,8 +23,14 @@ var homeIndex = function () {
 
         function setStep(arg) {
             let className = null;
+            let step = steps[arg.index];
 
-            resetStep(arg.index);
+            step.classList.remove('is-success');
+            step.classList.remove('is-danger');
+            step.classList.remove('is-info');
+            step.querySelector('.dots')?.remove();
+
+            clearTimeout(inProgressTimeout);
 
             if (arg.status == 'success') {
                 className = 'is-success';
@@ -42,41 +41,46 @@ var homeIndex = function () {
             } else if (arg.status == 'inprogress') {
                 className = 'is-info';
                 animationInProgress(steps[arg.index], 0);
+            } else if (arg.status === 'default') {
+
             }
 
-            container.children[arg.index].classList.add(className);
+            step.classList.add(className);
         }
 
         return {
-            setStep: setStep
+            setStep: setStep,
+            reset: reset
         }
     }
 
+    let packageName = null, packageVersion = null;
     let form = document.getElementById("form");
     form.addEventListener("submit", onSubmit);
 
     let stepper = new Stepper(document.getElementById('progress-stepper'));
 
-    stepper.setStep({ index: 2, status: 'inprogress' });
-
     function onSubmit(e) {
-        reset();
         e.preventDefault();
+        reset();
         let formData = Object.fromEntries(new FormData(form));
+        packageName = formData.packagename;
+        packageVersion = formData.packageversion;
 
-        dnfetch(`/api/integration/nugetcreateprojectcheckstatus?packageName=${formData.packageName}&packageVersion=${formData.packageVersion}`, {
-            method: 'GET'
-        }).then(r => {
-            console.log(r);
-        });
+        requestStatus().then(r => {
+            let next = Promise.resolve();
 
-        return;
-        let f2 = fetch("/api/Integration/NugetCreateProject", {
-            method: "POST",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify(formData)
+            if (!r.result) {
+                next = dnfetch("/api/Integration/NugetCreateProject", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(formData)
+                });
+            }
+
+            next.then(() => runRefreshingStatus());
         });
     }
 
@@ -84,39 +88,84 @@ var homeIndex = function () {
         let fetchPromise = fetch(url, paramsObject);
 
         fetchPromise = fetchPromise.then(r => {
-            if (r.ok) {
-                return r.json();
-            } else {
-                console.error(r);
-
-                return r.json()
-                    .then(errorResult => {
-                        console.error(errorResult);
-
-                        toggleHideById('section-errors', false);
-                        setInnerHTMLById('error-message', 'Error occured during request processing. <br />' + errorResult?.error);
-
-                        return Promise.reject();
-                    });
-            }
+            let ok = r.ok;
+            return r.json().then(result => {
+                if (ok) {
+                    return Promise.resolve(result);
+                } else {
+                    return Promise.reject(result);
+                }
+            });
         });
 
         fetchPromise.catch(e => {
             console.error('catch', e);
 
-            toggleHideById('section-errors', false);
-            setInnerHTMLById('error-message', 'Error occured during request processing. <br />' + e.message);
+            setError(e.error);
         });
 
         return fetchPromise;
     }
 
     function reset() {
+        stepper.setStep({ index: 0, status: 'default' });
+        stepper.setStep({ index: 1, status: 'default' });
+        stepper.setStep({ index: 2, status: 'default' });
+
         toggleHideById('section-errors', true);
+        toggleHideById('id-success-section', true);
     }
 
-    function refreshStatus() {
+    function setError(message) {
+        toggleHideById('section-errors', false);
+        setInnerHTMLById('error-message',
+            'Error occured during request processing. <br />' + message + 
+            '<br /> You can report this issue on github.');
+    }
 
+    function runRefreshingStatus() {
+        requestStatus().then(r => {
+            console.log('refresh status', r);
+            r = r.result;
+
+            reset();
+
+            if (!r) {
+                return;
+            }
+
+            if (r.state === 2 || r.state === 3) {
+                setTimeout(() => runRefreshingStatus(), 1000);
+            }
+
+            if (r.state === 1) {
+                // online
+                stepper.setStep({ index: 0, status: 'success' });
+                stepper.setStep({ index: 1, status: 'success' });
+                stepper.setStep({ index: 2, status: 'success' });
+                toggleHideById('id-success-section', false);
+                let aTag = getById('id-success-url');
+                aTag.href = r.ProjectApiFolderUrl;
+                aTag.innerHTML = r.ProjectApiFolderUrl;
+            } else if (r.state === 2) {
+                // waiting to start build
+                stepper.setStep({ index: 0, status: 'inprogress' });
+            } else if (r.state === 3) {
+                // building
+                stepper.setStep({ index: 0, status: 'success' });
+                stepper.setStep({ index: 1, status: 'inprogress' });
+            } else {
+                stepper.setStep({ index: 0, status: 'success' });
+                stepper.setStep({ index: 1, status: 'error' });
+                setError('failed to generate documentation. Build process failed.');
+            }
+        });
+    }
+
+    function requestStatus() {
+        return dnfetch(`/api/integration/nugetcreateprojectcheckstatus?packageName=${packageName}&packageVersion=${packageVersion}`, {
+            method: 'GET'
+        });
     }
 };
 

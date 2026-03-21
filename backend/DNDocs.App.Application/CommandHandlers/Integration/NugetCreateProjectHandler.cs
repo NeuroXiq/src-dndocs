@@ -64,7 +64,7 @@ namespace DNDocs.Application.CommandHandlers.Integration
 
                     if (!packagesMetadata.Any(t => t.IdentityId == packageName && t.IdentityVersion == packageVersion)) Validation.ThrowError("no nuget package");
                 }
-                catch
+                catch (Exception e)
                 {
                     Validation.ThrowError($"Failed to fetch nuget package: {packageName} {packageVersion}");
                 }
