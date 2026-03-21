@@ -1,16 +1,14 @@
-﻿@{
-}
-@section Css
+﻿@section Css
 {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="~/css-views/home/index.css">
+    <link rel="stylesheet" type="text/css" href="~/css-views/home/index.css" asp-append-version="true">
 }
 
 @section Scripts
 {
-    <script type="text/javascript" src="~/js-views/home/index.js"></script>
+    <script type="text/javascript" src="~/js-views/home/index.js" asp-append-version="true"></script>
 }
 
 <div class="home">
@@ -86,10 +84,10 @@
                 </div>
             </section>
             <section class="section pt-0">
-
-
-                <div class="stepper columns">
-                    <div class="column notification m-2">step 1</div>
+                <div class="stepper columns" id="progress-stepper">
+                    <div class="column notification m-2">
+                        step 1
+                        </div>
                     <div class="column notification m-2">step 3</div>
                     <div class="column notification m-2">step 4</div>
                     <div class="column notification m-2">step 2</div>
