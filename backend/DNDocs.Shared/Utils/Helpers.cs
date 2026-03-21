@@ -1,5 +1,4 @@
-﻿using DNDocs.Shared.Configuration;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace DNDocs.Shared.Utils

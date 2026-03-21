@@ -66,3 +66,14 @@ header h1 {
 main {
     padding-top: 92px;
 }
+
+.tags {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.stepper > div {
+    
+}
