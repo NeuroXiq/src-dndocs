@@ -1,35 +1,24 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.Primitives;
-using Microsoft.IdentityModel.Tokens;
-using DNDocs.Application.Application;
+using DNDocs.App.Domain.Service;
 using DNDocs.Application.Utils;
+using DNDocs.Docs.Api.Shared;
+using DNDocs.Domain.Entity;
 using DNDocs.Domain.UnitOfWork;
-using DNDocs.Domain.ValueTypes;
+using DNDocs.Domain.Utils;
+using DNDocs.Infrastructure.DataContext;
 using DNDocs.Infrastructure.UnitOfWork;
 using DNDocs.Infrastructure.Utils;
-using DNDocs.Resources;
-using DNDocs.Shared.Configuration;
-
-using DNDocs.Web.Application;
-using DNDocs.Web.Application.Authorization;
-using System.Runtime.InteropServices;
-using static DNDocs.Infrastructure.Utils.RawRobiniaInfrastructure;
-using DNDocs.Docs.Api.Client;
-using DNDocs.Docs.Api.Shared;
-using Vinca.Utils;
 using DNDocs.Job.Api.Client;
-using Vinca.Http.Logs;
+using DNDocs.Shared.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using Vinca.Api;
-using DNDocs.Domain.Entity;
-using DNDocs.App.Domain.Service;
-using DNDocs.Domain.Repository;
-using DNDocs.Infrastructure.Repository;
-using DNDocs.Infrastructure.DataContext;
+using Vinca.Exceptions;
+using Vinca.Http.Logs;
+using Vinca.Utils;
+using static DNDocs.Infrastructure.Utils.RawRobiniaInfrastructure;
 
 namespace DNDocs.Web
 {
@@ -85,8 +74,6 @@ namespace DNDocs.Web
             services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
             services.Configure<DNDocsSettings>(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
             services.AddDJobClientFactory();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<IWebUser, WebUser>();
             services.AddVNugetRepositoryFacade();
             services.AddDDocsApiClient(o => { o.ApiKey = dsettings.DDocsApiKey; o.ServerUrl = dsettings.DDocsServerUrl; });
             builder.Services.AddAutoMapper(typeof(Program).Assembly);
@@ -148,6 +135,24 @@ namespace DNDocs.Web
             app.UseForwardedHeaders(fho);
             app.UseVHttpLogs();
             app.UseVHttpExceptions();
+            app.Use(async (context, next) =>
+            {
+                // temp solution
+                try
+                {
+                    await next(context);
+                }
+                catch (DNDomainException e)
+                {
+                    throw new VValidationException(e.Message);
+                }
+                catch (Exception e)
+                {
+
+                    throw;
+                }
+                catch { throw; }
+            });
 
             app.Use(async (context, next) =>
             {

@@ -34,7 +34,7 @@ namespace Vinca.Http
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
                 context.Response.ContentType = "application/json; charset=UTF-8";
-                await context.Response.WriteAsJsonAsync(new { ValidationError = e.Message });
+                await context.Response.WriteAsJsonAsync(new { Error = e.Message });
             }
             catch (VStatusCodeException e)
             {
@@ -43,6 +43,7 @@ namespace Vinca.Http
             catch (Exception e)
             {
                 logger.LogCritical(e, "ISE");
+                context.Response.StatusCode = 500;
             }
         }
     }

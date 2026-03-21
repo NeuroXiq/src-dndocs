@@ -26,8 +26,6 @@ namespace DNDocs.Application.Shared
         private bool isInit;
         protected CancellationToken cancellationToken;
         private AppDbContext appDbContext;
-        string errorMessage = null;
-        BusinessLogicException.FieldError[] fieldErrors = null;
         private TResult tresult = default(TResult);
 
         protected abstract Task<TResult> DoHandleAsync(TCommand command);
@@ -67,62 +65,20 @@ namespace DNDocs.Application.Shared
                 logger.LogTrace($"Failed to execute handler: {GetType().Name}, \r\ncommand: {JsonConvert.SerializeObject(command)}\r\nerror:\r\n{Helpers.ExceptionToStringForLogs(exc)}");
 
                 Exception exception = exc;
-                RobiniaException appExc = exc as RobiniaException;
+                DNDomainException appExc = exc as DNDomainException;
 
                 if (exc is AggregateException)
                 {
-                    exception = (exc as AggregateException).InnerException as RobiniaException;
-                    appExc = exception as RobiniaException;
+                    exception = (exc as AggregateException).InnerException as DNDomainException;
+                    appExc = exception as DNDomainException;
                 }
 
                 logger.LogWarning(exception, "handler exception");
 
-                success = false;
-
-                if (appExc != null)
-                {
-                    tresult = default(TResult);
-
-                    if (exception is BusinessLogicException)
-                    {
-                        var e = exception as BusinessLogicException;
-                        errorMessage = e.Error;
-                        fieldErrors = e.FieldErrors?.ToArray() ?? new BusinessLogicException.FieldError[0];
-                    }
-                }
-                else
-                {
-                    logger.LogError(exception, $"Unhandled exception\r\nCommand:\r\n{CommandDispatcher.SerializeCQException(command)}\r\n");
-
-                    throw;
-                }
+                throw;
             }
 
             return new CommandResult<TResult>(tresult);
-        }
-    }
-
-    internal abstract class CommandHandler<TCommand> : HandlerBase<TCommand, object>
-    {
-        public abstract void Handle(TCommand command);
-
-        protected sealed override Task<object> DoHandleAsync(TCommand command)
-        {
-            Handle(command);
-
-            return Task.FromResult(null as object);
-        }
-    }
-
-    internal abstract class CommandHandler<TCommand, TResult> : HandlerBase<TCommand, TResult>
-    {
-        public abstract TResult Handle(TCommand command);
-
-        protected sealed override Task<TResult> DoHandleAsync(TCommand command)
-        {
-            var r = Handle(command);
-
-            return Task.FromResult(r);
         }
     }
 

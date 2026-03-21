@@ -44,7 +44,7 @@ namespace DNDocs.Application.Shared
                 Debugger.Break();
 #endif
 
-                var known = e as RobiniaException;
+                var known = e as DNDomainException;
 
                 if (known != null)
                 {
@@ -58,18 +58,6 @@ namespace DNDocs.Application.Shared
 
                 throw e;
             }
-        }
-    }
-
-    internal abstract class QueryHandler<TQuery, TResult> : QueryHandlerBase<TQuery, TResult> where TQuery : IQuery<TResult>
-    {
-        protected abstract TResult Handle(TQuery query);
-
-        protected override sealed Task<TResult> DoHandleAsync(TQuery query)
-        {
-            var result = Handle(query);
-
-            return Task.FromResult(result);
         }
     }
 

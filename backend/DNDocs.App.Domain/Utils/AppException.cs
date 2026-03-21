@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DNDocs.Domain.Utils
 {
-    public class AppException : RobiniaException
+    public class AppException : DNDomainException
     {
         public AppException(string msg) : base(msg) { }
     }

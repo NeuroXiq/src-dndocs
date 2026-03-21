@@ -52,14 +52,14 @@ namespace DNDocs.Application.CommandHandlers.Auth
             }
             else if (command.GithubLogin != null)
             {
-                Validation.NotStringIsNullOrWhiteSpace(command.GithubLogin.GithubCode, "GithubCode");
+                Validation.NotEmpty(command.GithubLogin.GithubCode, "GithubCode");
                 GetUserGithubLogin(command.GithubLogin.GithubCode, out var githubUser, out var githubOAuthAccessToken);
 
                 var gh = githubUser;
                 var at = githubOAuthAccessToken;
-                Validation.ThrowFieldError(nameof(gh.Login), "Login empty", string.IsNullOrWhiteSpace(gh.Login));
-                Validation.ThrowFieldError(nameof(gh.PrimaryEmail), "PrimaryEmail empty", string.IsNullOrWhiteSpace(gh.PrimaryEmail));
-                Validation.ThrowFieldError(nameof(at.AccessToken), "Access token empty", string.IsNullOrEmpty(at.AccessToken));
+                Validation.ThrowFieldError(string.IsNullOrWhiteSpace(gh.Login), nameof(gh.Login), "Login empty");
+                Validation.ThrowFieldError(string.IsNullOrWhiteSpace(gh.PrimaryEmail), nameof(gh.PrimaryEmail), "PrimaryEmail empty");
+                Validation.ThrowFieldError(string.IsNullOrEmpty(at.AccessToken), nameof(at.AccessToken), "Access token empty");
 
                 var userrepo = this.unitOfWork.GetSimpleRepository<User>();
                 var existingUser = userrepo

@@ -1,6 +1,6 @@
 ﻿namespace DNDocs.Domain.Utils
 {
-    public class EntityNotFoundException : RobiniaException
+    public class EntityNotFoundException : DNDomainException
     {
         public EntityNotFoundException(string message) : base(message) { }
     }

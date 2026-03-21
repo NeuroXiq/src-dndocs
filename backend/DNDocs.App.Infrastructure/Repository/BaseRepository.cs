@@ -58,7 +58,7 @@ namespace DNDocs.Infrastructure.Repository
         {
             var entity = dbcontext.Set<TEntity>().Where(t => t.Id == id).FirstOrDefault();
 
-            if (entity == null) throw new BusinessLogicException("CannotDeleteEntityBecauseDoesNotExist");
+            if (entity == null) throw new DNDomainException("CannotDeleteEntityBecauseDoesNotExist");
 
             dbset.Remove(entity);
         }
@@ -134,7 +134,7 @@ namespace DNDocs.Infrastructure.Repository
             var prop = et.GetProperties().FirstOrDefault(t => t.Name.ToLower() == propertyName.ToLower());
 
             if (prop == null)
-                throw new RobiniaException($"Failed to find column '{propertyName}'");
+                throw new DNDomainException($"Failed to find column '{propertyName}'");
 
             var colname = prop.GetColumnName();
 
@@ -240,7 +240,7 @@ namespace DNDocs.Infrastructure.Repository
             if (result.Count == 0) throw new EntityNotFoundException<TEntity>(id);
             if (result.Count > 1)
             {
-                throw new RobiniaException($"SingleById: Expected Single entity by id but found more than one: found count: {result.Count}");
+                throw new DNDomainException($"SingleById: Expected Single entity by id but found more than one: found count: {result.Count}");
             }
 
             return result[0];

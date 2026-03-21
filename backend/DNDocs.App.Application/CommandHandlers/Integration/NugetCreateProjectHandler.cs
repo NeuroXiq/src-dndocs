@@ -44,8 +44,8 @@ namespace DNDocs.Application.CommandHandlers.Integration
             var packageVersion = command.PackageVersion;
             logger.LogInformation("starting to create nuget project: {0} {1}", packageName, packageVersion);
 
-            Validation.NotStringIsNullOrWhiteSpace(packageName, "PackageName is empty");
-            Validation.NotStringIsNullOrWhiteSpace(packageVersion, "PackageVersion is empty");
+            Validation.NotEmpty("PackageName", packageName);
+            Validation.NotEmpty("PackageVersion", packageVersion);
 
             var existing = await appUow.Query<NugetOrgProject>()
                 .Where(t => t.NugetPackage.IdentityId == packageName && t.NugetPackage.IdentityVersion == packageVersion)

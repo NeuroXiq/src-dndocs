@@ -8,7 +8,7 @@
 
 @section Scripts
 {
-    <script type="text/javascript" src="~/js-views/home/index.js" asp-append-version="true"></script>
+    <script type="module" src="~/js-views/home/index.js" asp-append-version="true"></script>
 }
 
 <div class="home">
@@ -91,6 +91,13 @@
                     <div class="column notification m-2">step 3</div>
                     <div class="column notification m-2">step 4</div>
                     <div class="column notification m-2">step 2</div>
+                </div>
+            </section>
+            <section class="section error is-hidden" id="section-errors">
+                <div class="notification is-danger">
+                    Error occured during request processing.
+                </div>
+                <div class="notification is-danger" id="error-message">
                 </div>
             </section>
         </div>

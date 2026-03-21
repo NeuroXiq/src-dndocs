@@ -1,4 +1,4 @@
-﻿
+﻿import { toggleHide, toggleHideById, getElById } from '/js-shared/tools.js';
 
 
 var homeIndex = function () {
@@ -6,6 +6,7 @@ var homeIndex = function () {
         let container = element;
         let steps = container.children;
         let inProgressTimeout = null;
+        let errorMessageEl = getElById('error-message');
 
         function resetStep(index) {
             steps[index].classList.remove('is-success');
@@ -13,9 +14,9 @@ var homeIndex = function () {
             steps[index].classList.remove('is-info');
             clearTimeout(inProgressTimeout);
         }
-        
+
         function animationInProgress(stepElement, i) {
-            
+
             let dotsDiv = stepElement.querySelector('.dots');
 
             if (!dotsDiv) {
@@ -25,7 +26,7 @@ var homeIndex = function () {
             }
 
             dotsDiv.innerHTML = ' ' + '.'.repeat((i % 4));
-             inProgressTimeout = setTimeout(() => { console.log('a' + i); animationInProgress(stepElement, i + 1) }, 500);
+            inProgressTimeout = setTimeout(() => { animationInProgress(stepElement, i + 1) }, 500);
         }
 
         function setStep(arg) {
@@ -43,7 +44,7 @@ var homeIndex = function () {
                 className = 'is-info';
                 animationInProgress(steps[arg.index], 0);
             }
-            
+
             container.children[arg.index].classList.add(className);
         }
 
@@ -54,17 +55,16 @@ var homeIndex = function () {
 
     let form = document.getElementById("form");
     form.addEventListener("submit", onSubmit);
-    
+
     let stepper = new Stepper(document.getElementById('progress-stepper'));
 
-    //stepper.setStep({ index: 0, status: 'error' });
-    //stepper.setStep({ index: 1, status: 'success' });
     stepper.setStep({ index: 2, status: 'inprogress' });
 
     function onSubmit(e) {
+        reset();
+
         e.preventDefault();
         let formData = Object.fromEntries(new FormData(form));
-       
 
         fetch("/api/Integration/NugetCreateProject", {
             method: "POST",
@@ -72,11 +72,27 @@ var homeIndex = function () {
                 "content-type": "application/json"
             },
             body: JSON.stringify(formData)
-        }).then(r => r.json());
+        }).then(r => {
+            if (r.ok) {
+                refreshStatus();
+            } else {
+                r.json().then(errorResult => setError(errorResult))
+            }
+        }).catch(e => {
+            console.log('catch', e);
+            toggleHide('section-errors', false);
 
+        });
+    }
 
-        console.log('submit');
+    function reset() {
+        toggleHide('section-errors', true);
+    }
+
+    function refreshStatus() {
+
     }
 };
+
 
 window.dndocs.onReady(homeIndex);

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DNDocs.Domain.Exceptions
 {
-    public class UnauthorizedException : RobiniaException
+    public class UnauthorizedException : DNDomainException
     {
         public UnauthorizedException()
         {

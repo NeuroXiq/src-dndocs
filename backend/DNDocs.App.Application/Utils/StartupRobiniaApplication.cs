@@ -57,11 +57,8 @@ namespace DNDocs.Application.Utils
                     Type baseGenericDef = basetype.GetGenericTypeDefinition();
 
                     bool result =
-                        baseGenericDef == typeof(CommandHandler<>) ||
-                        baseGenericDef == typeof(CommandHandler<,>) ||
                         baseGenericDef == typeof(CommandHandlerA<>) ||
                         baseGenericDef == typeof(CommandHandlerA<,>) ||
-                        baseGenericDef == typeof(QueryHandler<,>) ||
                         baseGenericDef == typeof(QueryHandlerA<,>);
 
                     return result;
@@ -91,7 +88,7 @@ namespace DNDocs.Application.Utils
                             var commandOrQueryType = handler.BaseType.GetGenericArguments()[0];
 
                             if (foundHandlers.ContainsKey(commandOrQueryType))
-                                throw new RobiniaException("More than 1 handler found for specific command/query");
+                                throw new DNDomainException("More than 1 handler found for specific command/query");
 
                             foundHandlers[commandOrQueryType] = handler;
                         }
@@ -103,7 +100,7 @@ namespace DNDocs.Application.Utils
 
             if (!cqHandlers.ContainsKey(commandOrQuery.GetType()))
             {
-                throw new RobiniaException($"Handler not found for type '{commandOrQuery.GetType().FullName}'");
+                throw new DNDomainException($"Handler not found for type '{commandOrQuery.GetType().FullName}'");
             }
 
             var handlerType = cqHandlers[commandOrQuery.GetType()];
@@ -117,7 +114,7 @@ namespace DNDocs.Application.Utils
             var handlerInstance = serviceProvider.GetService(handlerType);
 
             if (handlerInstance == null)
-                throw new RobiniaException("Failed to get instance of handler from DI");
+                throw new DNDomainException("Failed to get instance of handler from DI");
 
             return handlerInstance;
         }

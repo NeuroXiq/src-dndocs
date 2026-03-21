@@ -6,7 +6,7 @@ using DNDocs.Domain.ValueTypes;
 
 namespace DNDocs.Application.QueryHandlers.Auth
 {
-    internal class GetUserByGithubIdHandler : QueryHandler<GetUserByGithubIdCommand, UserDto>
+    internal class GetUserByGithubIdHandler : QueryHandlerA<GetUserByGithubIdCommand, UserDto>
     {
         private IAppUnitOfWork uow;
 
@@ -15,7 +15,7 @@ namespace DNDocs.Application.QueryHandlers.Auth
             this.uow = uow;
         }
 
-        protected override UserDto Handle(GetUserByGithubIdCommand query)
+        protected override async Task<UserDto> Handle(GetUserByGithubIdCommand query)
         {
             var user = this.uow.GetSimpleRepository<User>()
                 .Query()

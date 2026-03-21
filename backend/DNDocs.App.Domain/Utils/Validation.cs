@@ -10,6 +10,14 @@ namespace DNDocs.Domain.Utils
             ThrowEntityNotFoundException<TEntity>(id.ToString());
         }
 
+        public static void NotEmpty(string fieldName, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new DNDomainException($"'{fieldName}' cannot be empty or white space");
+            }
+        }
+
         public static void AppEx(bool condition, string msg)
         {
             if (condition) throw new AppException(msg);
@@ -19,7 +27,7 @@ namespace DNDocs.Domain.Utils
         {
             if (!Enum.IsDefined(typeof(T), value))
             {
-                throw new RobiniaException($"Enum value for '{typeof(T).Name}' is not defined, provided value: {value}, arg name: {argname}");
+                throw new DNDomainException($"Enum value for '{typeof(T).Name}' is not defined, provided value: {value}, arg name: {argname}");
             }
         }
 
@@ -27,7 +35,7 @@ namespace DNDocs.Domain.Utils
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw new RobiniaException($"string '{value}' is null or white space");
+                throw new DNDomainException($"string '{value}' is null or white space");
             }
         }
 
@@ -37,7 +45,7 @@ namespace DNDocs.Domain.Utils
             {
                 string msg = $"{argname} is null";
 
-                throw new RobiniaException(msg);
+                throw new DNDomainException(msg);
             }
         }
 
@@ -45,7 +53,7 @@ namespace DNDocs.Domain.Utils
         {
             if (shouldThrow)
             {
-                throw new RobiniaException($"{msg}. Argument Name: {argName}");
+                throw new DNDomainException($"{msg}. Argument Name: {argName}");
             }
         }
 
@@ -56,12 +64,12 @@ namespace DNDocs.Domain.Utils
 
         public static void ThrowEntityNotFoundException<TEntity>(string id)
         {
-            throw new BusinessLogicException($"{typeof(TEntity).Name} with id {id} was not found");
+            throw new DNDomainException($"{typeof(TEntity).Name} with id {id} was not found");
         }
 
         public static void ThrowError(string message)
         {
-            throw new BusinessLogicException(message);
+            throw new DNDomainException(message);
         }
 
         public static void ThrowError(bool shouldThrow, string msg)
@@ -69,51 +77,17 @@ namespace DNDocs.Domain.Utils
             if (shouldThrow) ThrowError(msg);
         }
 
-        public static void ThrowFieldError(string fieldName, string messageKey, bool conditionShouldThrow)
+        public static void ThrowFieldError(bool condition, string fieldName, string message)
         {
-            ThrowFieldError(conditionShouldThrow, fieldName, messageKey);
-        }
-
-        public static void ThrowFieldError(bool conditionShouldThrow, string fieldName, string messageKey)
-        {
-            if (conditionShouldThrow)
-                ThrowFieldErrorCore(fieldName, messageKey);
-        }
-
-        public static void FieldErrorP(bool condition, object property, string msg, [CallerArgumentExpression("property")] string propertyName = "")
-        {
-            ThrowFieldError(condition, propertyName, msg);
-        }
-
-        //
-
-        public static void NotStringIsNullOrWhiteSpace(string value, string msg = null, [CallerArgumentExpression("value")] string propertyName = "")
-        {
-            ThrowFieldError(string.IsNullOrWhiteSpace(value), propertyName, msg ?? "Value cannot be null or white space");
-        }
-
-        //
-
-        public static void ThrowFieldErrorCore(string fieldName, string messageKey, bool normalizeFieldName = true)
-        {
-            if (normalizeFieldName && fieldName?.Contains(".") == true)
+            if (condition)
             {
-                fieldName = fieldName.Trim().Split('.').Skip(1).StringJoin(".");
+                throw new DNDomainException($"invalid field value '{fieldName}'. {message}");
             }
-
-            var fieldErrors = new List<BusinessLogicException.FieldError>()
-            {
-                new BusinessLogicException.FieldError(fieldName, messageKey)
-            };
-
-            var e = new BusinessLogicException(fieldErrors);
-
-            throw e;
         }
 
         public static void ThrowGlobalError(string msg)
         {
-            throw new BusinessLogicException(msg);
+            throw new DNDomainException(msg);
         }
     }
 }

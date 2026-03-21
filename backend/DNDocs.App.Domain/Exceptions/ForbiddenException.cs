@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DNDocs.Domain.Exceptions
 {
-    public class ForbiddenException : RobiniaException
+    public class ForbiddenException : DNDomainException
     {
         public ForbiddenException(string msg) : base(msg) { }
     }

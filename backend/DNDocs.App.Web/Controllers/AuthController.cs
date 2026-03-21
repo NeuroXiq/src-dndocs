@@ -56,7 +56,7 @@ namespace DNDocs.Web.Controllers
         public async Task<IActionResult> AdminLogin(AdminLoginModel model)
         {
             var cmd = new LoginUserCommand(null, new LoginUserCommand.AdminLoginCommand(model.Login, model.Password));
-            return await ApiResult2(Task.FromResult(cd.Dispatch(cmd)));
+            return await ApiResult2(cd.DispatchAsync(cmd));
 
         }
     }

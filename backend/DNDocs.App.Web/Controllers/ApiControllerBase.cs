@@ -6,34 +6,11 @@ using System.Text.Json;
 
 namespace DNDocs.Web.Controllers
 {
-    public class FieldError
-    {
-        public string FieldName { get; set; }
-        public string ErrorMessage { get; set; }
-
-        public FieldError(string fieldName, string errorMessage)
-        {
-            FieldName = fieldName;
-            ErrorMessage = errorMessage;
-        }
-    }
 
     [Route("/api/[controller]/[action]")]
     [ApiController]
     public class ApiControllerBase : ControllerBase
     {
-        public class ApiErrorResult : ApiResult
-        {
-            public string ErrorMessage { get; set; }
-            public FieldError[] FieldErrors { get; private set; }
-
-            public ApiErrorResult(string errorMessage, List<FieldError> fieldErrors, object data) : base(false, data)
-            {
-                ErrorMessage = errorMessage;
-                FieldErrors = fieldErrors.ToArray();
-            }
-        }
-
         public class ApiSuccessResult : ApiResult
         {
             public ApiSuccessResult(object result) : base(true, result) { }
@@ -41,12 +18,10 @@ namespace DNDocs.Web.Controllers
 
         public class ApiResult
         {
-            public bool Success { get; set; }
             public object Result { get; set; }
 
             public ApiResult(bool success, object result)
             {
-                Success = success;
                 Result = result;
             }
         }

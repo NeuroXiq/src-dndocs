@@ -19,7 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Authorization\" />
     <Folder Include="AutoMapper\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Models\Admin\" />
+    <Folder Include="Models\Home\" />
   </ItemGroup>
 
   <ItemGroup>

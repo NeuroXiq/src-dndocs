@@ -7,8 +7,6 @@ namespace DNDocs.Application.Shared
 {
     public interface ICommandDispatcher
     {
-        CommandResult Dispatch(ICommand command, CancellationToken cancellationToken = default);
-        public CommandResult<TResult> Dispatch<TResult>(ICommand<TResult> command, CancellationToken cancellationToken = default);
         public Task<CommandResult> DispatchAsync(ICommand command, CancellationToken cancellationToken = default);
         public Task<CommandResult<TResult>> DispatchAsync<TResult>(ICommand<TResult> command, CancellationToken cancellationToken = default);
 
@@ -24,29 +22,6 @@ namespace DNDocs.Application.Shared
             this.serviceProvider = serviceProvider;
         }
 
-        public CommandResult Dispatch(ICommand command, CancellationToken ct = default)
-        {
-            return SyncTask(DispatchGeneric<object>(command, ct));
-        }
-
-        public CommandResult<TResult> Dispatch<TResult>(ICommand<TResult> command, CancellationToken ct = default)
-        {
-            return SyncTask(DispatchGeneric<TResult>(command, ct));
-        }
-
-        private CommandResult<TResult> SyncTask<TResult>(Task<CommandResult<TResult>> t)
-        {
-            Task.WaitAny(t);
-            
-            if (t.Exception != null)
-            {
-                // re-throw exception because original will throw 'AggregateException'
-                // and we want like 'RobinaException' etc.
-                throw t.Exception.InnerException;
-            }
-
-            return t.Result;
-        }
 
         public async Task<CommandResult> DispatchAsync(ICommand command, CancellationToken ct = default)
         {
