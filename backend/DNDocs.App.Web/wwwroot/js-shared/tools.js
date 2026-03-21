@@ -1,4 +1,8 @@
-﻿export function getElById(elementId) {
+﻿export function setInnerHTMLById(elementId, innerHTML) {
+    document.getElementById(elementId).innerHTML = innerHTML;
+}
+
+export function getElById(elementId) {
     return document.getElementById(elementId);
 }
 

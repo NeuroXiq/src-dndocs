@@ -62,6 +62,7 @@ namespace DNDocs.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> NugetCreateProjectCheckStatus(string packageName, string packageVersion)
         {
+            throw new VValidationException("asdf");
             return await ApiResult2(qd.DispatchAsync(new GetNugetCreateProjectStatusQuery
             {
                 PackageName = packageName,

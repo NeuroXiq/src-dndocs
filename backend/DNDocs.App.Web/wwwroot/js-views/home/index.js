@@ -1,4 +1,4 @@
-﻿import { toggleHide, toggleHideById, getElById } from '/js-shared/tools.js';
+﻿import { toggleHide, toggleHideById, setInnerHTMLById } from '/js-shared/tools.js';
 
 
 var homeIndex = function () {
@@ -6,7 +6,6 @@ var homeIndex = function () {
         let container = element;
         let steps = container.children;
         let inProgressTimeout = null;
-        let errorMessageEl = getElById('error-message');
 
         function resetStep(index) {
             steps[index].classList.remove('is-success');
@@ -62,31 +61,58 @@ var homeIndex = function () {
 
     function onSubmit(e) {
         reset();
-
         e.preventDefault();
         let formData = Object.fromEntries(new FormData(form));
 
-        fetch("/api/Integration/NugetCreateProject", {
+        dnfetch(`/api/integration/nugetcreateprojectcheckstatus?packageName=${formData.packageName}&packageVersion=${formData.packageVersion}`, {
+            method: 'GET'
+        }).then(r => {
+            console.log(r);
+        });
+
+        return;
+        let f2 = fetch("/api/Integration/NugetCreateProject", {
             method: "POST",
             headers: {
                 "content-type": "application/json"
             },
             body: JSON.stringify(formData)
-        }).then(r => {
-            if (r.ok) {
-                refreshStatus();
-            } else {
-                r.json().then(errorResult => setError(errorResult))
-            }
-        }).catch(e => {
-            console.log('catch', e);
-            toggleHide('section-errors', false);
-
         });
     }
 
+    function dnfetch(url, paramsObject) {
+        let fetchPromise = fetch(url, paramsObject);
+
+        fetchPromise = fetchPromise.then(r => {
+            if (r.ok) {
+                return r.json();
+            } else {
+                console.error(r);
+
+                return r.json()
+                    .then(errorResult => {
+                        console.error(errorResult);
+
+                        toggleHideById('section-errors', false);
+                        setInnerHTMLById('error-message', 'Error occured during request processing. <br />' + errorResult?.error);
+
+                        return Promise.reject();
+                    });
+            }
+        });
+
+        fetchPromise.catch(e => {
+            console.error('catch', e);
+
+            toggleHideById('section-errors', false);
+            setInnerHTMLById('error-message', 'Error occured during request processing. <br />' + e.message);
+        });
+
+        return fetchPromise;
+    }
+
     function reset() {
-        toggleHide('section-errors', true);
+        toggleHideById('section-errors', true);
     }
 
     function refreshStatus() {
