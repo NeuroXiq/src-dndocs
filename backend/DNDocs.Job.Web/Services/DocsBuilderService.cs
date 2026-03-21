@@ -162,7 +162,6 @@ namespace DNDocs.Job.Web.Services
                     }
                 }
 
-                // send to dndocs.com completed
 
                 docfxManager.CleanAfterBuild();
             }
@@ -172,6 +171,7 @@ namespace DNDocs.Job.Web.Services
                 exception = e;
             }
 
+            // send to dndocs.com completed
             try
             {
                 if (exception == null)

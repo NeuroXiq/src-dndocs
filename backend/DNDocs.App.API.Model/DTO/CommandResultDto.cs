@@ -5,9 +5,6 @@ namespace DNDocs.Api.DTO
     public class CommandResultDto : HandlerResultDto
     {
         public CommandResultDto() { }
-        public CommandResultDto(bool success, string errorMessage, IEnumerable<FieldErrorDto> fieldErrors) : base(success, errorMessage, fieldErrors)
-        {
-        }
     }
 
     public class CommandResultDto<TResult> : HandlerResultDto
@@ -16,24 +13,9 @@ namespace DNDocs.Api.DTO
 
         public CommandResultDto() { }
 
-        public CommandResultDto(TResult result, bool success, string errorMessage, IEnumerable<FieldErrorDto> fieldErrors)
-            : base(success, errorMessage, fieldErrors)
+        public CommandResultDto(TResult result)
         {
             Result = result;
-        }
-    }
-
-    public class FieldErrorDto
-    {
-        public string FieldName { get; set; }
-        public string ErrorMessage { get; set; }
-
-        public FieldErrorDto() { }
-
-        public FieldErrorDto(string field, string error)
-        {
-            FieldName = field;
-            ErrorMessage = error;
         }
     }
 }

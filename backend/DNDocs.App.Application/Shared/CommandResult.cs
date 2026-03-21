@@ -4,14 +4,14 @@ namespace DNDocs.Application.Shared
 {
     public class CommandResult : HandlerResult
     {
-        public CommandResult(bool success, string error, BusinessLogicException.FieldError[] fieldError) : base(success, error, fieldError)
+        public CommandResult()
         {
         }
     }
 
     public class CommandResult<TResult> : CommandResult
     {
-        public CommandResult(TResult result, bool success, string error, BusinessLogicException.FieldError[] fieldError) : base(success, error, fieldError)
+        public CommandResult(TResult result)
         {
             Result = result;
         }

@@ -97,18 +97,12 @@ namespace DNDocs.Application.Shared
 
         public static CommandResultDto Map(CommandResult commandResult)
         {
-            return new CommandResultDto(commandResult.Success,
-                commandResult.ErrorMessage,
-                commandResult.FieldErrors?.Select(t => new FieldErrorDto(t.FieldName, t.ErrorMessage)));
+            return new CommandResultDto();
         }
 
         public static CommandResultDto<TResult> MapCR<TResult>(CommandResult<TResult> commandResult)
         {
-            return new CommandResultDto<TResult>(
-                commandResult.Result,
-                commandResult.Success, 
-                commandResult.ErrorMessage,
-                commandResult.FieldErrors?.Select(t => new FieldErrorDto(t.FieldName, t.ErrorMessage)));
+            return new CommandResultDto<TResult>(commandResult.Result);
         }
 
         public static QueryResultDto<TResult> MapQR<TResult>(QueryResult<TResult> qr)

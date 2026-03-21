@@ -77,7 +77,7 @@ namespace DNDocs.Web.Controllers
             // Response.StatusCode = (int)result.Code;
             var r = new ContentResult();
             r.ContentType = "application/json";
-            r.StatusCode = result.Success ? 200 : 400;
+            r.StatusCode = 200;
             // r.Content = System.Text.Json.JsonSerializer.Serialize(result);
             // r.Content = JsonConvert.SerializeObject(result);
             r.Content = System.Text.Json.JsonSerializer.Serialize((object)result, new System.Text.Json.JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });

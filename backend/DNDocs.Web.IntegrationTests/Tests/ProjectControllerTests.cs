@@ -85,7 +85,6 @@ namespace Web.IntegrationTests.Tests
 
             // act
             var result = ApiSetupHelper.CreateProjectVersionByGiTag(versioningId, "v2.2.2");
-            Assert.IsTrue(result.CommandResult.Success);
             Assert.NotNull(result.WaitingForBgJobResult);
         }
 
@@ -99,7 +98,6 @@ namespace Web.IntegrationTests.Tests
             var result = ApiSetupHelper.CreateProjectVersionManually(versioningId, "v1.1.1", new NugetPackageModel[0]);
             
             // assert
-            Assert.True(result.CommandResult.Success);
             Assert.NotNull(result.WaitingForBgJobResult);
         }
 

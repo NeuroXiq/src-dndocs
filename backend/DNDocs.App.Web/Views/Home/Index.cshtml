@@ -13,37 +13,35 @@
     <script type="text/javascript" src="~/js-views/home/index.js"></script>
 }
 
-<body>
-    <div class="home">
-    <header class="header">
+<div class="home">
+    <header>
         <h1>DNDocs</h1>
         <div class="logo">
             <div class="nletter">.N</div>
         </div>
     </header>
-    <main class="main" style="min-height: 100vh">
+    <main>
+        <div class="container is-max-tablet">
+            <form class="box" id="form">
+                <div class="field">
+                    <label class="label">Package Name</label>
+                    <div class="control">
+                        <input class="input" type="text" name="packagename" />
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Package Version</label>
+                    <div class="control">
+                        <input class="input" type="text" name="packageversion" />
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-link">Explore</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </main>
-    </div>
-</body>
+</div>
 
-@* <div class="container is-max-tablet">
-<form class="box" id="form">
-    <div class="field">
-        <label class="label">Package Name</label>
-        <div class="control">
-        <input class="input" type="text" name="packagename" />
-        </div>
-    </div>
-        <div class="field">
-            <label class="label">Package Version</label>
-            <div class="control">
-            <input class="input" type="text" name="packageversion"/>
-            </div>
-    </div>
-    <div class="field">
-        <div class="control">
-            <button class="button is-link">Explore</button>
-        </div>
-    </div>
-</form>
-</div> *@

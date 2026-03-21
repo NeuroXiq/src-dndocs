@@ -4,7 +4,7 @@
     {
         public TResult Result { get; set; }
 
-        public QueryResult(TResult result) : base(true, null, null)
+        public QueryResult(TResult result)
         {
             Result = result;
         }

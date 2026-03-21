@@ -199,7 +199,7 @@ namespace Web.IntegrationTests.Shared
         {
             var cr = ApiCall<CommandResultDto<TResult>>(url, HttpMethod.Post, content, assertStatusCode);
 
-            Assert.True(!assertCommandSuccess || cr.Success, $"HttpPost command result is not success, url: {url}");
+            Assert.True(!assertCommandSuccess, $"HttpPost command result is not success, url: {url}");
 
             return cr.Result;
         }

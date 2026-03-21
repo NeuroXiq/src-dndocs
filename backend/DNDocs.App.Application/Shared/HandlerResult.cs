@@ -9,15 +9,8 @@ namespace DNDocs.Application.Shared
 {
     public class HandlerResult
     {
-        public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
-        public BusinessLogicException.FieldError[] FieldErrors { get; set; }
-
-        public HandlerResult(bool success, string error, BusinessLogicException.FieldError[] fieldError)
+        public HandlerResult()
         {
-            Success = success;
-            ErrorMessage = error;
-            FieldErrors = fieldError;
         }
     }
 }

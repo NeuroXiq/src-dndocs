@@ -98,7 +98,7 @@ namespace DNDocs.Application.Shared
                 }
             }
 
-            return new CommandResult<TResult>(tresult, success, errorMessage, fieldErrors);
+            return new CommandResult<TResult>(tresult);
         }
     }
 

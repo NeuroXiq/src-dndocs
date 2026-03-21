@@ -2,7 +2,6 @@
     --c-test: #130058;
 }
 
-
 body {
     font-family: 'Space Grotesk';
     min-height: 100vh;
@@ -10,14 +9,7 @@ body {
     padding: 0;
 }
 
-main {
-    min-height: 0;
-    min-width: 50vw;
-    margin: 0;
-    height: calc(100% - 6rem);
-}
-
-.header {
+header {
     background-color: rgb(112, 20, 232);
     background-color: var(--c-test);
     display: flex;
@@ -27,7 +19,7 @@ main {
     box-shadow: 8px 4px 12px -1px black;
 }
 
-.header h1 {
+header h1 {
     text-align: left;
     color: white;
     padding: 0.25rem 0 0.25rem 2rem;
@@ -59,8 +51,7 @@ main {
     cursor: pointer;
 }
 
-
-.header .nletter {
+header .nletter {
     color: white;
     font-weight: 700;
     font-size: 92px;
@@ -68,9 +59,10 @@ main {
     left: -8px;
 }
 
-
-
-
-.header h1 {
+header h1 {
     font-size: 64px;
+}
+
+main {
+    padding-top: 92px;
 }

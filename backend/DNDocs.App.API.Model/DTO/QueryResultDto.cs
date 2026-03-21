@@ -4,7 +4,7 @@ namespace DNDocs.Api.DTO
 {
     public class QueryResultDto<TResult> : HandlerResultDto
     {
-        public QueryResultDto() : base(true, null, null)
+        public QueryResultDto()
         {
         }
 

@@ -52,16 +52,6 @@ namespace DNDocs.Web.Controllers
             return await ApiResult2(cd.DispatchAsync(new LoginUserCommand(githubLoginCommand, null)));
         }
 
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            // todo remove token from database? (to no allow use this token in the future, al
-            // also nee to implement this table iwth tokens issued and deprecated to validate
-            // if they are ok, this include validation somewhere in middleware/authorization services?
-            return await ApiResult2(Task.FromResult(new CommandResult(true, null, null)));
-        }
-
         [HttpPost]
         public async Task<IActionResult> AdminLogin(AdminLoginModel model)
         {

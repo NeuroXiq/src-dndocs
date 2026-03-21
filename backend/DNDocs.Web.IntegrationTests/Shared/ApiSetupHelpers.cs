@@ -48,12 +48,10 @@ namespace Web.IntegrationTests.Shared
         {
             var model = new CreateProjectVersionByGitTagModel(versioningId, tag);
             var cr = testBase.HttpPostCR<int>(Urls.Project.CreateProjectVersionByGitTag, model, null);
+            
             BgJobViewModel bgResult = null;
 
-            if (cr.Success)
-            {
-                bgResult = WaitForBgJob(cr.Result, DNDocs.Api.DTO.Enum.WaitingForBgJobType.CreateProject);
-            }
+            bgResult = WaitForBgJob(cr.Result, DNDocs.Api.DTO.Enum.WaitingForBgJobType.CreateProject);
 
             return new CreateProjectVersionResult
             {
@@ -69,10 +67,7 @@ namespace Web.IntegrationTests.Shared
             var cr = testBase.HttpPostCR<int>(Urls.Project.CreateProjectVersion, model, null);
             BgJobViewModel bgResult = null;
 
-            if (cr.Success)
-            {
-                bgResult = WaitForBgJob(cr.Result, DNDocs.Api.DTO.Enum.WaitingForBgJobType.CreateProject);
-            }
+            bgResult = WaitForBgJob(cr.Result, DNDocs.Api.DTO.Enum.WaitingForBgJobType.CreateProject);
 
             return new CreateProjectVersionResult
             {
@@ -141,8 +136,6 @@ namespace Web.IntegrationTests.Shared
 
             var result = JsonConvert.DeserializeObject<CommandResultDto<int>>(json);
             r.CommandResult = result;
-
-            if (!result.Success) return null;
 
             var waitingResult = WaitForBgJob(result.Result, DNDocs.Api.DTO.Enum.WaitingForBgJobType.CreateProject);
 

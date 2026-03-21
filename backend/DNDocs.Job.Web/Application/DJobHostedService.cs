@@ -66,9 +66,7 @@ namespace DNDocs.Job.Web.Application
                             ServerPort = this.dsettings.KestrelPort
                         }).Result;
 
-                        success = result.Success;
-                        if (!success) logger.LogCritical("startup sending to DN returned failure (success=false). error: {0}", result.ErrorMessage);
-                        else logger.LogInformation("startup DN register success");
+                        logger.LogInformation("startup DN register success");
                     }
                     catch (Exception e)
                     {
