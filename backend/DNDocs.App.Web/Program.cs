@@ -74,14 +74,13 @@ namespace DNDocs.Web
             // vinca
 
             // vinca-ddns
-            services.Configure<VDdnsProkbunServiceOptions>(builder.Configuration.GetSection("Vinca:VDdnsProkbunServiceOptions"));
-            services.AddVDdnsPorkbunService(null);
-            services.AddVDdnsHostedService(c => c.RefreshDdnsPeriod = TimeSpan.FromHours(24));
+            builder.AddVDdnsPorkbunService();
+            builder.AddVDdnsHostedService(c => c.RefreshDdnsPeriod = TimeSpan.FromHours(24));
 
             services.AddDJobClientFactory();
             services.AddVNugetRepositoryFacade();
             services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
-            services.AddVIndexNowApi();
+            builder.AddVIndexNowApi();
 
             // dndocs
 
@@ -201,14 +200,9 @@ namespace DNDocs.Web
                 .Validate(c => c.BackendBackgroundWorkerDoImportantWorkSleepSeconds > 5, "BackendBackgroundWorkerDoImportantWorkSleepSeconds")
                 .Validate(c => c.BackendBackgroundWorkerDoWorkSleepSeconds > 5, "BackendBackgroundWorkerDoWorkSleepSeconds")
                 .Validate(c => c.FrontendBackgroundWorkerDoWorkSleepSeconds > 5, "FrontendBackgroundWorkerDoWorkSleepSeconds")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.IndexNowApiKey), "IndexNowApiKey")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.IndexNowHost), "IndexNowHost")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.IndexNowKeyLocation), "IndexNowKeyLocation")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.IndexNowSubmitUrl), "IndexNowSubmitUrl")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.OSPathInfrastructureDirectory), "OSPathInfrastructureDirectory")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.GitExeFilePath), "GitExeFilePath")
                 .Validate(c => c.CorsAllowedOrigins?.Length > 0, "CorsAllowedOrigins")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.DDocsServerUrl), "DDocsServerUrl")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Issuer), "Issuer")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Audience), "Audience")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.SymmetricSecurityKey), "SymmetricSecurityKey")

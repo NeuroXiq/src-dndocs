@@ -5,26 +5,20 @@ namespace DNDocs.Shared.Configuration
     public class DNDocsSettings
     {
         public JwtSettings Jwt { get; set; }
-        public string DDocsApiKey { get; set; }
-        public string DJobApiKey { get; set; }
         public string DNApiKey { get; set; }
+        public string DJobApiKey { get; set; }
+        public string DDocsApiKey { get; set; }
         public string AdminPasswordSha512 { get; set; }
 
         public int BackendBackgroundWorkerDoImportantWorkSleepSeconds { get; set; }
         public int BackendBackgroundWorkerDoWorkSleepSeconds { get; set; }
         public int FrontendBackgroundWorkerDoWorkSleepSeconds { get; set; }
         
-        public string IndexNowApiKey { get; set; }
-        public string IndexNowHost { get; set; }
-        public string IndexNowKeyLocation { get; set; }
-        public string IndexNowSubmitUrl { get; set; }
-
         public string OSPathInfrastructureDirectory { get; set; }
 
         public string GitExeFilePath { get; set; }
         public string[] CorsAllowedOrigins { get; set; }
 
-        public string DDocsServerUrl { get; set; }
         public string UrlProjectNugetOrgApiFolder { get; set; }
 
         public DNDocsSettings()

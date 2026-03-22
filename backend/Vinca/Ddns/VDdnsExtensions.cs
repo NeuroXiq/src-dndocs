@@ -1,18 +1,18 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Vinca.Ddns;
 
 namespace Vinca.DDNS
 {
     public static class VDdnsExtensions
     {
-        public static void AddVDdnsHostedService(this IServiceCollection services, Action<VDdnsHostedServiceOptions> configure)
-        {
-            var optionsBuilder = services.AddOptions<VDdnsHostedServiceOptions>();
+        const string ConfigSectionNameProkbunService = $"Vinca:{nameof(VDdnsProkbunServiceOptions)}";
 
-            if (configure != null)
-            {
-                optionsBuilder.Configure(configure);
-            }
+        public static void AddVDdnsHostedService(this WebApplicationBuilder builder, Action<VDdnsHostedServiceOptions> configure = null)
+        {
+            var optionsBuilder = builder.Services.AddOptions<VDdnsHostedServiceOptions>();
+
+            if (configure != null) optionsBuilder.Configure(configure);
 
             optionsBuilder
                 .Validate(o => o.RefreshDdnsPeriod > TimeSpan.FromSeconds(30),
@@ -20,19 +20,16 @@ namespace Vinca.DDNS
                     "If this is intended remove this exception")
                 .ValidateOnStart();
 
-            services.AddHostedService<VDDnsHostedService>();
+            builder.Services.AddHostedService<VDDnsHostedService>();
         }
 
-        public static void AddVDdnsPorkbunService(this IServiceCollection services, Action<VDdnsProkbunServiceOptions> configure)
+        public static void AddVDdnsPorkbunService(this WebApplicationBuilder builder, Action<VDdnsProkbunServiceOptions> configure = null)
         {
-            var optionsBuilder = services.AddOptions<VDdnsProkbunServiceOptions>();
+            var optionsBuilder = builder.Services.AddOptions<VDdnsProkbunServiceOptions>().Bind(builder.Configuration.GetSection(ConfigSectionNameProkbunService));
 
-            if (configure != null)
-            {
-                optionsBuilder.Configure(configure);
-            }
+            if (configure != null) optionsBuilder.Configure(configure);
 
-            services.AddSingleton<IVDdnsService, VDdnsPorkbunService>();
+            builder.Services.AddSingleton<IVDdnsService, VDdnsPorkbunService>();
         }
     }
 }

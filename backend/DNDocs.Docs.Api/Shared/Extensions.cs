@@ -16,8 +16,8 @@ namespace DNDocs.Docs.Api.Shared
             }
 
             optionsBuilder
-                .Validate(c => string.IsNullOrWhiteSpace(c.ServerUrl), "DDocsApiClientOptions.ServerUrl")
-                .Validate(c => string.IsNullOrWhiteSpace(c.ApiKey), "DDocsApiClientOptions.ApiKey")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.ServerUrl), "DDocsApiClientOptions.ServerUrl")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.ApiKey), "DDocsApiClientOptions.ApiKey")
                 .ValidateOnStart();
 
             serviceCollection.AddSingleton<IDDocsApiClient, DDocsApiClient>();

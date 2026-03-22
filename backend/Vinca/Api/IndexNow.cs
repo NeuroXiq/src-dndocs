@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -89,21 +90,21 @@ namespace Vinca.Api
 
     public static class IndexNowExtensions
     {
-        public static void AddVIndexNowApi(this IServiceCollection services,
+        public static void AddVIndexNowApi(this WebApplicationBuilder builder,
             Action<VIndexNowOptions> configure = null)
         {
-            var optionsBuilder = services.AddOptions<VIndexNowOptions>();
+            var optionsBuilder = builder.Services.AddOptions<VIndexNowOptions>().Bind(builder.Configuration.GetSection($"Vinca:{nameof(VIndexNowOptions)}"));
 
             if (configure != null) optionsBuilder.Configure(configure);
 
             optionsBuilder
-                .Validate(o => !string.IsNullOrWhiteSpace(o.Host), "host null or empty")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "key null or empty")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.KeyLocation), "keyLocation null or empty")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.SubmitUrl), "submitUrl null or empty")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Host), "VIndexNowOptions.Host")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "VIndexNowOptions.Key")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.KeyLocation), "VIndexNowOptions.KeyLocation")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.SubmitUrl), "VIndexNowOptions.SubmitUrl")
                 .ValidateOnStart();
 
-            services.AddSingleton<IIndexNowApi, IndexNowApi>();
+            builder.Services.AddSingleton<IIndexNowApi, IndexNowApi>();
         }
     }
 }
