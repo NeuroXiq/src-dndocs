@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Vinca.Api;
+using Vinca.Ddns;
+using Vinca.DDNS;
 using Vinca.Exceptions;
 using Vinca.Http.Logs;
 using Vinca.Utils;
@@ -50,42 +52,13 @@ namespace DNDocs.Web
             var robiniaSettings = new DNDocsSettings();
             builder.Configuration.GetSection("DNDocsSettings").Bind(robiniaSettings);
 
-            // Add services to the container.
-            
-            // asp.net framework services
-            builder.Services.AddControllersWithViews();
-
-            // dndocs.app
             var dsettings = new DNDocsSettings();
             builder.Configuration.GetSection($"{nameof(DNDocsSettings)}").Bind(dsettings);
 
-            services.AddHttpClient();
-            services.Configure<CookiePolicyOptions>(opt =>
-            {
-                opt.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None;
-            });
+            // Add services to the container.
 
-            services.AddVIndexNowApi(
-                dsettings.IndexNowSubmitUrl,
-                dsettings.IndexNowHost,
-                dsettings.IndexNowApiKey,
-                dsettings.IndexNowKeyLocation);
-            
-            services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
-            services.Configure<DNDocsSettings>(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
-            services.AddDJobClientFactory();
-            services.AddVNugetRepositoryFacade();
-            services.AddDDocsApiClient(o => { o.ApiKey = dsettings.DDocsApiKey; o.ServerUrl = dsettings.DDocsServerUrl; });
-            builder.Services.AddAutoMapper(typeof(Program).Assembly);
-
-            builder.Services.Configure<FormOptions>(opt =>
-            {
-                // 16 Megabytes limit for all forms in system
-                opt.MultipartBodyLengthLimit = 16 * 1024 * 1024;
-            });
-
-            builder.Services.AddRobiniaInfrastructure(dsettings.OSPathInfrastructureDirectory);
-
+            // asp.net framework/nuget
+            builder.Services.AddControllersWithViews();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
@@ -101,16 +74,49 @@ namespace DNDocs.Web
 
                 opt.Validate();
             });
+            builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+            // vinca
+
+            // vinca-ddns
+            services.Configure<VDdnsProkbunServiceOptions>(builder.Configuration.GetSection("Vinca:VDdnsProkbunServiceOptions"));
+            services.AddVDdnsPorkbunService(null);
+            services.AddVDdnsHostedService(c => c.RefreshDdnsPeriod = TimeSpan.FromHours(24));
+
+            services.AddDJobClientFactory();
+            services.AddVNugetRepositoryFacade();
+            services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
+            services.AddVIndexNowApi(c => {
+                c.SubmitUrl = dsettings.IndexNowSubmitUrl;
+                c.Host = dsettings.IndexNowHost;
+                c.Key = dsettings.IndexNowApiKey;
+                c.KeyLocation = dsettings.IndexNowKeyLocation;
+                });
+
+            // dndocs.app
             services.AddOptions<DNDocsSettings>()
                 .Bind(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
 
+            services.AddHttpClient();
+            services.Configure<CookiePolicyOptions>(opt =>
+            {
+                opt.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None;
+            });
+
+            services.Configure<DNDocsSettings>(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
+            services.AddDDocsApiClient(o => { o.ApiKey = dsettings.DDocsApiKey; o.ServerUrl = dsettings.DDocsServerUrl; });
+            builder.Services.Configure<FormOptions>(opt =>
+            {
+                // 16 Megabytes limit for all forms in system
+                opt.MultipartBodyLengthLimit = 16 * 1024 * 1024;
+            });
+
+            builder.Services.AddRobiniaInfrastructure(dsettings.OSPathInfrastructureDirectory);
 
             // dndocs.app.domain
             services.AddScoped<AppDbContext>();
             services.AddScoped<INugetOrgProjectService, NugetOrgProjectService>();
             services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
-
 
             StartupRobiniaApplication.AddRobiniaApplication(builder);
 

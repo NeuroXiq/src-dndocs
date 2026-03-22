@@ -19,12 +19,12 @@ namespace Vinca.Api
 
     internal class IndexNowApi : IIndexNowApi
     {
-        private IndexNowOptions options;
+        private VIndexNowOptions options;
         private ILogger<IndexNowApi> logger;
         private HttpClient httpClient;
 
         public IndexNowApi(
-            IOptions<IndexNowOptions> indexNowOptions,
+            IOptions<VIndexNowOptions> indexNowOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<IndexNowApi> logger)
         {
@@ -79,34 +79,26 @@ namespace Vinca.Api
         public string[] UrlList { get; set; }
     }
 
-    internal class IndexNowOptions
+    public class VIndexNowOptions
     {
         public string Host { get; set; }
         public string Key { get; set; }
         public string KeyLocation { get; set; }
-        public string SubmitUrl { get; internal set; }
+        public string SubmitUrl { get; set; }
     }
 
     public static class IndexNowExtensions
     {
         public static void AddVIndexNowApi(this IServiceCollection services,
-            string submitUrl,
-            string host,
-            string key,
-            string keyLocation)
+            Action<VIndexNowOptions> configure)
         {
-            if (string.IsNullOrWhiteSpace(host)) throw new ArgumentException("host null or empty");
-            if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("key null or empty");
-            if (string.IsNullOrWhiteSpace(keyLocation)) throw new ArgumentException("keyLocation null or empty");
-            if (string.IsNullOrWhiteSpace(submitUrl)) throw new ArgumentException("submitUrl null or empty");
-
-            services.Configure<IndexNowOptions>(c =>
-            {
-                c.Host = host;
-                c.Key = key;
-                c.SubmitUrl = submitUrl;
-                c.KeyLocation = keyLocation;
-            });
+            services.AddOptions<VIndexNowOptions>()
+                .Configure(configure)
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Host), "host null or empty")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "key null or empty")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.KeyLocation), "keyLocation null or empty")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.SubmitUrl), "submitUrl null or empty")
+                .ValidateOnStart();
 
             services.AddSingleton<IIndexNowApi, IndexNowApi>();
         }
