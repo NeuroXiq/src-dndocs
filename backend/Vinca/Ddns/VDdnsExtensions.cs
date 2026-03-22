@@ -6,7 +6,7 @@ namespace Vinca.DDNS
 {
     public static class VDdnsExtensions
     {
-        const string ConfigSectionNameProkbunService = $"Vinca:{nameof(OptionsVDdnsProkbunService)}";
+        const string ConfigSectionNameProkbunService = $"Vinca:{nameof(OptionsVDdnsPorkbunService)}";
 
         public static void AddVDdnsHostedService(this WebApplicationBuilder builder, Action<OptionsVDdnsHostedService> configure = null)
         {
@@ -23,9 +23,9 @@ namespace Vinca.DDNS
             builder.Services.AddHostedService<VDDnsHostedService>();
         }
 
-        public static void AddVDdnsPorkbunService(this WebApplicationBuilder builder, Action<OptionsVDdnsProkbunService> configure = null)
+        public static void AddVDdnsPorkbunService(this WebApplicationBuilder builder, Action<OptionsVDdnsPorkbunService> configure = null)
         {
-            var optionsBuilder = builder.Services.AddOptions<OptionsVDdnsProkbunService>().Bind(builder.Configuration.GetSection(ConfigSectionNameProkbunService));
+            var optionsBuilder = builder.Services.AddOptions<OptionsVDdnsPorkbunService>().Bind(builder.Configuration.GetSection(ConfigSectionNameProkbunService));
 
             if (configure != null) optionsBuilder.Configure(configure);
 

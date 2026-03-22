@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Net;
@@ -10,10 +11,10 @@ namespace Vinca.Ddns
     public class VDdnsPorkbunService : IVDdnsService
     {
         private ILogger<VDdnsPorkbunService> logger;
-        private OptionsVDdnsProkbunService options;
+        private OptionsVDdnsPorkbunService options;
         private HttpClient httpClientPorkbun;
 
-        public VDdnsPorkbunService(IOptions<OptionsVDdnsProkbunService> options,
+        public VDdnsPorkbunService(IOptions<OptionsVDdnsPorkbunService> options,
             ILogger<VDdnsPorkbunService> logger)
         {
             this.logger = logger;
@@ -26,23 +27,29 @@ namespace Vinca.Ddns
         {
             List<IPAddress> myIp = new List<IPAddress>();
 
-            //await CallPorkbunApiDnsDeleteDomain("dndocs.com", "test1", "A");
-
-            // await CallPorkbunApiDnsCreateDomain("dndocs.com", new PorkbunRequestDnsCreateRecord()
-            // {
-            //     Name = "test1",
-            //     Ttl = "1234",
-            //     Type = "A",
-            //     Content = "127.0.0.2"
-            // });
-
             try
             {
-                myIp.Add(await CallPorkbunApiPingAsync());
+                logger.LogTrace("starting myip porkbun");
+                var porkbunPingResult = await CallPorkbunApiPingAsync();
+                logger.LogInformation("porkbun success with myip: {0}", porkbunPingResult.YourIp);
+                myIp.Add(IPAddress.Parse(porkbunPingResult.YourIp));
             }
             catch (Exception e)
             {
-                logger.LogError(e, "porkbun resolve ip failed");
+                logger.LogError(e, "failed to get myip from ipify");
+            }
+
+            try
+            {
+                logger.LogTrace("starting myip ipify");
+                var httpClient = new HttpClient();
+                var ip = await httpClient.GetStringAsync("https://api.ipify.org");
+                logger.LogInformation("ipify success with myip: {0}", ip);
+                myIp.Add(IPAddress.Parse(ip));
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "failed to get myip from ipify");
             }
 
             var recordsOnPorkbun1 = await CallPorkbunRetrieveRecords(options.Domain, options.Subdomain, "A");
@@ -77,23 +84,18 @@ namespace Vinca.Ddns
             }
         }
 
-        private async Task<IPAddress> GetMyPublicIp()
-        {
-            return null;
-        }
-
         async Task<PorkbunResponseRetireveRecords> CallPorkbunRetrieveRecords(string domain, string subdomain, string type)
         {
             return await CallPorkbunApiAsync<PorkbunRequestBase, PorkbunResponseRetireveRecords>($"/api/json/v3/dns/retrieveByNameType/{domain}/{type}/{subdomain}", new PorkbunRequestBase());
         }
 
-        async Task<IPAddress> CallPorkbunApiPingAsync(CancellationToken token = default)
+        async Task<PorkbunResponsePing> CallPorkbunApiPingAsync(CancellationToken token = default)
         {
             logger.LogTrace(nameof(CallPorkbunApiPingAsync));
 
             var pingResult = await CallPorkbunApiAsync<PorkbunRequestPing, PorkbunResponsePing>("/api/json/v3/ping", new PorkbunRequestPing());
 
-            return IPAddress.Parse(pingResult.YourIp);
+            return pingResult;
         }
 
         async Task CallPorkbunApiDnsDeleteDomain(string domain, string subdomain, string type)
@@ -138,6 +140,8 @@ namespace Vinca.Ddns
             request.SecretApiKey = this.options.SecretApiKey;
         }
 
+        // lowercase json fields are important for porkbun (exactly as examples in porkbun api docs)
+
         class PorkbunResponse
         {
             public string Status { get; set; }
@@ -146,7 +150,6 @@ namespace Vinca.Ddns
 
         class PorkbunRequestBase
         {
-            // lowercase is important for porkbun
             [JsonPropertyName("apikey")]
             public string ApiKey { get; set; }
 
@@ -184,40 +187,6 @@ namespace Vinca.Ddns
             [JsonPropertyName("type")]
             public string Type { get; set; }
 
-
-            /// <summary>
-            /// The answer content for the record. Please see the DNS management popup from the domain management console for proper formatting of each record type.
-            /// </summary>
-            [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
-            [JsonPropertyName("content")]
-            public string Content { get; set; }
-
-            /// <summary>
-            /// The time to live in seconds for the record. The minimum and the default is 600 seconds.
-            /// </summary>
-            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            [JsonPropertyName("ttl")]
-            public string Ttl { get; set; }
-
-
-            /// <summary>
-            /// The priority of the record for those that support it.
-            /// </summary>
-            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            [JsonPropertyName("prio")]
-            public string Prio { get; set; }
-
-
-            /// <summary>
-            /// Any notes that you'd like to set for the record.
-            /// </summary>
-            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-            [JsonPropertyName("notes")]
-            public string Notes { get; set; }
-        }
-
-        class PorkbunRequestDnsEditRecord
-        {
 
             /// <summary>
             /// The answer content for the record. Please see the DNS management popup from the domain management console for proper formatting of each record type.
