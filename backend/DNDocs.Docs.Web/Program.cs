@@ -18,6 +18,7 @@ using Vinca.Api;
 using Microsoft.Identity.Client;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Options;
+using Vinca.DDNS;
 
 namespace DNDocs.Docs.Web
 {
@@ -57,8 +58,10 @@ namespace DNDocs.Docs.Web
                 // });
             });
 
-            // external services
-
+            // .net/nuget
+            builder.Services.AddMetrics();
+            builder.Services.AddResourceMonitoring();
+            builder.Services.AddLogging();
             builder.Services.AddMemoryCache(o =>
             {
                 o.SizeLimit = 1024 * 1024 * settings.MemoryCacheMaxSizeMB;
@@ -66,10 +69,11 @@ namespace DNDocs.Docs.Web
                 o.CompactionPercentage = 0.3;
             });
 
+            // vinca
+            builder.AddVDdnsPorkbunService();
+            builder.AddVDdnsHostedService(c => c.RefreshDdnsPeriod = TimeSpan.FromHours(24));
             builder.Services.AddVOSApi();
-            builder.Services.AddMetrics();
-            builder.Services.AddResourceMonitoring();
-            builder.Services.AddLogging();
+            
             builder.Services.AddVHttpLogs(o =>
             {
                 o.ShouldSaveLog = IgnoreHttpLogsFor;

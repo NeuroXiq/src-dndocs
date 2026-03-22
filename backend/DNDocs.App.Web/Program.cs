@@ -201,7 +201,6 @@ namespace DNDocs.Web
                 .Validate(c => c.BackendBackgroundWorkerDoWorkSleepSeconds > 5, "BackendBackgroundWorkerDoWorkSleepSeconds")
                 .Validate(c => c.FrontendBackgroundWorkerDoWorkSleepSeconds > 5, "FrontendBackgroundWorkerDoWorkSleepSeconds")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.OSPathInfrastructureDirectory), "OSPathInfrastructureDirectory")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.GitExeFilePath), "GitExeFilePath")
                 .Validate(c => c.CorsAllowedOrigins?.Length > 0, "CorsAllowedOrigins")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Issuer), "Issuer")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Audience), "Audience")
@@ -214,11 +213,6 @@ namespace DNDocs.Web
             if (!Directory.Exists(temp.OSPathInfrastructureDirectory))
             {
                 throw new Exception($"directory not exists: '{temp.OSPathInfrastructureDirectory}'");
-            }
-
-            if (!File.Exists(temp.GitExeFilePath))
-            {
-                throw new Exception($"git file exe not exists: '{temp.GitExeFilePath}'");
             }
 
             return temp;

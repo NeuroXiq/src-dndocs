@@ -14,6 +14,7 @@ using DNDocs.Job.Web.Shared;
 using DNDocs.Job.Web.Web;
 using Vinca.Api;
 using Vinca.BufferLogger;
+using Vinca.DDNS;
 using Vinca.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,8 @@ DJobSettings settings = new DJobSettings();
 builder.Configuration.Bind("DJobSettings", settings);
 
 // external
+builder.AddVDdnsPorkbunService();
+builder.AddVDdnsHostedService(c => c.RefreshDdnsPeriod = TimeSpan.FromHours(24));
 builder.Services.AddDNClient((Action<DNClientOptions>)(o => { o.ServerUrl = settings.DNServerUrl; o.ApiKey = settings.DNApiKey; }));
 builder.Services.AddVOSApi();
 builder.Services.AddLogging();

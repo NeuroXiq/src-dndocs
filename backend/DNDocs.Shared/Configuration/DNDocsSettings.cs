@@ -15,8 +15,6 @@ namespace DNDocs.Shared.Configuration
         public int FrontendBackgroundWorkerDoWorkSleepSeconds { get; set; }
         
         public string OSPathInfrastructureDirectory { get; set; }
-
-        public string GitExeFilePath { get; set; }
         public string[] CorsAllowedOrigins { get; set; }
 
         public string UrlProjectNugetOrgApiFolder { get; set; }
