@@ -1,5 +1,6 @@
 using DNDocs.App.Domain.Service;
 using DNDocs.Application.Utils;
+using DNDocs.Docs.Api.Client;
 using DNDocs.Docs.Api.Shared;
 using DNDocs.Domain.Entity;
 using DNDocs.Domain.UnitOfWork;
@@ -45,15 +46,9 @@ namespace DNDocs.Web
                 builder.Configuration.AddJsonFile("appsettings.IntegrationTests.json", optional: false);
             }
 
+            var dnOptions = AddDNOptions(builder);
+
             var services = builder.Services;
-
-            SetupSettings(builder.Configuration);
-
-            var robiniaSettings = new DNDocsSettings();
-            builder.Configuration.GetSection("DNDocsSettings").Bind(robiniaSettings);
-
-            var dsettings = new DNDocsSettings();
-            builder.Configuration.GetSection($"{nameof(DNDocsSettings)}").Bind(dsettings);
 
             // Add services to the container.
 
@@ -67,9 +62,9 @@ namespace DNDocs.Web
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = dsettings.Jwt.Issuer,
-                    ValidAudience = dsettings.Jwt.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(dsettings.Jwt.GetBytes_SymmetricSecurityKey()),
+                    ValidIssuer = dnOptions.Jwt.Issuer,
+                    ValidAudience = dnOptions.Jwt.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(dnOptions.Jwt.GetBytes_SymmetricSecurityKey()),
                 };
 
                 opt.Validate();
@@ -86,32 +81,26 @@ namespace DNDocs.Web
             services.AddDJobClientFactory();
             services.AddVNugetRepositoryFacade();
             services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
-            services.AddVIndexNowApi(c => {
-                c.SubmitUrl = dsettings.IndexNowSubmitUrl;
-                c.Host = dsettings.IndexNowHost;
-                c.Key = dsettings.IndexNowApiKey;
-                c.KeyLocation = dsettings.IndexNowKeyLocation;
-                });
+            services.AddVIndexNowApi();
 
-            // dndocs.app
-            services.AddOptions<DNDocsSettings>()
-                .Bind(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
+            // dndocs
+
+            services.AddOptions<DDocsApiClientOptions>().Bind(builder.Configuration.GetSection($"{nameof(DDocsApiClientOptions)}"));
+            services.AddDDocsApiClient();
 
             services.AddHttpClient();
             services.Configure<CookiePolicyOptions>(opt =>
             {
                 opt.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None;
             });
-
-            services.Configure<DNDocsSettings>(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
-            services.AddDDocsApiClient(o => { o.ApiKey = dsettings.DDocsApiKey; o.ServerUrl = dsettings.DDocsServerUrl; });
+            
             builder.Services.Configure<FormOptions>(opt =>
             {
                 // 16 Megabytes limit for all forms in system
                 opt.MultipartBodyLengthLimit = 16 * 1024 * 1024;
             });
 
-            builder.Services.AddRobiniaInfrastructure(dsettings.OSPathInfrastructureDirectory);
+            builder.Services.AddRobiniaInfrastructure(dnOptions.OSPathInfrastructureDirectory);
 
             // dndocs.app.domain
             services.AddScoped<AppDbContext>();
@@ -133,7 +122,7 @@ namespace DNDocs.Web
             fho.KnownNetworks.Clear();
             fho.KnownProxies.Clear();
 
-            app.UseCors(c => c.WithOrigins(robiniaSettings.CorsAllowedOrigins)
+            app.UseCors(c => c.WithOrigins(dnOptions.CorsAllowedOrigins)
                 .AllowAnyMethod()
                 .AllowCredentials()
                 .AllowAnyHeader());
@@ -194,33 +183,51 @@ namespace DNDocs.Web
             app.Run();
         }
 
-        private static void SetupSettings(ConfigurationManager configuration)
+        private static DNDocsSettings AddDNOptions(WebApplicationBuilder builder)
         {
-            // expected to be in same directory as web.dll (as current executing code)
-            // only for safety purpose - throw on startup if something is wrong with settings
-            // smoke-test instead of throwing something unexpected in runtime
-            var rs = configuration.GetSection($"{nameof(DNDocsSettings)}").Get<DNDocsSettings>();
+            var temp = new DNDocsSettings();
+            builder.Configuration.GetSection("DNDocsSettings").Bind(temp);
 
-            var settingsProps = typeof(DNDocsSettings).GetProperties().Where(t => t.PropertyType == typeof(string)).Select(t => t.Name);
-            var stringsProps = typeof(DNDocsSettings.StringsSettings).GetProperties().Select(t => $"Strings:{t.Name}");
-            var jwtSettingsProps = typeof(DNDocsSettings.JwtSettings).GetProperties().Select(t => $"Jwt:{t.Name}");
-            var githubProps = typeof(DNDocsSettings.GithubOAuthSettings).GetProperties().Select(t => $"GithubOAuth:{t.Name}");
+            var services = builder.Services;
+            var dnOptionsBuilder = services.AddOptions<DNDocsSettings>();
 
-            var requiredExists = settingsProps.Union(stringsProps).Union(jwtSettingsProps).Union(githubProps).ToArray();
+            services.Configure<DNDocsSettings>(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
 
-            foreach (var required in requiredExists)
+            dnOptionsBuilder
+                .Validate(c => !string.IsNullOrWhiteSpace(c.DDocsApiKey), "DDocsApiKey")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.DJobApiKey), "DJobApiKey")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.DNApiKey), "DNApiKey")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.AdminPasswordSha512), "AdminPasswordSha512")
+                .Validate(c => c.BackendBackgroundWorkerDoImportantWorkSleepSeconds > 5, "BackendBackgroundWorkerDoImportantWorkSleepSeconds")
+                .Validate(c => c.BackendBackgroundWorkerDoWorkSleepSeconds > 5, "BackendBackgroundWorkerDoWorkSleepSeconds")
+                .Validate(c => c.FrontendBackgroundWorkerDoWorkSleepSeconds > 5, "FrontendBackgroundWorkerDoWorkSleepSeconds")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.IndexNowApiKey), "IndexNowApiKey")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.IndexNowHost), "IndexNowHost")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.IndexNowKeyLocation), "IndexNowKeyLocation")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.IndexNowSubmitUrl), "IndexNowSubmitUrl")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.OSPathInfrastructureDirectory), "OSPathInfrastructureDirectory")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.GitExeFilePath), "GitExeFilePath")
+                .Validate(c => c.CorsAllowedOrigins?.Length > 0, "CorsAllowedOrigins")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.DDocsServerUrl), "DDocsServerUrl")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Issuer), "Issuer")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Audience), "Audience")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.SymmetricSecurityKey), "SymmetricSecurityKey")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.UrlProjectNugetOrgApiFolder), "UrlProjectNugetOrgApiFolder")
+                .ValidateOnStart();
+
+            // custom validations
+            
+            if (!Directory.Exists(temp.OSPathInfrastructureDirectory))
             {
-                var fullpath = $"{nameof(DNDocsSettings)}:{required}";
-
-                ThrowStartupException(
-                    string.IsNullOrWhiteSpace(configuration.GetValue<string>(fullpath)),
-                    $"Invalid setting (must not be empty): {fullpath}");
+                throw new Exception($"directory not exists: '{temp.OSPathInfrastructureDirectory}'");
             }
 
-            ThrowStartupException(!Directory.Exists(rs.OSPathInfrastructureDirectory),
-                $"RobiniaSettings: {nameof(rs.OSPathInfrastructureDirectory)} does not exists." +
-                "Create this directory to setup/deploy project or change appsettings to other location.");
-            ThrowStartupException(!File.Exists(rs.GitExeFilePath), $"git.exe file does not exist. Provide valid git.exe full OS Path. current path (invalid): '{rs.GitExeFilePath}'");
+            if (!File.Exists(temp.GitExeFilePath))
+            {
+                throw new Exception($"git file exe not exists: '{temp.GitExeFilePath}'");
+            }
+
+            return temp;
         }
 
         static void ThrowStartupException(bool doThrow, string message)

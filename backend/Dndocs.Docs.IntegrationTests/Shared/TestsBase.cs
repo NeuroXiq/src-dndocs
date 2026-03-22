@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 // this namespace is root of all tests thus this will be called only once
 namespace DNDocs.Docs.IntegrationTests
 {
-    
+
     [SetUpFixture]
     public class GlobalTestsSetup
     {
@@ -43,7 +43,7 @@ namespace DNDocs.Docs.IntegrationTests
             ddocsProcess.Dispose();
         }
 
-        
+
     }
 }
 
@@ -86,7 +86,7 @@ namespace DNDocs.Docs.IntegrationTests.Shared
             return new FileStream(TestsAppConfig.PathSmallSizeZip, FileMode.Open, FileAccess.Read);
         }
 
-        
+
 
         public static DDocsApiClient CreateNewHttpClient()
         {
@@ -100,14 +100,24 @@ namespace DNDocs.Docs.IntegrationTests.Shared
                 };
 
             var client = new HttpClient(handler);
-            
+
             client.BaseAddress = new Uri(TestsAppConfig.DdocsHttpsUrl);
             client.Timeout = TimeSpan.FromMinutes(1);
 
             var clientIgnoreTlsCert = new DDocsApiClient(
-                new DDocsApiClientOptions(TestsAppConfig.ApiKey, TestsAppConfig.DdocsHttpsUrl));
+                new MockIOptions<DDocsApiClientOptions>(new DDocsApiClientOptions(TestsAppConfig.ApiKey, TestsAppConfig.DdocsHttpsUrl)));
 
             return clientIgnoreTlsCert;
+        }
+
+        class MockIOptions<T> : IOptions<T> where T : class
+        {
+            public T Value { get; private set; }
+
+            public MockIOptions(T options)
+            {
+
+            }
         }
 
         [SetUp]

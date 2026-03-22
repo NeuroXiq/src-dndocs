@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace Vinca.Ddns
 {
@@ -11,10 +12,18 @@ namespace Vinca.Ddns
             this.options = options.Value;
         }
 
-        public Task UpdateDdns(CancellationToken token)
+        public async Task UpdateDdnsAsync(CancellationToken token)
         {
-            return Task.CompletedTask;
+            //var ipAddress = await 
+
         }
+
+        private async Task<IPAddress> GetMyPublicIp()
+        {
+            return null;
+        }
+
+
     }
 }
 

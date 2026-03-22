@@ -140,12 +140,13 @@ namespace DNDocs.Application.CommandHandlers.Auth
         void GetUserGithubLogin(string code, out GithubUserDto githubUser, out OAuthAccessTokenDto githubOAuthAccessToken)
         {
             //todo move this to IGithubAPI
-
+            throw new NotImplementedException();
             var sc = new StringContent(
                 JsonSerializer.Serialize(new
                 {
-                    client_id = this.RobiniaSettings.GithubOAuth.ClientId,
-                    client_secret = this.RobiniaSettings.GithubOAuth.Secret,
+                    // not implemented
+                    // client_id = this.RobiniaSettings.GithubOAuth.ClientId,
+                    // client_secret = this.RobiniaSettings.GithubOAuth.Secret,
                     code = code
                 }),
                 Encoding.UTF8,

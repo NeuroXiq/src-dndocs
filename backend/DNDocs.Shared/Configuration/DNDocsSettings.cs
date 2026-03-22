@@ -4,9 +4,7 @@ namespace DNDocs.Shared.Configuration
 {
     public class DNDocsSettings
     {
-        public GithubOAuthSettings GithubOAuth { get; set; }
         public JwtSettings Jwt { get; set; }
-        public StringsSettings Strings { get; set; }
         public string DDocsApiKey { get; set; }
         public string DJobApiKey { get; set; }
         public string DNApiKey { get; set; }
@@ -27,10 +25,10 @@ namespace DNDocs.Shared.Configuration
         public string[] CorsAllowedOrigins { get; set; }
 
         public string DDocsServerUrl { get; set; }
+        public string UrlProjectNugetOrgApiFolder { get; set; }
 
         public DNDocsSettings()
         {
-            GithubOAuth = new GithubOAuthSettings();
         }
 
         public class JwtSettings
@@ -48,12 +46,7 @@ namespace DNDocs.Shared.Configuration
             public string Secret { get; set; }
         }
 
-        public class StringsSettings
-        {
-            public string UrlProjectNugetOrgApiFolder { get; set; }
-        }
-
         public string GetUrlNugetOrgProject(string nugetPackageName, string nugetPackageVersion) =>
-            string.Format(this.Strings.UrlProjectNugetOrgApiFolder, nugetPackageName, nugetPackageVersion);
+            string.Format(UrlProjectNugetOrgApiFolder, nugetPackageName, nugetPackageVersion);
     }
 }

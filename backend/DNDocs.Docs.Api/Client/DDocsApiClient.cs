@@ -42,8 +42,9 @@ namespace DNDocs.Docs.Api.Client
         private DDocsApiClientOptions options;
         private HttpClient client;
 
-        public DDocsApiClient(DDocsApiClientOptions ioptions)
+        public DDocsApiClient(IOptions<DDocsApiClientOptions> ioptions)
         {
+            options = ioptions.Value;
             // for now ignore tls certs
             var handler = new HttpClientHandler();
             handler.ClientCertificateOptions = ClientCertificateOption.Manual;
@@ -54,7 +55,6 @@ namespace DNDocs.Docs.Api.Client
                 };
 
             client = new HttpClient(handler);
-            options = ioptions;
             client.BaseAddress = new Uri(options.ServerUrl);
             client.DefaultRequestHeaders.Add("x-api-key", options.ApiKey);
             client.Timeout = TimeSpan.FromMinutes(2);

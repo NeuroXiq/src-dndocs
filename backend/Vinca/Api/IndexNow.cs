@@ -90,10 +90,13 @@ namespace Vinca.Api
     public static class IndexNowExtensions
     {
         public static void AddVIndexNowApi(this IServiceCollection services,
-            Action<VIndexNowOptions> configure)
+            Action<VIndexNowOptions> configure = null)
         {
-            services.AddOptions<VIndexNowOptions>()
-                .Configure(configure)
+            var optionsBuilder = services.AddOptions<VIndexNowOptions>();
+
+            if (configure != null) optionsBuilder.Configure(configure);
+
+            optionsBuilder
                 .Validate(o => !string.IsNullOrWhiteSpace(o.Host), "host null or empty")
                 .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "key null or empty")
                 .Validate(o => !string.IsNullOrWhiteSpace(o.KeyLocation), "keyLocation null or empty")

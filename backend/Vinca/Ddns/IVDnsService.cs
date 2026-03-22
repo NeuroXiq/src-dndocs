@@ -2,6 +2,6 @@
 {
     public interface IVDdnsService
     {
-        Task UpdateDdns(CancellationToken token);
+        Task UpdateDdnsAsync(CancellationToken token);
     }
 }

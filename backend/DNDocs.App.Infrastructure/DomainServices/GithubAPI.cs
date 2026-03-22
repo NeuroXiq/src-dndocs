@@ -102,7 +102,9 @@ clientid:secret
             this.cache = cache;
             var settings = rsettings.Value;
             this.httpClientFactory = httpClientFactory;
-            var authSecret = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{settings.GithubOAuth.ClientId}:{settings.GithubOAuth.Secret}"));
+            // var authSecret = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{settings.GithubOAuth.ClientId}:{settings.GithubOAuth.Secret}"));
+            var authSecret = "<null todo>";
+            throw new NotImplementedException();
             AuthorizationHeaderValue = $"Basic {authSecret}";
         }
 
