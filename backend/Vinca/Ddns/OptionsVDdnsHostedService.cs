@@ -1,6 +1,6 @@
 ﻿namespace Vinca.Ddns
 {
-    public class VDdnsHostedServiceOptions
+    public class OptionsVDdnsHostedService
     {
         public TimeSpan RefreshDdnsPeriod { get; set; }
     }

@@ -84,7 +84,7 @@ namespace DNDocs.Web
 
             // dndocs
 
-            services.AddOptions<DDocsApiClientOptions>().Bind(builder.Configuration.GetSection($"{nameof(DDocsApiClientOptions)}"));
+            services.AddOptions<OptionsDDocsApiClient>().Bind(builder.Configuration.GetSection($"{nameof(OptionsDDocsApiClient)}"));
             services.AddDDocsApiClient();
 
             services.AddHttpClient();

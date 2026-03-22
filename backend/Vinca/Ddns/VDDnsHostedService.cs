@@ -7,14 +7,16 @@ namespace Vinca.Ddns
 {
     internal class VDDnsHostedService : IHostedService
     {
+        private static readonly TimeSpan RetryDelayFailedUpdate = TimeSpan.FromMinutes(10);
+
         private ILogger<VDDnsHostedService> logger;
         private IServiceProvider serviceProvider;
-        private VDdnsHostedServiceOptions options;
+        private OptionsVDdnsHostedService options;
         private CancellationTokenSource taskCancellationToken;
         private PeriodicTimer periodicTimer;
         private Task task;
 
-        public VDDnsHostedService(ILogger<VDDnsHostedService> logger, IServiceProvider serviceProvider, IOptions<VDdnsHostedServiceOptions> options)
+        public VDDnsHostedService(ILogger<VDDnsHostedService> logger, IServiceProvider serviceProvider, IOptions<OptionsVDdnsHostedService> options)
         {
             this.logger = logger;
             this.serviceProvider = serviceProvider;
@@ -48,21 +50,28 @@ namespace Vinca.Ddns
         {
             logger.LogTrace(nameof(DoWork));
 
-            while (await periodicTimer.WaitForNextTickAsync(taskCancellationToken.Token))
+            do
             {
-                try
-                {
-                    using (var serviceScope = serviceProvider.CreateScope())
+                // retry 6 hours with 10 min interval on fatal exception
+                for (int i = 0; i < 36; i++)
+                {   
+                    try
                     {
-                        var ddnsService = serviceScope.ServiceProvider.GetRequiredService<IVDdnsService>();
-                        await ddnsService.UpdateDdnsAsync(taskCancellationToken.Token);
+                        using (var serviceScope = serviceProvider.CreateScope())
+                        {
+                            var ddnsService = serviceScope.ServiceProvider.GetRequiredService<IVDdnsService>();
+                            await ddnsService.UpdateDdnsAsync(taskCancellationToken.Token);
+                        }
+
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogCritical(e, "failed to update ddns");
+                        await Task.Delay(RetryDelayFailedUpdate, taskCancellationToken.Token);
                     }
                 }
-                catch (Exception e)
-                {
-                    logger.LogCritical(e, "failed to update ddns");
-                }
-            }
+            } while (await periodicTimer.WaitForNextTickAsync(taskCancellationToken.Token));
         }
     }
 }

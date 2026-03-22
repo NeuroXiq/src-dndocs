@@ -6,11 +6,11 @@ namespace Vinca.DDNS
 {
     public static class VDdnsExtensions
     {
-        const string ConfigSectionNameProkbunService = $"Vinca:{nameof(VDdnsProkbunServiceOptions)}";
+        const string ConfigSectionNameProkbunService = $"Vinca:{nameof(OptionsVDdnsProkbunService)}";
 
-        public static void AddVDdnsHostedService(this WebApplicationBuilder builder, Action<VDdnsHostedServiceOptions> configure = null)
+        public static void AddVDdnsHostedService(this WebApplicationBuilder builder, Action<OptionsVDdnsHostedService> configure = null)
         {
-            var optionsBuilder = builder.Services.AddOptions<VDdnsHostedServiceOptions>();
+            var optionsBuilder = builder.Services.AddOptions<OptionsVDdnsHostedService>();
 
             if (configure != null) optionsBuilder.Configure(configure);
 
@@ -23,11 +23,19 @@ namespace Vinca.DDNS
             builder.Services.AddHostedService<VDDnsHostedService>();
         }
 
-        public static void AddVDdnsPorkbunService(this WebApplicationBuilder builder, Action<VDdnsProkbunServiceOptions> configure = null)
+        public static void AddVDdnsPorkbunService(this WebApplicationBuilder builder, Action<OptionsVDdnsProkbunService> configure = null)
         {
-            var optionsBuilder = builder.Services.AddOptions<VDdnsProkbunServiceOptions>().Bind(builder.Configuration.GetSection(ConfigSectionNameProkbunService));
+            var optionsBuilder = builder.Services.AddOptions<OptionsVDdnsProkbunService>().Bind(builder.Configuration.GetSection(ConfigSectionNameProkbunService));
 
             if (configure != null) optionsBuilder.Configure(configure);
+
+            optionsBuilder
+                .Validate(o => !string.IsNullOrWhiteSpace(o.SecretApiKey), "OptionsVDdnsProkbunService.ApiKeySecret")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey), "OptionsVDdnsProkbunService.ApiKey")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.ApiUrl), "OptionsVDdnsProkbunService.ApiUrl")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Domain), "OptionsVDdnsProkbunService.Domain")
+                .Validate(o => o.Subdomain == null || !string.IsNullOrWhiteSpace(o.Subdomain), "OptionsVDdnsProkbunService.Domain must be 'null' or valid subdomain (not white spaces etc.)")
+                .ValidateOnStart();
 
             builder.Services.AddSingleton<IVDdnsService, VDdnsPorkbunService>();
         }

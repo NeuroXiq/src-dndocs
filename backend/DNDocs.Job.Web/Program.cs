@@ -31,7 +31,7 @@ builder.Services.AddVOSApi();
 builder.Services.AddLogging();
 builder.Services.AddVBufferLogger(x => x.MaxLogsTreshold = 10000);
 builder.Services.AddVNugetRepositoryFacade();
-builder.Services.AddDDocsApiClient((Action<DNDocs.Docs.Api.Client.DDocsApiClientOptions>)(o => { o.ApiKey = settings.DDocsApiKey;  o.ServerUrl = settings.DDocsServerUrl; }));
+builder.Services.AddDDocsApiClient((Action<DNDocs.Docs.Api.Client.OptionsDDocsApiClient>)(o => { o.ApiKey = settings.DDocsApiKey;  o.ServerUrl = settings.DDocsServerUrl; }));
 
 // djob
 builder.Services.AddScoped<IDocsBuilderService, DocsBuilderService>();

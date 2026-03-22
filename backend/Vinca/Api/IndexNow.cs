@@ -20,12 +20,12 @@ namespace Vinca.Api
 
     internal class IndexNowApi : IIndexNowApi
     {
-        private VIndexNowOptions options;
+        private OptionsVIndexNow options;
         private ILogger<IndexNowApi> logger;
         private HttpClient httpClient;
 
         public IndexNowApi(
-            IOptions<VIndexNowOptions> indexNowOptions,
+            IOptions<OptionsVIndexNow> indexNowOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<IndexNowApi> logger)
         {
@@ -80,7 +80,7 @@ namespace Vinca.Api
         public string[] UrlList { get; set; }
     }
 
-    public class VIndexNowOptions
+    public class OptionsVIndexNow
     {
         public string Host { get; set; }
         public string Key { get; set; }
@@ -91,17 +91,17 @@ namespace Vinca.Api
     public static class IndexNowExtensions
     {
         public static void AddVIndexNowApi(this WebApplicationBuilder builder,
-            Action<VIndexNowOptions> configure = null)
+            Action<OptionsVIndexNow> configure = null)
         {
-            var optionsBuilder = builder.Services.AddOptions<VIndexNowOptions>().Bind(builder.Configuration.GetSection($"Vinca:{nameof(VIndexNowOptions)}"));
+            var optionsBuilder = builder.Services.AddOptions<OptionsVIndexNow>().Bind(builder.Configuration.GetSection($"Vinca:{nameof(OptionsVIndexNow)}"));
 
             if (configure != null) optionsBuilder.Configure(configure);
 
             optionsBuilder
-                .Validate(o => !string.IsNullOrWhiteSpace(o.Host), "VIndexNowOptions.Host")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "VIndexNowOptions.Key")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.KeyLocation), "VIndexNowOptions.KeyLocation")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.SubmitUrl), "VIndexNowOptions.SubmitUrl")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Host), "OptionsVIndexNow.Host")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Key), "OptionsVIndexNow.Key")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.KeyLocation), "OptionsVIndexNow.KeyLocation")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.SubmitUrl), "OptionsVIndexNow.SubmitUrl")
                 .ValidateOnStart();
 
             builder.Services.AddSingleton<IIndexNowApi, IndexNowApi>();
