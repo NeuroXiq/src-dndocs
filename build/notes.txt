@@ -1,0 +1,2 @@
+`user (application that run dndocs) must have permission to folder, run as admin:
+sudo chown -R user1:user1 /var/www/my-app

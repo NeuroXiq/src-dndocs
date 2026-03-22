@@ -13,7 +13,6 @@ if ($env -ne 'Staging' -and $env -ne 'Production')
 
 $pathBuildDir = $PSScriptRoot;
 $pathBe = "$pathBuildDir\..\backend"
-$pathFe = "$pathBuildDir\..\frontend";
 $pathZips = "$pathBuildDir\bin-zips";
 
 function Update-NextProjVersionInfo
@@ -21,21 +20,15 @@ function Update-NextProjVersionInfo
     # compute somehow next version  number, does not matter how, its
     # not important now, just increment something
 
-    $VersionFile = (resolve-path './').path + '/VERSION.txt';
-    $prevVerStr = (cat $VersionFile).trim();
+    $prevVerStr = (cat "$PSScriptRoot/VERSION.txt").trim();
     $gitCommitsCount = (git rev-list --count --all).trim();
     $gitCommitHash = (git log -n1 --pretty="%H").trim();
     $verNums = $prevVerStr.split('.');
-    $nextVerStr = ('{0}.{1}.{2}.{3}' -f $verNums[0], $verNums[1], ([int]$verNums[2] + 1), $gitCommitsCount);
+    $nextVerStr = ('{0}.{1}.{2}' -f $verNums[0], $verNums[1], ([int]$verNums[2] + 1));
     $longVersionStr = ('{0}+{1}+{2}+{3}+{4}' -f $nextVerStr, `
             $gitCommitHash, $gitCommitsCount, (get-date -f "yyyy-MM-ddThh:mm:ss"), $env);
 
-    if (!(Test-Path $VersionFile -PathType Leaf))
-    {
-        throw 'VERSION.txt file does not exists. Create VERSION.txt with string in it like: 1.0.0.0'
-        return;
-    }
-    set-content -path $VersionFile -value $nextVerStr;
+    set-content -path "$PSScriptRoot/VERSION.txt" -value $nextVerStr;
 
     $r = [ordered]@{
         PackageId            = $nextVerStr;
@@ -115,24 +108,6 @@ if ($LASTEXITCODE -ne 0) { throw 'failed to dotnet publish' }
 dotnet publish $publishParams4
 if ($LASTEXITCODE -ne 0) { throw 'failed to dotnet publish' }
 
-# FRONTEND START
-# Build frontend and copy result to 'wwwroot'
-
-write-host 'FRONTEND START'
-# Set env for VITE to compile with valid configuration
-$Env:VITE_APPINFO_ENV = $env;
-$Env:VITE_APPINFO_VERSION = $vi.LongVersion;
-
-write-host 'build frontend with "npm run build"'
-npm --prefix $pathFe run build;
-
-if ($LASTEXITCODE -ne 0) { throw 'Frontend build failed: last exit code != 0' }
-
-write-host 'copy frontend build files into wwwroot of DNDocs.Web project'
-copy-item -path "$pathFe/dist/*" -destination "$publishOutDn/wwwroot" -recurse
-
-$Env:VITE_APPINFO_ENV = '';
-$Env:VITE_APPINFO_VERSION = '';
 
 write-host 'compress all build folders into .zip files'
 
@@ -146,9 +121,9 @@ function CompressZip ($src, $dest) {
 }
 
 Start-Sleep -seconds 2
-$j2 = CompressZip "$publishOutDn" "$PathZips\dn-$env-$($vi.version)-$dateNow.zip";
-$j3 = CompressZip "$publishOutDDocs" "$PathZips\ddocs-$env-$($vi.version)-$dateNow.zip";
-$j4 = CompressZip "$publishOutDjob" "$PathZips\djob-$env-$($vi.version)-$dateNow.zip";
+$j2 = CompressZip "$publishOutDn" "$PathZips\$($vi.version)-$dateNow-$env-dn.zip";
+$j3 = CompressZip "$publishOutDDocs" "$PathZips\$($vi.version)-$dateNow-$env-ddocs.zip";
+$j4 = CompressZip "$publishOutDjob" "$PathZips\$($vi.version)-$dateNow-$env-djob-.zip";
 
 wait-job @($j2, $j3, $j4)
 
