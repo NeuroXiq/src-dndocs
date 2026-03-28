@@ -5,19 +5,15 @@ namespace DNDocs.Shared.Configuration
     public class DNDocsSettings
     {
         public JwtSettings Jwt { get; set; }
-        public string DNApiKey { get; set; }
-        public string DJobApiKey { get; set; }
-        public string DDocsApiKey { get; set; }
         public string AdminPasswordSha512 { get; set; }
 
         public int BackendBackgroundWorkerDoImportantWorkSleepSeconds { get; set; }
         public int BackendBackgroundWorkerDoWorkSleepSeconds { get; set; }
         public int FrontendBackgroundWorkerDoWorkSleepSeconds { get; set; }
-        
         public string OSPathInfrastructureDirectory { get; set; }
-        public string[] CorsAllowedOrigins { get; set; }
-
         public string UrlProjectNugetOrgApiFolder { get; set; }
+        public string DNDocsApiKey { get; set; }
+        public string DNDocsJobApiKey { get; set; }
 
         public DNDocsSettings()
         {
@@ -30,12 +26,6 @@ namespace DNDocs.Shared.Configuration
             public string SymmetricSecurityKey { get; set; }
 
             public byte[] GetBytes_SymmetricSecurityKey() => Encoding.ASCII.GetBytes(SymmetricSecurityKey);
-        }
-
-        public class GithubOAuthSettings
-        {
-            public string ClientId { get; set; }
-            public string Secret { get; set; }
         }
 
         public string GetUrlNugetOrgProject(string nugetPackageName, string nugetPackageVersion) =>

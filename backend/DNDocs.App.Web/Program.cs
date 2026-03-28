@@ -27,12 +27,6 @@ namespace DNDocs.Web
 {
     public class Program
     {
-        /// <summary>
-        /// Method used to start server for integration tests, start this method on separate thread
-        /// using this method and run integration tests
-        /// </summary>
-        public static void ITMain() { Main(new string[] { "IntegrationTests" }); }
-
         static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -40,11 +34,9 @@ namespace DNDocs.Web
 
             if (builder.Environment.IsDevelopment()) builder.Logging.AddConsole();
 
-            if (builder.Environment.EnvironmentName == "IntegrationTests" || args.Contains("IntegrationTests"))
-            {
-                builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false);
-                builder.Configuration.AddJsonFile("appsettings.IntegrationTests.json", optional: false);
-            }
+            builder.Configuration.AddJsonFile("appsettings.Production.Secrets.json", optional: false);
+            builder.Configuration.AddJsonFile("appsettings.Staging.Secrets.json", optional: false);
+            builder.Configuration.AddJsonFile("appsettings.DevTest.Secrets.json", optional: false);
 
             var dnOptions = AddDNOptions(builder);
 
@@ -119,11 +111,6 @@ namespace DNDocs.Web
             fho.KnownNetworks.Clear();
             fho.KnownProxies.Clear();
 
-            app.UseCors(c => c.WithOrigins(dnOptions.CorsAllowedOrigins)
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .AllowAnyHeader());
-
             app.UseForwardedHeaders(fho);
             app.UseVHttpLogs();
             app.UseVHttpExceptions();
@@ -191,15 +178,13 @@ namespace DNDocs.Web
             services.Configure<DNDocsSettings>(builder.Configuration.GetSection(nameof(DNDocsSettings)));
 
             dnOptionsBuilder
-                .Validate(c => !string.IsNullOrWhiteSpace(c.DDocsApiKey), "DDocsApiKey")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.DJobApiKey), "DJobApiKey")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.DNApiKey), "DNApiKey")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.AdminPasswordSha512), "AdminPasswordSha512")
                 .Validate(c => c.BackendBackgroundWorkerDoImportantWorkSleepSeconds > 5, "BackendBackgroundWorkerDoImportantWorkSleepSeconds")
                 .Validate(c => c.BackendBackgroundWorkerDoWorkSleepSeconds > 5, "BackendBackgroundWorkerDoWorkSleepSeconds")
                 .Validate(c => c.FrontendBackgroundWorkerDoWorkSleepSeconds > 5, "FrontendBackgroundWorkerDoWorkSleepSeconds")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.OSPathInfrastructureDirectory), "OSPathInfrastructureDirectory")
-                .Validate(c => c.CorsAllowedOrigins?.Length > 0, "CorsAllowedOrigins")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.DNDocsJobApiKey), "DNDocsJobApiKey")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.DNDocsApiKey), "DNDocsApiKey")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Issuer), "Issuer")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Audience), "Audience")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.SymmetricSecurityKey), "SymmetricSecurityKey")

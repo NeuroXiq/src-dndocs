@@ -134,7 +134,7 @@ namespace DNDocs.Application.CommandHandlers.Application
             foreach (var s in djobservices) s.Alive = false;
 
             var djobclients = djobservices
-                .Select(s => djobClientFactory.CreateFromIpPort(s.ServerIpAddress, s.ServerPort, settings.DJobApiKey))
+                .Select(s => djobClientFactory.CreateFromIpPort(s.ServerIpAddress, s.ServerPort, settings.DNDocsJobApiKey))
                 .ToArray();
 
             List<IDJobClient> aliveClients = new List<IDJobClient>();

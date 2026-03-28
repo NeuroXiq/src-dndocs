@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('Staging', 'Production')]
+    [ValidateSet('Staging', 'Production', 'DevTest')]
     $env
 )
 $ErrorActionPreference = "Stop"

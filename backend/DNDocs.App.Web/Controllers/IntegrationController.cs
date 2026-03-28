@@ -37,7 +37,7 @@ namespace DNDocs.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DJobRegisterService(DJobRegisterServiceModel model)
         {
-            XApiKey.Validate(HttpContext, settings.DNApiKey, logger);
+            XApiKey.Validate(HttpContext, settings.DNDocsApiKey, logger);
             var ipAddress = HttpContext.Connection.RemoteIpAddress.ToString();
             return await ApiResult2(cd.DispatchAsync(new DJobRegisterServiceCommand() { ServerPort = model.ServerPort, InstanceName = model.InstanceName, ServerIpAddress = ipAddress }));
         }
@@ -45,7 +45,7 @@ namespace DNDocs.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DJobBuildCompleted(DJobBuildCompletedModel model)
         {
-            XApiKey.Validate(HttpContext, settings.DNApiKey, logger);
+            XApiKey.Validate(HttpContext, settings.DNDocsApiKey, logger);
             return await ApiResult2(cd.DispatchAsync(new DJobBuildCompletedCommand() { Exception = model.Exception, ProjectId = model.ProjectId, Success = model.Success }));
         }
 

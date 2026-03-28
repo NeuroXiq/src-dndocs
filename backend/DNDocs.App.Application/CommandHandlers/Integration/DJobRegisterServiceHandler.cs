@@ -44,7 +44,7 @@ namespace DNDocs.Application.CommandHandlers.Integration
                 dService.UpdatedOn = DateTime.UtcNow;
             }
 
-            var djobClient = djobClientFactory.CreateFromIpPort(command.ServerIpAddress, command.ServerPort, settings.DJobApiKey);
+            var djobClient = djobClientFactory.CreateFromIpPort(command.ServerIpAddress, command.ServerPort, settings.DNDocsJobApiKey);
             bool pingOk = false;
 
             try
