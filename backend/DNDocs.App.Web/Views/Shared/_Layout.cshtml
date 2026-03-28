@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+@inject IWebHostEnvironment webHostEnvironment;
+}
+
+<!DOCTYPE html>
 <html class="theme-light">
 <head>
     <link href="~/lib/fontawesome-free-7.2.0-web/css/all.css" rel="stylesheet" />
@@ -12,9 +16,14 @@
     <script type="module" src="~/js-shared/main.js"></script>
     <script type="module" src="~/js-shared/tools.js"></script>
     @RenderSection("Scripts", required: false)
-
-</head>
+    </head>
 <body>
     @RenderBody()
+
+    <environment exclude="Production">
+        <div style="width: 250px; height: 50px; position: fixed; bottom: 0; right: 0; background-color: yellow">
+            @webHostEnvironment.EnvironmentName
+        </div>
+    </environment>
 </body>
 </html>

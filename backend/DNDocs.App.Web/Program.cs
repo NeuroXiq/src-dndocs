@@ -34,9 +34,7 @@ namespace DNDocs.Web
 
             if (builder.Environment.IsDevelopment()) builder.Logging.AddConsole();
 
-            builder.Configuration.AddJsonFile("appsettings.Production.Secrets.json", optional: false);
-            builder.Configuration.AddJsonFile("appsettings.Staging.Secrets.json", optional: false);
-            builder.Configuration.AddJsonFile("appsettings.DevTest.Secrets.json", optional: false);
+            builder.Configuration.AddJsonFile("secrets.json", optional: false);
 
             var dnOptions = AddDNOptions(builder);
 

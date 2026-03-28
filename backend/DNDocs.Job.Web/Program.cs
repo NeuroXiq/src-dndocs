@@ -19,6 +19,8 @@ using Vinca.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("secrets.json", optional: false);
+
 ValidateAppsettings.Validate(
     typeof(DJobSettings),
     builder.Configuration);

@@ -28,12 +28,7 @@ namespace DNDocs.Docs.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            if (builder.Environment.EnvironmentName == "IntegrationTests")
-            {
-                Console.Title = "DNDocs.Docs";
-                builder.Configuration.AddJsonFile("appsettings.Development.json", false);
-                builder.Configuration.AddJsonFile("appsettings.IntegrationTests.json", false);
-            }
+            builder.Configuration.AddJsonFile("secrets.json", optional: false);
 
             // Add services to the container.
             var settings = new DSettings();
