@@ -74,8 +74,6 @@ namespace DNDocs.Web
             // vinca
 
             // vinca-ddns
-            builder.AddVDdnsPorkbunService();
-            builder.AddVDdnsHostedService(c => c.RefreshDdnsPeriod = TimeSpan.FromHours(24));
 
             services.AddDJobClientFactory();
             services.AddVNugetRepositoryFacade();
@@ -190,7 +188,7 @@ namespace DNDocs.Web
             var services = builder.Services;
             var dnOptionsBuilder = services.AddOptions<DNDocsSettings>();
 
-            services.Configure<DNDocsSettings>(builder.Configuration.GetSection($"{nameof(DNDocsSettings)}"));
+            services.Configure<DNDocsSettings>(builder.Configuration.GetSection(nameof(DNDocsSettings)));
 
             dnOptionsBuilder
                 .Validate(c => !string.IsNullOrWhiteSpace(c.DDocsApiKey), "DDocsApiKey")
@@ -212,7 +210,7 @@ namespace DNDocs.Web
             
             if (!Directory.Exists(temp.OSPathInfrastructureDirectory))
             {
-                throw new Exception($"directory not exists: '{temp.OSPathInfrastructureDirectory}'");
+                throw new Exception($"OSPathInfrastructureDirectory directory do not exists: '{temp.OSPathInfrastructureDirectory}'");
             }
 
             return temp;

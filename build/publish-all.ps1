@@ -6,15 +6,6 @@ param(
 $ErrorActionPreference = "Stop"
 Set-strictmode -version latest
 
-if ($env -ne 'Staging' -and $env -ne 'Production')
-{
-    throw 'environment not set';
-}
-
-$pathBuildDir = $PSScriptRoot;
-$pathBe = "$pathBuildDir\..\backend"
-$pathZips = "$pathBuildDir\bin-zips";
-
 function Update-NextProjVersionInfo
 {
     # compute somehow next version  number, does not matter how, its
@@ -52,13 +43,19 @@ function Update-NextProjVersionInfo
 write-host '# # # #'
 write-host 'START PUBLISH'
 write-host '# # # #'
+
 $vi = Update-NextProjVersionInfo
+$pathBuildDir = $PSScriptRoot;
+$pathBe = "$pathBuildDir\..\backend"
+$pathZips = "$pathBuildDir\bin-zips";
 
 $pathBuildDir = $PSScriptRoot;
 $dateNow = (get-date).tostring('yyyymmdd-HHmmss');
 
-write-output ""
-#FRONTEND END
+$publishOutDjob = "$pathBuildDir\temp\dndocs-job-$($env.ToLower())-$($vi.version)-$dateNow";
+$publishOutDn = "$pathBuildDir\temp\dndocs-$($env.ToLower())-$($vi.version)-$dateNow"
+$publishOutDdocs = "$pathBuildDir\temp\dndocs-docs-$($env.ToLower())-$($vi.version)-$dateNow"
+$publishOutDConsole = "$publishOutDjob\DNDocs.ConsoleTools"
 
 #BACKEND START
 write-host 'BACKEND START'
@@ -80,15 +77,11 @@ $vsprops = @(
 
 $vsprops
 
-$publishOutDjob = "$pathBuildDir\temp\djob-$env-$dateNow";
-$publishOutDn = "$pathBuildDir\temp\dn-$env-$dateNow";
-$publishOutDdocs = "$pathBuildDir\temp\ddocs-$env-$dateNow";
-$publishOutDConsole = "$publishOutDjob\DNDocs.ConsoleTools"
-
 $publishPaths1 = "$PathBe\DNDocs.Job.Web\DNDocs.Job.Web.csproj", "--output", $publishOutDjob;
 $publishPaths2 = "$PathBe\DNDocs.App.Web\DNDocs.App.Web.csproj", "--output", $publishOutDn;
 $publishPaths3 = "$PathBe\DNDocs.Docs.Web\DNDocs.Docs.Web.csproj", "--output", $publishOutDdocs;
 $publishPaths4 = "$PathBe\DNDocs.ConsoleTools\DNDocs.ConsoleTools.csproj", "--output", $publishOutDConsole;
+
 $publishParams1 = $publishPaths1 + $vsprops;
 $publishParams2 = $publishPaths2 + $vsprops;
 $publishParams3 = $publishPaths3 + $vsprops;
@@ -121,9 +114,9 @@ function CompressZip ($src, $dest) {
 }
 
 Start-Sleep -seconds 2
-$j2 = CompressZip "$publishOutDn" "$PathZips\$($vi.version)-$dateNow-$env-dn.zip";
-$j3 = CompressZip "$publishOutDDocs" "$PathZips\$($vi.version)-$dateNow-$env-ddocs.zip";
-$j4 = CompressZip "$publishOutDjob" "$PathZips\$($vi.version)-$dateNow-$env-djob-.zip";
+$j2 = CompressZip "$publishOutDn" "$publishOutDn.zip";
+$j3 = CompressZip "$publishOutDDocs" "$publishOutDDocs.zip";
+$j4 = CompressZip "$publishOutDjob" "$publishOutDjob.zip";
 
 wait-job @($j2, $j3, $j4)
 

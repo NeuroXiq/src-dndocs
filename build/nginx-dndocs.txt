@@ -1,0 +1,22 @@
+server {
+ listen 8088;
+ server_name dn-staging.server0.dndocs.com;
+
+ location / {
+  proxy_pass http://127.0.0.1:7001;
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+
+
+ }
+}
+
+server {
+ listen 80;
+ server_name ddocs-stag.server0.dndocs.com;
+
+ location / {
+  proxy_pass http://127.0.0.1:7002;
+
+ }
+}

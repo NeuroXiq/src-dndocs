@@ -70,8 +70,6 @@ namespace DNDocs.Docs.Web
             });
 
             // vinca
-            builder.AddVDdnsPorkbunService();
-            builder.AddVDdnsHostedService(c => c.RefreshDdnsPeriod = TimeSpan.FromHours(24));
             builder.Services.AddVOSApi();
             
             builder.Services.AddVHttpLogs(o =>
