@@ -105,7 +105,7 @@ namespace DNDocs.Docs.IntegrationTests.Shared
             client.Timeout = TimeSpan.FromMinutes(1);
 
             var clientIgnoreTlsCert = new DDocsApiClient(
-                new MockIOptions<OptionsDDocsApiClient>(new OptionsDDocsApiClient(TestsAppConfig.ApiKey, TestsAppConfig.DdocsHttpsUrl)));
+                new MockIOptions<DDocsApiClientOptions>(new DDocsApiClientOptions(TestsAppConfig.ApiKey, TestsAppConfig.DdocsHttpsUrl)));
 
             return clientIgnoreTlsCert;
         }
@@ -138,11 +138,11 @@ namespace DNDocs.Docs.IntegrationTests.Shared
             }
         }
 
-        class DDocsApiOptions : IOptions<OptionsDDocsApiClient>
+        class DDocsApiOptions : IOptions<DDocsApiClientOptions>
         {
-            public OptionsDDocsApiClient Value { get; set; }
+            public DDocsApiClientOptions Value { get; set; }
 
-            public DDocsApiOptions(OptionsDDocsApiClient options)
+            public DDocsApiOptions(DDocsApiClientOptions options)
             {
                 this.Value = options;
             }

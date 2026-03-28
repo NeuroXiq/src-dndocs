@@ -1,17 +1,22 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DNDocs.Job.Api.Client
 {
     public static class DJobClientExtensions
     {
-        public static void AddDJobClientFactory(this IServiceCollection services)
+        public static void AddDNDocsJobApiClient(this WebApplicationBuilder builder, Action<DNDocsJobClientOptions> configure = null)
         {
-            services.AddSingleton<IDJobClientFactory, DJobClientFactory>();
+            var optionsBuilder = builder.Services.AddOptions<DNDocsJobClientOptions>();
+
+            if (configure != null) optionsBuilder.Configure(configure);
+
+            optionsBuilder
+                .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey), "DNDocsJobClientOptions.ApiKey")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.ServerUrl), "DNDocsJobClientOptions.ServerUrl")
+                .ValidateOnStart();
+
+            builder.Services.AddScoped<IDNDocsJobApiClient, DNDocsJobApiClient>();
         }
     }
 }

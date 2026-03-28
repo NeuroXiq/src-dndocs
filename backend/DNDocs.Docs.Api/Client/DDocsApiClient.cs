@@ -39,10 +39,10 @@ namespace DNDocs.Docs.Api.Client
 
     public class DDocsApiClient : IDDocsApiClient
     {
-        private OptionsDDocsApiClient options;
+        private DDocsApiClientOptions options;
         private HttpClient client;
 
-        public DDocsApiClient(IOptions<OptionsDDocsApiClient> ioptions)
+        public DDocsApiClient(IOptions<DDocsApiClientOptions> ioptions)
         {
             options = ioptions.Value;
             // for now ignore tls certs
@@ -141,14 +141,14 @@ namespace DNDocs.Docs.Api.Client
         public HttpResponseMessage RawResponse { get; set; }
     }
 
-    public class OptionsDDocsApiClient
+    public class DDocsApiClientOptions
     {
         public string ApiKey { get; set; }
         public string ServerUrl { get; set; }
 
-        public OptionsDDocsApiClient() { }
+        public DDocsApiClientOptions() { }
 
-        public OptionsDDocsApiClient(string apiKey, string serverUrl)
+        public DDocsApiClientOptions(string apiKey, string serverUrl)
         {
             ApiKey = apiKey;
             ServerUrl = serverUrl;

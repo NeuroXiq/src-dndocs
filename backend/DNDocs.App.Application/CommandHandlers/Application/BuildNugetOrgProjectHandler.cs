@@ -28,14 +28,14 @@ namespace DNDocs.Application.CommandHandlers.Application
 {
     internal class BuildNugetOrgProjectHandler : CommandHandlerA<BuildNugetOrgProjectCommand>
     {
-        private IDJobClientFactory djobClientFactory;
+        private IDNDocsJobApiClient dndocsJobApiClient;
         private DNDocsSettings settings;
 
         public BuildNugetOrgProjectHandler(
-            IDJobClientFactory djobClientFactory,
+            IDNDocsJobApiClient dndocsJobApiClient,
             IOptions<DNDocsSettings> settings)
         {
-            this.djobClientFactory = djobClientFactory;
+            this.dndocsJobApiClient = dndocsJobApiClient;
             this.settings = settings.Value;
         }
 
@@ -58,12 +58,13 @@ namespace DNDocs.Application.CommandHandlers.Application
 
         private int requestsCounter = 0;
 
-        private IDJobClient[] djobClients = null;
+        private IDNDocsJobApiClient[] djobClients = null;
 
         private async Task SendBuildProjectAsync(NugetOrgProject nextToBuild)
         {
             bool retry = true;
-            IDJobClient nextClient = null;
+            bool success = false;
+            IDNDocsJobApiClient nextClient = null;
             BuildNugetOrgProjectModel model = null;
 
             do
@@ -89,6 +90,7 @@ namespace DNDocs.Application.CommandHandlers.Application
                     await uow.SaveChangesAsync();
 
                     await nextClient.BuildNugetOrgProject(model);
+                    success = true;
 
                     break;
                 }
@@ -98,66 +100,40 @@ namespace DNDocs.Application.CommandHandlers.Application
 
                     if (e?.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                     {
-                        logger.LogWarning(e, "warning build project - too many requests: {0}", nextClient?.ServerUrl);
+                        logger.LogWarning(e, "dndocsjob too many requests");
                         await Task.Delay(10000);
-                    }
-                    else if (e?.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                    {
-                        logger.LogError(e, "failed to request build project - bad request: {0} \r\n data: {1}", nextClient?.ServerUrl, JsonSerializer.Serialize(model));
-
-                        nextToBuild.State = NugetOrgProjectState.BuildFailed;
-
-                        await uow.SaveChangesAsync();
-
-                        retry = false;
                     }
                     else
                     {
-                        logger.LogError(e, "failed to request build project with unknown error. ServerUrl: {0} {1}", nextClient?.ServerUrl, JsonSerializer.Serialize(model));
-
-                        nextToBuild.State = NugetOrgProjectState.BuildFailed;
-                        await uow.SaveChangesAsync();
+                        logger.LogError(e, "failed to request build project - bad request, data:\r\n{0}", JsonSerializer.Serialize(model));
 
                         retry = false;
-                        await FromTimeToTimeRevalidateIfClientsStillAlive();
+                        retry = false;
                     }
                 }
             } while (retry);
+
+            if (success == false)
+            {
+                nextToBuild.State = NugetOrgProjectState.BuildFailed;
+
+                await uow.SaveChangesAsync();
+            }
         }
 
+        // in future: this assumes multiple clients exists but there is only 1 instance of dndocs-job
+        // assume there is only 1 instance and make this to work only with 1 instance
         private async Task FromTimeToTimeRevalidateIfClientsStillAlive()
         {
-            var djobservices = await uow.GetSimpleRepository<DJobRemoteService>().Query()
-                .Where(t => t.Alive)
-                .ToArrayAsync();
-
-            foreach (var s in djobservices) s.Alive = false;
-
-            var djobclients = djobservices
-                .Select(s => djobClientFactory.CreateFromIpPort(s.ServerIpAddress, s.ServerPort, settings.DNDocsJobApiKey))
-                .ToArray();
-
-            List<IDJobClient> aliveClients = new List<IDJobClient>();
-
-            for (int i = 0; i < djobservices.Length; i++)
+            try
             {
-                try
-                {
-                    await djobclients[i].PingAsync();
-                    djobservices[i].Alive = true;
-                    aliveClients.Add(djobclients[i]);
-                }
-                catch
-                {
-                    djobservices[i].Alive = false;
-                }
+                await dndocsJobApiClient.PingAsync();
             }
+            catch (Exception e)
+            {
 
-            await uow.SaveChangesAsync();
-
-            if (djobservices.Length == 0 || djobservices.All(t => !t.Alive)) VValidate.AppEx("all clients not alive");
-
-            djobClients = aliveClients.ToArray();
+                logger.LogError(e, "dndocs job ping failed");
+            }
         }
     }
 }

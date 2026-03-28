@@ -20,12 +20,12 @@ namespace Vinca.Api
 
     internal class IndexNowApi : IIndexNowApi
     {
-        private OptionsVIndexNow options;
+        private VIndexNowOptions options;
         private ILogger<IndexNowApi> logger;
         private HttpClient httpClient;
 
         public IndexNowApi(
-            IOptions<OptionsVIndexNow> indexNowOptions,
+            IOptions<VIndexNowOptions> indexNowOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<IndexNowApi> logger)
         {
@@ -80,7 +80,7 @@ namespace Vinca.Api
         public string[] UrlList { get; set; }
     }
 
-    public class OptionsVIndexNow
+    public class VIndexNowOptions
     {
         public string Host { get; set; }
         public string Key { get; set; }
@@ -91,9 +91,9 @@ namespace Vinca.Api
     public static class IndexNowExtensions
     {
         public static void AddVIndexNowApi(this WebApplicationBuilder builder,
-            Action<OptionsVIndexNow> configure = null)
+            Action<VIndexNowOptions> configure = null)
         {
-            var optionsBuilder = builder.Services.AddOptions<OptionsVIndexNow>().Bind(builder.Configuration.GetSection($"Vinca:{nameof(OptionsVIndexNow)}"));
+            var optionsBuilder = builder.Services.AddOptions<VIndexNowOptions>().Bind(builder.Configuration.GetSection($"Vinca:{nameof(VIndexNowOptions)}"));
 
             if (configure != null) optionsBuilder.Configure(configure);
 

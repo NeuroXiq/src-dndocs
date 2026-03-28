@@ -65,14 +65,14 @@ namespace DNDocs.Web
 
             // vinca-ddns
 
-            services.AddDJobClientFactory();
+            builder.AddDNDocsJobApiClient();
             services.AddVNugetRepositoryFacade();
             services.AddVHttpLogs(c => c.MaxQueueSize = 10000);
             builder.AddVIndexNowApi();
 
             // dndocs
 
-            services.AddOptions<OptionsDDocsApiClient>().Bind(builder.Configuration.GetSection($"{nameof(OptionsDDocsApiClient)}"));
+            services.AddOptions<DDocsApiClientOptions>().Bind(builder.Configuration.GetSection($"{nameof(DDocsApiClientOptions)}"));
             services.AddDDocsApiClient();
 
             services.AddHttpClient();
