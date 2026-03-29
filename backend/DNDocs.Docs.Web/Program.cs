@@ -39,12 +39,12 @@ namespace DNDocs.Docs.Web
             var settings = new DOptions();
 
             // config
-            
-            builder.Configuration.GetSection($"{nameof(DOptions)}").Bind(settings);
+
+            AddDNDocsDocsOptions(builder);
 
             // .net/nuget
             builder.Services.AddMetrics();
-            builder.Services.AddResourceMonitoring();
+            // builder.Services.AddResourceMonitoring();
             builder.Services.AddLogging();
             builder.Services.AddMemoryCache(o =>
             {

@@ -3,12 +3,8 @@ using DNDocs.Docs.Web.Services;
 using DNDocs.Docs.Web.Shared;
 using Microsoft.Extensions.Diagnostics.ResourceMonitoring;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using System.Diagnostics;
-using System.IO.Compression;
 using System.Text;
-using Vinca.BufferLogger;
-using Vinca.Http.Logs;
 using Vinca.SitemapXml;
 using Vinca.Utils;
 
@@ -38,7 +34,6 @@ namespace DNDocs.Docs.Web.Application
         public DHostedService(
             IServiceProvider serviceProvider,
             ILogsService logsService,
-            IResourceMonitor resourceMonitor,
             ILogger<DHostedService> logger,
             IDMetrics metrics,
             IOptions<DOptions> settings)
@@ -226,7 +221,7 @@ namespace DNDocs.Docs.Web.Application
                 }
 
                 var now = DateTime.UtcNow;
-                bool appended = sitemapGenerator.TryAppend(urls, DateTime.UtcNow, ChangeFreq.Monthly);
+                bool appended = sitemapGenerator.TryAppend(urls, DateTime.UtcNow, ChangeFreq.Never);
                 
                 if (appended)
                 {

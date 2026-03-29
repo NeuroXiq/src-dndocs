@@ -2,17 +2,10 @@
 using DNDocs.Docs.Web.Services;
 using DNDocs.Docs.Web.Shared;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Diagnostics.ResourceMonitoring;
 using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO.Compression;
-using System.Net.Http.Headers;
 using System.Text;
-using Vinca.Exceptions;
 using Vinca.Http;
 using Vinca.Http.Cache;
 
@@ -208,9 +201,15 @@ namespace DNDocs.Docs.Web.Web
                 new[] { "ProjectId", "ProjectName", "FullUrl" },
                 new Func<SiteItem, object>[]
                 {
-                    s => pdics[s.ProjectId].Id,
-                    s => $"{pdics[s.ProjectId].NugetPackageName} {pdics[s.ProjectId].NugetPackageVersion}",
-                    s => { var u = FullProjectUrl(settings.Value, pdics[s.ProjectId], s.Path); return $"<a href=\"{u}\">{u}</a>"; }
+                    s => pdics.TryGetValue(s.ProjectId, out var value) ? value?.ToString() : "<null>",
+                    s => pdics.TryGetValue(s.ProjectId, out var value) ? $"{value.NugetPackageName} {value.NugetPackageVersion}" : "<null>",
+                    s =>
+                    {
+                        var u = pdics.TryGetValue(s.ProjectId, out var value) ?
+                            FullProjectUrl(settings.Value, value, s.Path) : "<null>";
+
+                        return $"<a href=\"{u}\">{u}</a>";
+                    }
                 },
                 siteitems);
 
