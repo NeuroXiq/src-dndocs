@@ -1,5 +1,6 @@
 ﻿using DNDocs.Api.DTO;
 using DNDocs.Api.Model.Integration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,21 +18,16 @@ namespace DNDocs.Api.Client
         Task<CommandResultDto> Integration_DJobRegisterService(DJobRegisterServiceModel model);
     }
 
-    internal class DNClient : IDNClient
+    public class DNClient : IDNClient
     {
         private HttpClient client;
+        private DNDocsApiClientOptions options;
 
-        public DNClient(DNClientOptions options)
+        public DNClient(IOptions<DNDocsApiClientOptions> ioptions)
         {
             // for now ignore tls certs
             var handler = new HttpClientHandler();
-            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-            handler.ServerCertificateCustomValidationCallback =
-                (httpRequestMessage, cert, cetChain, policyErrors) =>
-                {
-                    return true;
-                };
-            
+            this.options = ioptions.Value;
             client = new HttpClient(handler);
             
             client.BaseAddress = new Uri(options.ServerUrl);
@@ -60,7 +56,7 @@ namespace DNDocs.Api.Client
         }
     }
 
-    public class DNClientOptions
+    public class DNDocsApiClientOptions
     {
         public string ServerUrl { get; set; }
         public string ApiKey { get; set; }

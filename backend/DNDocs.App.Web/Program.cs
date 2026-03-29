@@ -72,8 +72,7 @@ namespace DNDocs.Web
 
             // dndocs
 
-            services.AddOptions<DNDocsDocsApiClientOptions>().Bind(builder.Configuration.GetSection($"{nameof(DNDocsDocsApiClientOptions)}"));
-            services.AddDNDocsDocsApiClient();
+            builder.AddDNDocsDocsApiClient();
 
             services.AddHttpClient();
             services.Configure<CookiePolicyOptions>(opt =>

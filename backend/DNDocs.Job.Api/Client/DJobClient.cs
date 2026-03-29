@@ -26,7 +26,7 @@ namespace DNDocs.Job.Api.Client
         }
     }
 
-    public class DNDocsJobClientOptions
+    public class DNDocsJobApiClientOptions
     {
         public string ApiKey { get; set; }
         public string ServerUrl { get; set; }
@@ -35,10 +35,10 @@ namespace DNDocs.Job.Api.Client
     internal class DNDocsJobApiClient : IDNDocsJobApiClient
     {
         private ILogger<DNDocsJobApiClient> logger;
-        private DNDocsJobClientOptions options;
+        private DNDocsJobApiClientOptions options;
         private HttpClient client;
 
-        public DNDocsJobApiClient(IOptions<DNDocsJobClientOptions> options, ILogger<DNDocsJobApiClient> logger)
+        public DNDocsJobApiClient(IOptions<DNDocsJobApiClientOptions> options, ILogger<DNDocsJobApiClient> logger)
         {
             // for now ignore tls certs
             this.logger = logger;

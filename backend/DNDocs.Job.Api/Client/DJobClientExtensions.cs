@@ -5,9 +5,9 @@ namespace DNDocs.Job.Api.Client
 {
     public static class DJobClientExtensions
     {
-        public static void AddDNDocsJobApiClient(this WebApplicationBuilder builder, Action<DNDocsJobClientOptions> configure = null)
+        public static void AddDNDocsJobApiClient(this WebApplicationBuilder builder, Action<DNDocsJobApiClientOptions> configure = null)
         {
-            var optionsBuilder = builder.Services.AddOptions<DNDocsJobClientOptions>().Bind(builder.Configuration.GetSection("DNDocsJobClientOptions"));
+            var optionsBuilder = builder.Services.AddOptions<DNDocsJobApiClientOptions>().Bind(builder.Configuration.GetSection(nameof(DNDocsJobApiClientOptions)));
 
             if (configure != null) optionsBuilder.Configure(configure);
 

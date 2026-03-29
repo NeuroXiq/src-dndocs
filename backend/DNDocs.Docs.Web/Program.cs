@@ -38,8 +38,6 @@ namespace DNDocs.Docs.Web
             builder.Services.Configure<DSettings>(builder.Configuration.GetSection($"{nameof(DSettings)}"));
             builder.Configuration.GetSection($"{nameof(DSettings)}").Bind(settings);
 
-            ValidateAppsettings.Validate(typeof(DSettings), builder.Configuration);
-
             builder.WebHost.UseKestrel(o =>
             {
                 o.Limits.MaxRequestBodySize = 1024 * 1024 * 300;

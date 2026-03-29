@@ -21,20 +21,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("secrets.json", optional: false);
 
-ValidateAppsettings.Validate(
-    typeof(DJobSettings),
-    builder.Configuration);
-
 DJobSettings settings = new DJobSettings();
 builder.Configuration.Bind("DJobSettings", settings);
 
 // external
-builder.Services.AddDNClient((Action<DNClientOptions>)(o => { o.ServerUrl = settings.DNServerUrl; o.ApiKey = settings.DNApiKey; }));
+builder.AddDNDocsApiClient();
 builder.Services.AddVOSApi();
 builder.Services.AddLogging();
 builder.Services.AddVBufferLogger(x => x.MaxLogsTreshold = 10000);
 builder.Services.AddVNugetRepositoryFacade();
-builder.Services.AddDNDocsDocsApiClient();
+builder.AddDNDocsDocsApiClient();
 
 // djob
 builder.Services.AddScoped<IDocsBuilderService, DocsBuilderService>();

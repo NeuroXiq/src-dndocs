@@ -6,8 +6,6 @@
         public string OSPathInfrastructureDirectory { get; set; }
         public int MaxParallelBuildCount { get; set; }
         public string ConsoleToolsDllFilePath { get; set; }
-        public string DNServerUrl { get; set; }
-        public string DNApiKey { get; set; }
         public int KestrelPort { get; set; }
 
         public StringsSettings Strings { get; set; }
