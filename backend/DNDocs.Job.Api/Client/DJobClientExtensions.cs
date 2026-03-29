@@ -7,7 +7,7 @@ namespace DNDocs.Job.Api.Client
     {
         public static void AddDNDocsJobApiClient(this WebApplicationBuilder builder, Action<DNDocsJobClientOptions> configure = null)
         {
-            var optionsBuilder = builder.Services.AddOptions<DNDocsJobClientOptions>();
+            var optionsBuilder = builder.Services.AddOptions<DNDocsJobClientOptions>().Bind(builder.Configuration.GetSection("DNDocsJobClientOptions"));
 
             if (configure != null) optionsBuilder.Configure(configure);
 

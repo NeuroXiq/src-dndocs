@@ -72,8 +72,8 @@ namespace DNDocs.Web
 
             // dndocs
 
-            services.AddOptions<DDocsApiClientOptions>().Bind(builder.Configuration.GetSection($"{nameof(DDocsApiClientOptions)}"));
-            services.AddDDocsApiClient();
+            services.AddOptions<DNDocsDocsApiClientOptions>().Bind(builder.Configuration.GetSection($"{nameof(DNDocsDocsApiClientOptions)}"));
+            services.AddDNDocsDocsApiClient();
 
             services.AddHttpClient();
             services.Configure<CookiePolicyOptions>(opt =>
@@ -181,7 +181,6 @@ namespace DNDocs.Web
                 .Validate(c => c.BackendBackgroundWorkerDoWorkSleepSeconds > 5, "BackendBackgroundWorkerDoWorkSleepSeconds")
                 .Validate(c => c.FrontendBackgroundWorkerDoWorkSleepSeconds > 5, "FrontendBackgroundWorkerDoWorkSleepSeconds")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.OSPathInfrastructureDirectory), "OSPathInfrastructureDirectory")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.DNDocsJobApiKey), "DNDocsJobApiKey")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.DNDocsApiKey), "DNDocsApiKey")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Issuer), "Issuer")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Audience), "Audience")

@@ -44,38 +44,6 @@ namespace DNDocs.Job.Web.Application
             logsTimer = new Timer(LogsTimerCallback, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
             await bgjobService.AppStart();
 
-            // this is important to run after application started important for dev 
-            // because DN sends ping immediately even before DJob for HTTP requests
-            applicationLifetime.ApplicationStarted.Register(() => RegisterServiceOnDNDocs());
-        }
-
-        private void RegisterServiceOnDNDocs()
-        {
-            Task.Factory.StartNew(() =>
-            {
-                bool success = false;
-                for (int i = 0; i < 3 && !success; i++)
-                {
-                    logger.LogTrace("start register on DNDocs {0}", i);
-
-                    try
-                    {
-                        var result = dnclient.Integration_DJobRegisterService(new DJobRegisterServiceModel
-                        {
-                            InstanceName = $"DJOB-INSTANCE-{Guid.NewGuid()}",
-                            ServerPort = this.dsettings.KestrelPort
-                        }).Result;
-
-                        logger.LogInformation("startup DN register success");
-                    }
-                    catch (Exception e)
-                    {
-                        logger.LogCritical(e, "failed to register instance on DNDocs");
-                        Thread.Sleep(3000);
-                        throw;
-                    }
-                }
-            });
         }
 
         private void LogsTimerCallback(object state)

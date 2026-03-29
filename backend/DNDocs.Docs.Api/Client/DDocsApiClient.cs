@@ -39,10 +39,10 @@ namespace DNDocs.Docs.Api.Client
 
     public class DDocsApiClient : IDDocsApiClient
     {
-        private DDocsApiClientOptions options;
+        private DNDocsDocsApiClientOptions options;
         private HttpClient client;
 
-        public DDocsApiClient(IOptions<DDocsApiClientOptions> ioptions)
+        public DDocsApiClient(IOptions<DNDocsDocsApiClientOptions> ioptions)
         {
             options = ioptions.Value;
             // for now ignore tls certs
@@ -109,7 +109,7 @@ namespace DNDocs.Docs.Api.Client
             }
             catch
             {
-                throw new Exception($"error during httprequest. Code:{response.StatusCode}\r\nResponse as string: \r\n{rawResponse}");
+                throw new Exception($"error during httprequest. Code:{(int)response.StatusCode}\r\nResponse as string: \r\n{rawResponse}");
             }
             
             
@@ -141,14 +141,14 @@ namespace DNDocs.Docs.Api.Client
         public HttpResponseMessage RawResponse { get; set; }
     }
 
-    public class DDocsApiClientOptions
+    public class DNDocsDocsApiClientOptions
     {
         public string ApiKey { get; set; }
         public string ServerUrl { get; set; }
 
-        public DDocsApiClientOptions() { }
+        public DNDocsDocsApiClientOptions() { }
 
-        public DDocsApiClientOptions(string apiKey, string serverUrl)
+        public DNDocsDocsApiClientOptions(string apiKey, string serverUrl)
         {
             ApiKey = apiKey;
             ServerUrl = serverUrl;

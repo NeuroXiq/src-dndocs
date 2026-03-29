@@ -69,20 +69,20 @@ namespace DNDocs.Docs.Web.Services
             nPackageName = string.IsNullOrEmpty(nPackageName) ? null : nPackageName;
             nPackageVersion = string.IsNullOrEmpty(nPackageVersion) ? null : nPackageVersion;
 
-            DValidation.Throw(projectId == 0, "ProjectId == 0");
-            DValidation.Throw(string.IsNullOrWhiteSpace(projectName), "projectname");
-            DValidation.Throw(!Enum.IsDefined(type), "enum type not defined");
-            DValidation.Throw((await repository.SelectProjectByIdAsync(projectId)) != null, $"project with project_id={projectId} already exists");
+            VValidate.Throw(projectId == 0, "ProjectId == 0");
+            VValidate.Throw(string.IsNullOrWhiteSpace(projectName), "projectname");
+            VValidate.Throw(!Enum.IsDefined(type), "enum type not defined");
+            VValidate.Throw((await repository.SelectProjectByIdAsync(projectId)) != null, $"project with project_id={projectId} already exists");
             // check unique urlprefix
             // check unique name
 
             switch (type)
             {
                 case ProjectType.Nuget:
-                    DValidation.Throw(string.IsNullOrWhiteSpace(nPackageName), "nugetackagename not null");
-                    DValidation.Throw(string.IsNullOrWhiteSpace(nPackageVersion), "nugetackagevernot null");
-                    DValidation.Throw(!string.IsNullOrWhiteSpace(urlPrefix), "urlprefix must be null");
-                    DValidation.Throw((
+                    VValidate.Throw(string.IsNullOrWhiteSpace(nPackageName), "nugetackagename not null");
+                    VValidate.Throw(string.IsNullOrWhiteSpace(nPackageVersion), "nugetackagevernot null");
+                    VValidate.Throw(!string.IsNullOrWhiteSpace(urlPrefix), "urlprefix must be null");
+                    VValidate.Throw((
                         await qrepository.SelectNugetProjectAsync(nPackageName, nPackageVersion)) != null,
                         $"project with nuget package: {nPackageName} {nPackageVersion} already exists");
                     break;
@@ -143,7 +143,7 @@ namespace DNDocs.Docs.Web.Services
                     else
                     {
                         logger.LogCritical("failed to compress file (brotli): {0} data to compress len: {1}", entry.FullName, siteItemData.Length);
-                        throw new VStatusCodeException(System.Net.HttpStatusCode.InternalServerError, $"failed to compress: {entry.FullName}");
+                        throw new VHttpException(System.Net.HttpStatusCode.InternalServerError, $"failed to compress: {entry.FullName}");
                     }
 
                     metrics.CreateProjectSiteItemCompressedSize(compressedLength);

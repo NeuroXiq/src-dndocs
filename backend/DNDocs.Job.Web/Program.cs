@@ -34,7 +34,7 @@ builder.Services.AddVOSApi();
 builder.Services.AddLogging();
 builder.Services.AddVBufferLogger(x => x.MaxLogsTreshold = 10000);
 builder.Services.AddVNugetRepositoryFacade();
-builder.Services.AddDDocsApiClient((Action<DNDocs.Docs.Api.Client.DDocsApiClientOptions>)(o => { o.ApiKey = settings.DDocsApiKey;  o.ServerUrl = settings.DDocsServerUrl; }));
+builder.Services.AddDNDocsDocsApiClient();
 
 // djob
 builder.Services.AddScoped<IDocsBuilderService, DocsBuilderService>();
@@ -54,7 +54,6 @@ app.Services.GetRequiredService<IDJobInfrastructure>().Startup();
 
 app.UseVHttpExceptions();
 app.UseHttpsRedirection();
-app.UseMiddleware<DJobMiddleware>();
 
 // map routes
 app.MapGet($"/api/{nameof(DJobApiController.Ping)}", DJobApiController.Ping);

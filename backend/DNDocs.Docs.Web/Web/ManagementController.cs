@@ -12,6 +12,7 @@ using System.Net.Mime;
 using System.Reflection;
 using System.Text;
 using Vinca.Api;
+using Vinca.Exceptions;
 using Vinca.Http;
 using Vinca.Utils;
 
@@ -222,7 +223,7 @@ namespace DNDocs.Docs.Web.Web
                 exc = e;
             }
 
-            throw new DUnauthorizedException();
+            throw new VHttpException(HttpStatusCode.Unauthorized, "unauthorized");
         }
     }
 }

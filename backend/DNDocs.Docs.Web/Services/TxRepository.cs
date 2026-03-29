@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using Vinca.Http.Logs;
 using System.Diagnostics.Eventing.Reader;
 using System.Diagnostics;
+using Vinca.Exceptions;
 
 namespace DNDocs.Docs.Web.Services
 {
@@ -344,7 +345,7 @@ namespace DNDocs.Docs.Web.Services
             var con = GetSqliteConnection(DatabaseType.VarSite);
             var affectedRows = await con.ExecuteAsync($"{SqlText.UpdatePublicHtml} WHERE id = @Id", publicHtml);
 
-            DValidation.ThrowISE(affectedRows != 1, "after updated affected rows not equal 1");
+            VValidate.ThrowISE(affectedRows != 1, "after updated affected rows not equal 1");
         }
 
         public async Task DeleteSitemapIndex()
@@ -468,14 +469,14 @@ namespace DNDocs.Docs.Web.Services
 
         public void BeginTransaction()
         {
-            DValidation.ThrowISE(isTransactionOpen, "already begin tx, need to commit/rollback before open new");
+            VValidate.ThrowISE(isTransactionOpen, "already begin tx, need to commit/rollback before open new");
 
             isTransactionOpen = true;
         }
 
         public async Task RollbackAsync()
         {
-            DValidation.ThrowISE(!isTransactionOpen, "not transaction begin");
+            VValidate.ThrowISE(!isTransactionOpen, "not transaction begin");
 
             if (appTx != null) await appTx.RollbackAsync();
             if(siteTx != null) await siteTx.RollbackAsync();
@@ -489,7 +490,7 @@ namespace DNDocs.Docs.Web.Services
 
         public async Task CommitAsync()
         {
-            DValidation.ThrowISE(!isTransactionOpen, "not transaction begin");
+            VValidate.ThrowISE(!isTransactionOpen, "not transaction begin");
 
             if (appTx != null) await appTx.CommitAsync();
             if(siteTx != null) await siteTx.CommitAsync();

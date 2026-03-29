@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vinca.Exceptions
+﻿namespace Vinca.Exceptions
 {
-    public class VValidationException : Exception
+    public class VValidationException : VHttpException
     {
-        public VValidationException(string message) : base(message) { }
+        public VValidationException(string message) : base(System.Net.HttpStatusCode.BadRequest, message) { }
     }
 }

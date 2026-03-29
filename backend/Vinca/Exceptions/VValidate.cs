@@ -33,6 +33,14 @@ namespace Vinca.Exceptions
             if (!Enum.IsDefined<T>(value)) { Throw($"'{typeof(T).Name}' enum value is not defined. Current value: '{value}'"); }
         }
 
+        public static void ThrowISE(bool shouldThrow, string message)
+        {
+            if (shouldThrow)
+            {
+                throw new VHttpException(System.Net.HttpStatusCode.InternalServerError, message);
+            }
+        }
+
         static void Throw(string msg) => throw new VValidationException(msg);
     }
 }

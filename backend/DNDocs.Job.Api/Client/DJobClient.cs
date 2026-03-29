@@ -1,5 +1,6 @@
 ﻿using DNDocs.Job.Api.Management;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using Vinca.Http;
 
@@ -34,16 +35,19 @@ namespace DNDocs.Job.Api.Client
     internal class DNDocsJobApiClient : IDNDocsJobApiClient
     {
         private ILogger<DNDocsJobApiClient> logger;
+        private DNDocsJobClientOptions options;
         private HttpClient client;
 
-        public DNDocsJobApiClient(DNDocsJobClientOptions options, ILogger<DNDocsJobApiClient> logger)
+        public DNDocsJobApiClient(IOptions<DNDocsJobClientOptions> options, ILogger<DNDocsJobApiClient> logger)
         {
             // for now ignore tls certs
             this.logger = logger;
+            this.options = options.Value;
             var handler = new HttpClientHandlerLogger(logger);
+
             client = new HttpClient(handler);
-            client.BaseAddress = new Uri(options.ServerUrl);
-            client.DefaultRequestHeaders.Add("x-api-key", options.ApiKey);
+            client.BaseAddress = new Uri(this.options.ServerUrl);
+            client.DefaultRequestHeaders.Add("x-api-key", this.options.ApiKey);
         }
 
         public async Task PingAsync()

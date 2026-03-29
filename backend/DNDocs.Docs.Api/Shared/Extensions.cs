@@ -6,9 +6,9 @@ namespace DNDocs.Docs.Api.Shared
 {
     public static class Extensions
     {
-        public static void AddDDocsApiClient(this IServiceCollection serviceCollection, Action<DDocsApiClientOptions> configure = null)
+        public static void AddDNDocsDocsApiClient(this IServiceCollection serviceCollection, Action<DNDocsDocsApiClientOptions> configure = null)
         {
-            var optionsBuilder = serviceCollection.AddOptions<DDocsApiClientOptions>();
+            var optionsBuilder = serviceCollection.AddOptions<DNDocsDocsApiClientOptions>();
 
             if (configure != null)
             {

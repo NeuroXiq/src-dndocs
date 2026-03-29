@@ -58,13 +58,10 @@ namespace DNDocs.Application.CommandHandlers.Application
 
         private int requestsCounter = 0;
 
-        private IDNDocsJobApiClient[] djobClients = null;
-
         private async Task SendBuildProjectAsync(NugetOrgProject nextToBuild)
         {
             bool retry = true;
             bool success = false;
-            IDNDocsJobApiClient nextClient = null;
             BuildNugetOrgProjectModel model = null;
 
             do
@@ -80,18 +77,16 @@ namespace DNDocs.Application.CommandHandlers.Application
                         PackageVersion = nextToBuild.NugetPackage.IdentityVersion
                     };
 
-                    if (requestsCounter % 20 == 1) await FromTimeToTimeRevalidateIfClientsStillAlive();
-
-                    nextClient = djobClients[requestsCounter % djobClients.Length];
+                    if (requestsCounter % 20 == 1) await dndocsJobApiClient.PingAsync();
 
                     nextToBuild.State = NugetOrgProjectState.Building;
                     nextToBuild.BuildStartOn = DateTime.UtcNow;
                     
                     await uow.SaveChangesAsync();
 
-                    await nextClient.BuildNugetOrgProject(model);
+                    await dndocsJobApiClient.BuildNugetOrgProject(model);
                     success = true;
-
+                    
                     break;
                 }
                 catch (Exception ex)
@@ -118,21 +113,6 @@ namespace DNDocs.Application.CommandHandlers.Application
                 nextToBuild.State = NugetOrgProjectState.BuildFailed;
 
                 await uow.SaveChangesAsync();
-            }
-        }
-
-        // in future: this assumes multiple clients exists but there is only 1 instance of dndocs-job
-        // assume there is only 1 instance and make this to work only with 1 instance
-        private async Task FromTimeToTimeRevalidateIfClientsStillAlive()
-        {
-            try
-            {
-                await dndocsJobApiClient.PingAsync();
-            }
-            catch (Exception e)
-            {
-
-                logger.LogError(e, "dndocs job ping failed");
             }
         }
     }

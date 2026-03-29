@@ -28,21 +28,16 @@ namespace Vinca.Http
             {
                 await next(context);
             }
-            catch (VValidationException e)
+            catch (VHttpException e)
             {
-                logger.LogError("Validation error: {0} ", e.Message);
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-
+                logger.LogError(e, "VHttpException");
                 context.Response.ContentType = "application/json; charset=UTF-8";
-                await context.Response.WriteAsJsonAsync(new { Error = e.Message });
-            }
-            catch (VStatusCodeException e)
-            {
                 context.Response.StatusCode = (int)e.StatusCode;
+                await context.Response.WriteAsJsonAsync(new { Error = e.Message });
             }
             catch (Exception e)
             {
-                logger.LogCritical(e, "ISE");
+                logger.LogCritical(e, "ise");
                 context.Response.StatusCode = 500;
             }
         }

@@ -7,8 +7,6 @@
         public int MaxParallelBuildCount { get; set; }
         public string ConsoleToolsDllFilePath { get; set; }
         public string DNServerUrl { get; set; }
-        public string DDocsApiKey { get; set; }
-        public string DDocsServerUrl { get; set; }
         public string DNApiKey { get; set; }
         public int KestrelPort { get; set; }
 
