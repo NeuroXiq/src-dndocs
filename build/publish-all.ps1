@@ -52,9 +52,9 @@ $pathZips = "$pathBuildDir\bin-zips";
 $pathBuildDir = $PSScriptRoot;
 $dateNow = (get-date).tostring('yyyymmdd-HHmmss');
 
-$publishOutDjob = "$pathBuildDir\temp\dndocs-app-job-$($env.ToLower())-$($vi.version)-$dateNow";
+$publishOutDjob = "$pathBuildDir\temp\dndocs-job-app-$($env.ToLower())-$($vi.version)-$dateNow";
 $publishOutDn = "$pathBuildDir\temp\dndocs-app-$($env.ToLower())-$($vi.version)-$dateNow"
-$publishOutDdocs = "$pathBuildDir\temp\dndocs-app-docs-$($env.ToLower())-$($vi.version)-$dateNow"
+$publishOutDdocs = "$pathBuildDir\temp\dndocs-docs-app-$($env.ToLower())-$($vi.version)-$dateNow"
 $publishOutDConsole = "$publishOutDjob\DNDocs.ConsoleTools"
 
 #BACKEND START

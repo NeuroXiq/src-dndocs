@@ -20,7 +20,7 @@ namespace DNDocs.Docs.Web.Web
 {
     public class PublicContentController
     {
-        public static ApiEndpoint[] GetEndpoints(IOptions<DSettings> settings)
+        public static ApiEndpoint[] GetEndpoints(IOptions<DOptions> settings)
         {
             var endpoints = new List<ApiEndpoint>()
             {
@@ -63,7 +63,7 @@ namespace DNDocs.Docs.Web.Web
             return Results.File(sitemap.ByteData, contentType);
         }
 
-        static IResult GetIndexNowKey([FromServices] IOptions<DSettings> settingsOptions)
+        static IResult GetIndexNowKey([FromServices] IOptions<DOptions> settingsOptions)
         {
             var dsettings = settingsOptions.Value;
             string indexNowKey = dsettings.IndexNowApiKey;
@@ -92,7 +92,7 @@ namespace DNDocs.Docs.Web.Web
         [VCacheControl(CacheType = CacheControlType.Public, MaxAge = 30 * 60)]
         static async Task<IResult> GetNugetProjectSiteHtml(
             HttpContext context,
-            [FromServices] IOptions<DSettings> dsettings,
+            [FromServices] IOptions<DOptions> dsettings,
             [FromServices] IDMemCache memCache,
             [FromServices] IQRepository repository,
             [FromRoute] string nugetPackageName,
@@ -192,7 +192,7 @@ namespace DNDocs.Docs.Web.Web
         }
 
         public static async Task<IResult> SystemSiteItems(
-            [FromServices] IOptions<DSettings> settings,
+            [FromServices] IOptions<DOptions> settings,
             [FromServices] IQRepository repository,
             [FromRoute] int? pageNo)
         {
@@ -223,7 +223,7 @@ namespace DNDocs.Docs.Web.Web
 
 
         public static async Task<IResult> SystemAllProjects(
-            [FromServices] IOptions<DSettings> settings,
+            [FromServices] IOptions<DOptions> settings,
             [FromServices] IQRepository repository,
             [FromRoute] int? pageNo)
         {
@@ -284,7 +284,7 @@ namespace DNDocs.Docs.Web.Web
 
         }
 
-        public static string FullProjectUrl(DSettings s, Project p, string path = "/api/index.html")
+        public static string FullProjectUrl(DOptions s, Project p, string path = "/api/index.html")
         {
             return s.GetUrlNugetOrgProject(p.NugetPackageName, p.NugetPackageVersion, path);
         }

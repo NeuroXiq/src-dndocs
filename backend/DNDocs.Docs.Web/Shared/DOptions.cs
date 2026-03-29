@@ -1,13 +1,11 @@
 ﻿namespace DNDocs.Docs.Web.Shared
 {
-    public class DSettings
+    public class DOptions
     {
-        public DFileSystemOptions DFileSystemOptions { get; set; }
+        public string AppDataDirectoryPath { get; set; }
         public StringsOpts Strings { get; set;  }
         public string DDocsApiKey { get; set; }
         public long MemoryCacheMaxSizeMB { get; set; }
-        // public string X509CertificatePemPath { get; set; }
-        // public string X509CertificateKeyPemPath { get; set; }
         public string IndexNowApiKey { get; set; }
 
         public TimeSpan TimeSpanSaveMetrics { get; set; }
@@ -17,8 +15,6 @@
         public class StringsOpts
         {
             public string UrlNugetProjectGenerate { get; set; }
-            public string UrlProjectSingletonFormat { get; set; }
-            public string UrlProjectVersionFormat { get; set; }
             public string UrlProjectNugetOrgFormat { get; set; }
             public string UrlDDocs { get; set; }
         }

@@ -21,7 +21,7 @@ namespace DNDocs.Docs.Web.Web
     public interface IManagementControllerContext
     {
         ILogger<ManagementController> Logger { get; }
-        IOptions<DSettings> Settings { get; }
+        IOptions<DOptions> Settings { get; }
         IOSApi OSApi { get; }
         IManagementService ManagementService { get; }
         public ITxRepository TxRepository { get; set; }
@@ -36,7 +36,7 @@ namespace DNDocs.Docs.Web.Web
 
         public HttpContext HttpContext { get; set; }
 
-        public IOptions<DSettings> Settings { get; set; }
+        public IOptions<DOptions> Settings { get; set; }
 
         public IManagementService ManagementService { get; set; }
 
@@ -45,7 +45,7 @@ namespace DNDocs.Docs.Web.Web
         public ITxRepository TxRepository { get; set; }
 
         public ManagementControllerContext(ILogger<ManagementController> logger,
-            IOptions<DSettings> settings,
+            IOptions<DOptions> settings,
             ITxRepository txRepository,
             IManagementService managementService,
             IQRepository qrepository,

@@ -22,12 +22,12 @@ Set-strictmode -version latest
 $appName = "dndocs-job-app-$($environment.ToLower())";
 
 if ([string]::isnullorwhitespace($zipName)) {
-    $pathZip = Get-ChildItem "$PSScriptRoot\bin-zips" -filter "$appName-*.zip" | sort name -desc | Select-Object -first 1
+    $pathZip = Get-ChildItem "$PSScriptRoot\temp" -filter "$appName-*.zip" | sort name -desc | Select-Object -first 1
     $pathZip = $pathZip.fullname;
 
     if (!$pathZip) { throw 'Latest zip to djob deploy not found' }
 } else {
-    $pathZip = (resolve-path "$PSScriptRoot\bin-zips\$zipName");
+    $pathZip = (resolve-path "$PSScriptRoot\temp\$zipName");
 }
 
 LinuxExec "sudo systemctl stop $appName.service ; echo STEP-OK" 'Stopping services';

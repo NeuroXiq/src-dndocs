@@ -1,29 +1,34 @@
-using DNDocs.Docs.Api.Client;
 using DNDocs.Docs.Web.Application;
 using DNDocs.Docs.Web.Infrastructure;
-using DNDocs.Docs.Web.Model;
 using DNDocs.Docs.Web.Services;
 using DNDocs.Docs.Web.Shared;
 using DNDocs.Docs.Web.Web;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.AspNetCore.Routing.Patterns;
-using System.Diagnostics;
+using Microsoft.Extensions.Options;
+using Vinca.BufferLogger;
 using Vinca.Http.Cache;
 using Vinca.Http.Logs;
-using Vinca.RateLimit;
-using Vinca.BufferLogger;
 using Vinca.Utils;
-using Vinca.Api;
-using Microsoft.Identity.Client;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Options;
-using Vinca.DDNS;
 
 namespace DNDocs.Docs.Web
 {
     public class Program
     {
+        static void AddDNDocsDocsOptions(WebApplicationBuilder builder)
+        {
+            var optionsBuilder = builder.Services.AddOptions<DOptions>().Bind(builder.Configuration.GetSection($"{nameof(DOptions)}"));
+
+            optionsBuilder
+                .Validate(o => Directory.Exists(o.AppDataDirectoryPath), $"{nameof(DOptions)}.{nameof(DOptions.AppDataDirectoryPath)}")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlNugetProjectGenerate), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlNugetProjectGenerate)}")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlProjectNugetOrgFormat), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlProjectNugetOrgFormat)}")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlDDocs), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlDDocs)}")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.DDocsApiKey), $"{nameof(DOptions)}.{nameof(DOptions.DDocsApiKey)}")
+                .Validate(o => o.TimeSpanSaveMetrics.TotalSeconds > 0, $"{nameof(DOptions)}.{nameof(DOptions.TimeSpanSaveMetrics)}")
+                .Validate(o => o.FlushAllLogsTimeSpan.TotalSeconds > 0, $"{nameof(DOptions)}.{nameof(DOptions.FlushAllLogsTimeSpan)}")
+                .Validate(o => o.TimespanGenerateSitemapPeriod.TotalSeconds > 0, $"{nameof(DOptions)}.{nameof(DOptions.TimespanGenerateSitemapPeriod)}")
+                .ValidateOnStart();
+        }
+
         static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -31,12 +36,11 @@ namespace DNDocs.Docs.Web
             builder.Configuration.AddJsonFile("secrets.json", optional: false);
 
             // Add services to the container.
-            var settings = new DSettings();
+            var settings = new DOptions();
 
             // config
-            builder.Services.Configure<DFileSystemOptions>(builder.Configuration.GetSection($"{nameof(DSettings)}:{nameof(DFileSystemOptions)}"));
-            builder.Services.Configure<DSettings>(builder.Configuration.GetSection($"{nameof(DSettings)}"));
-            builder.Configuration.GetSection($"{nameof(DSettings)}").Bind(settings);
+            
+            builder.Configuration.GetSection($"{nameof(DOptions)}").Bind(settings);
 
             // .net/nuget
             builder.Services.AddMetrics();
@@ -94,7 +98,7 @@ namespace DNDocs.Docs.Web
 
             var allEndpoints = new List<ApiEndpoint>();
             allEndpoints.AddRange(ManagementController.Endpoints);
-            allEndpoints.AddRange(PublicContentController.GetEndpoints(app.Services.GetRequiredService<IOptions<DSettings>>()));
+            allEndpoints.AddRange(PublicContentController.GetEndpoints(app.Services.GetRequiredService<IOptions<DOptions>>()));
 
             foreach (var e in allEndpoints)
             {

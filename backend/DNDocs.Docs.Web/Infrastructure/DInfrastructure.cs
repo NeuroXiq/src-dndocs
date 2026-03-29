@@ -29,24 +29,24 @@ namespace DNDocs.Docs.Web.Infrastructure
     public class DInfrastructure : IDInfrastructure
     {
         private IDMetrics metrics;
-        private DFileSystemOptions options;
+        private DOptions options;
 
         string ConnectionString_App, OSPath_AppDb;
         string ConnectionString_Site, OSPath_SiteDb;
         string ConnectionString_VarSite, OSPath_VarSiteDb;
         string ConnectionString_Log, OSPath_LogDb;
 
-        public DInfrastructure(IOptions<DFileSystemOptions> fsOptions, IDMetrics metrics)
+        public DInfrastructure(IOptions<DOptions> fsOptions, IDMetrics metrics)
         {
             this.metrics = metrics;
             this.options = fsOptions.Value;
-            if (!Directory.Exists(options.InfrastructureFolderOSPath))
-                throw new ArgumentException($"(Safety): Directory for instrastructure not exists: '{options.InfrastructureFolderOSPath}'. Create this directory manually on dev env.");
+            if (!Directory.Exists(options.AppDataDirectoryPath))
+                throw new ArgumentException($"(Safety): Directory for instrastructure not exists: '{options.AppDataDirectoryPath}'. Create this directory manually on dev env.");
 
-            OSPath_AppDb = Path.Combine(options.InfrastructureFolderOSPath, options.AppDbSqliteFileName);
-            OSPath_SiteDb = Path.Combine(options.InfrastructureFolderOSPath, options.SiteDbSqliteFileName);
-            OSPath_VarSiteDb = Path.Combine(options.InfrastructureFolderOSPath, options.VarSiteDbSqliteFileName);
-            OSPath_LogDb = Path.Combine(options.InfrastructureFolderOSPath, options.LogDbSqliteFileName);
+            OSPath_AppDb = Path.Combine(options.AppDataDirectoryPath, "app.sqlite");
+            OSPath_SiteDb = Path.Combine(options.AppDataDirectoryPath, "site.sqlite");
+            OSPath_VarSiteDb = Path.Combine(options.AppDataDirectoryPath, "varsite.sqlite");
+            OSPath_LogDb = Path.Combine(options.AppDataDirectoryPath, "log.sqlite");
 
             ConnectionString_App = $"Data Source={OSPath_AppDb};";
             ConnectionString_Site = $"Data Source={OSPath_SiteDb};";

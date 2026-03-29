@@ -22,7 +22,7 @@ namespace DNDocs.Docs.Web.Application
         private Timer metricTimer;
         private Timer metricsTimer;
         private IDMetrics metrics;
-        private DSettings settings;
+        private DOptions settings;
         private IServiceProvider serviceProvider;
         private ILogsService logsService;
         private ILogger<DHostedService> logger;
@@ -41,7 +41,7 @@ namespace DNDocs.Docs.Web.Application
             IResourceMonitor resourceMonitor,
             ILogger<DHostedService> logger,
             IDMetrics metrics,
-            IOptions<DSettings> settings)
+            IOptions<DOptions> settings)
         {
             this.metrics = metrics;
             this.settings = settings.Value;
