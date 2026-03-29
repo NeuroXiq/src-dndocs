@@ -5,15 +5,5 @@
         public string DJobApiKey { get; set; }
         public string OSPathInfrastructureDirectory { get; set; }
         public int MaxParallelBuildCount { get; set; }
-        public string ConsoleToolsDllFilePath { get; set; }
-        public int KestrelPort { get; set; }
-
-        public StringsSettings Strings { get; set; }
-
-        public class StringsSettings
-        {
-            public string DNDocs { get; set; }
-            public string UrlDNDocsDocfJsScriptUrl { get; set; }
-        }
     }
 }
