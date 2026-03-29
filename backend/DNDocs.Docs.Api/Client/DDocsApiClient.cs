@@ -45,16 +45,7 @@ namespace DNDocs.Docs.Api.Client
         public DDocsApiClient(IOptions<DNDocsDocsApiClientOptions> ioptions)
         {
             options = ioptions.Value;
-            // for now ignore tls certs
-            var handler = new HttpClientHandler();
-            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-            handler.ServerCertificateCustomValidationCallback =
-                (httpRequestMessage, cert, cetChain, policyErrors) =>
-                {
-                    return true;
-                };
-
-            client = new HttpClient(handler);
+            client = new HttpClient();
             client.BaseAddress = new Uri(options.ServerUrl);
             client.DefaultRequestHeaders.Add("x-api-key", options.ApiKey);
             client.Timeout = TimeSpan.FromMinutes(2);
@@ -111,7 +102,6 @@ namespace DNDocs.Docs.Api.Client
             {
                 throw new Exception($"error during httprequest. Code:{(int)response.StatusCode}\r\nResponse as string: \r\n{rawResponse}");
             }
-            
             
             return MapResult(response);
         }

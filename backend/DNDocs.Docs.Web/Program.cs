@@ -38,19 +38,6 @@ namespace DNDocs.Docs.Web
             builder.Services.Configure<DSettings>(builder.Configuration.GetSection($"{nameof(DSettings)}"));
             builder.Configuration.GetSection($"{nameof(DSettings)}").Bind(settings);
 
-            builder.WebHost.UseKestrel(o =>
-            {
-                o.Limits.MaxRequestBodySize = 1024 * 1024 * 300;
-                o.AddServerHeader = false;
-                // przetestowac c zy dziala szybciej teraz
-                o.Limits.MaxResponseBufferSize = 1024 * 1024 * 1024;
-                
-                // o.ConfigureHttpsDefaults(c =>
-                // {
-                //     c.ServerCertificate = X509Certificate2.CreateFromPemFile(settings.X509CertificatePemPath, settings.X509CertificateKeyPemPath);
-                // });
-            });
-
             // .net/nuget
             builder.Services.AddMetrics();
             builder.Services.AddResourceMonitoring();

@@ -15,8 +15,6 @@ namespace DNDocs.Docs.IntegrationTests.PublicContentTests
         const string NPknName = "testing-content-nupkg";
         const string NPknVer= "1.2.3.4-testing-version-string";
 
-        
-
         [Test]
         public async Task WillServe_NugetProjectPages()
         {

@@ -5,7 +5,7 @@ using System;
 
 namespace DNDocs.Docs.Api.Shared
 {
-    public static class Extensions
+    public static class DNDocsDocsApiBuilderExtensions
     {
         public static void AddDNDocsDocsApiClient(this WebApplicationBuilder builder, Action<DNDocsDocsApiClientOptions> configure = null)
         {
