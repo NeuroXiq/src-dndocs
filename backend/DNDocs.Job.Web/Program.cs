@@ -51,6 +51,7 @@ namespace DNDocs.Job.Web
             app.UseHttpsRedirection();
 
             // map routes
+            app.MapGet($"/system/health/", DJobApiController.Health);
             app.MapGet($"/api/{nameof(DJobApiController.Ping)}", DJobApiController.Ping);
             app.MapGet($"/api/{nameof(DJobApiController.PingAuthorized)}", DJobApiController.PingAuthorized);
             app.MapPost($"/api/build-nugetorg-project", DJobApiController.BuildNugetOrgProject);

@@ -6,11 +6,6 @@ param(
     $zipName
 )
 
-# for now very simple deployment
-# upload zip to linux temp folder, remove current app folder, rename folder and start systemd service
-
-if ($environment -eq 'Staging') { $env = 'stag' } else { $env = 'prod' }
-
 $ErrorActionPreference = "Stop"
 Set-strictmode -version latest
 

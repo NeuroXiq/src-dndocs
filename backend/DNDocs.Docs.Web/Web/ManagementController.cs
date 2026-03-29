@@ -72,8 +72,14 @@ namespace DNDocs.Docs.Web.Web
             GetManagementEndpoint(HttpMethod.Get, "/metrics/{seconds:int?}", Metrics),
             GetManagementEndpoint(HttpMethod.Get, "/site-item-id-paged", GetSiteItemPaged),
             
-            new ApiEndpoint(HttpMethod.Get, "/system", System)
+            new ApiEndpoint(HttpMethod.Get, "/system", System),
+            new ApiEndpoint(HttpMethod.Get, "/system/health", Health),
         };
+
+        public static IResult Health()
+        {
+            return Results.Json(new { Online = true, AppName = "DNDocs.Docs", Timestamp = DateTime.UtcNow });
+        }
 
         private static async Task<IResult> GetSiteItemPaged(
             HttpContext context,

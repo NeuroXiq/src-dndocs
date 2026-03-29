@@ -39,6 +39,11 @@ namespace DNDocs.Job.Web.Web
 
     public class DJobApiController
     {
+        public static async Task<IResult> Health(HttpContext httpContext, [FromServices] IApiControllerCtx context)
+        {
+            return Results.Json(new { Online = true, AppName = "DNDocs.Job", Timestamp = DateTime.UtcNow });
+        }
+
         public static async Task<IResult> Ping(HttpContext httpContext, [FromServices] IApiControllerCtx context)
         {
             return Results.Ok();

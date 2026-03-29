@@ -1,22 +1,15 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('Staging', 'Production')]
+    [ValidateSet('Staging', 'Production','DevTest')]
     $environment,
     [Parameter()]
     $zipName
 )
 
-
-# for now very simple deployment
-# upload zip to linux temp folder, remove current app folder, rename folder and start systemd service
-#
-
-if ($environment -eq 'Staging') { $env = 'stag' } else { $env = 'prod' }
-
 $ErrorActionPreference = "Stop"
 Set-strictmode -version latest
 
-. "$PSScriptRoot/../../dndocs-secret/deploy-secret.ps1" $environment 'DNDocsJob'
+. "$PSScriptRoot/../../secrets/dndocs-deploy-secret.ps1" $environment 'DNDocsJob'
 . "$PSScriptRoot/deploy-tools.ps1"
 
 $appName = "dndocs-job-app-$($environment.ToLower())";
