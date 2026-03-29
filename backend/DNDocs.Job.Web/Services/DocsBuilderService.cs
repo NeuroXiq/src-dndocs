@@ -214,7 +214,7 @@ namespace DNDocs.Job.Web.Services
                     p.StartInfo.Arguments = @$"{osPathDocfxJson}";
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
-                        p.StartInfo.FileName = "/root/.dotnet/tools/docfx";
+                        p.StartInfo.FileName = "/home/user1/.dotnet/tools/docfx";
                         // p.StartInfo.FileName = "bash";
                         // p.StartInfo.FileName = $"-c \"docfx {osPathDocfxJson}\"";
                     }

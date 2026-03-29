@@ -19,8 +19,10 @@ Set-strictmode -version latest
 . "$PSScriptRoot/../../dndocs-secret/deploy-secret.ps1" $environment 'DNDocsJob'
 . "$PSScriptRoot/deploy-tools.ps1"
 
+$appName = "dndocs-job-app-$($environment.ToLower())";
+
 if ([string]::isnullorwhitespace($zipName)) {
-    $pathZip = Get-ChildItem "$PSScriptRoot\bin-zips" -filter "djob-$environment-*" | sort name -desc | Select-Object -first 1
+    $pathZip = Get-ChildItem "$PSScriptRoot\bin-zips" -filter "$appName-*.zip" | sort name -desc | Select-Object -first 1
     $pathZip = $pathZip.fullname;
 
     if (!$pathZip) { throw 'Latest zip to djob deploy not found' }
@@ -28,11 +30,11 @@ if ([string]::isnullorwhitespace($zipName)) {
     $pathZip = (resolve-path "$PSScriptRoot\bin-zips\$zipName");
 }
 
-LinuxExec "sudo systemctl stop djob-$env.service ; echo STEP-OK" 'Stopping services';
-LinuxUploadFile $pathZip '/var/www/djob-deploy.zip'
-LinuxExec "rm -r -f /var/www/djob-deploy-unzip ; mkdir /var/www/djob-deploy-unzip && echo STEP-OK" "remove old djobs-unzip folder if existed"
-LinuxExec "(unzip /var/www/djob-deploy.zip -d /var/www/djob-deploy-unzip) && echo STEP-OK" "unzip to temp-unzip folder"
-LinuxUploadFile "$PSScriptRoot\..\..\dndocs-secret\appsettings.djob.$environment.json" "/var/www/djob-deploy-unzip/appsettings.$Environment.json"
-LinuxExec "rm -r -f /var/www/djob-$env; mv /var/www/djob-deploy-unzip /var/www/djob-$env && echo STEP-OK" "rename new temp deployed folder to valid name"
-LinuxExec "sudo systemctl start djob-$env.service ; echo STEP-OK" 'Start service again';
-LinuxExec "rm -r -f /var/www/djob-deploy.zip && echo STEP-OK" "cleanup zips file "
+LinuxExec "sudo systemctl stop $appName.service ; echo STEP-OK" 'Stopping services';
+LinuxUploadFile $pathZip '/var/www/dndocs/djob-deploy.zip'
+LinuxExec "rm -r -f /var/www/dndocs/djob-deploy-unzip ; mkdir /var/www/dndocs/djob-deploy-unzip && echo STEP-OK" "remove old djobs-unzip folder if existed"
+LinuxExec "(unzip /var/www/dndocs/djob-deploy.zip -d /var/www/dndocs/djob-deploy-unzip) && echo STEP-OK" "unzip to temp-unzip folder"
+LinuxUploadFile "$PSScriptRoot\..\..\secrets\$appName.secrets.json" "/var/www/dndocs/djob-deploy-unzip/secrets.json"
+LinuxExec "rm -r -f /var/www/dndocs/$appName; mv /var/www/dndocs/djob-deploy-unzip /var/www/dndocs/$appName && echo STEP-OK" "rename new temp deployed folder to valid name"
+LinuxExec "sudo systemctl start $appName.service ; echo STEP-OK" 'Start service again';
+LinuxExec "rm -r -f /var/www/dndocs/djob-deploy.zip && echo STEP-OK" "cleanup zips file "
