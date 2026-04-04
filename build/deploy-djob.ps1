@@ -9,13 +9,10 @@ param(
 $ErrorActionPreference = "Stop"
 Set-strictmode -version latest
 
-. "$PSScriptRoot/../../secrets/dndocs-deploy-secret.ps1" $environment 'DNDocsJob'
-. "$PSScriptRoot/deploy-tools.ps1"
-
-$appName = "dndocs-job-app-$($environment.ToLower())";
+. "$PSScriptRoot/deploy-tools.ps1" $environment
 
 if ([string]::isnullorwhitespace($zipName)) {
-    $pathZip = Get-ChildItem "$PSScriptRoot\temp" -filter "$appName-*.zip" | sort name -desc | Select-Object -first 1
+    $pathZip = Get-ChildItem "$PSScriptRoot\temp" -filter "$dndocsJobAppName-*.zip" | sort name -desc | Select-Object -first 1
     $pathZip = $pathZip.fullname;
 
     if (!$pathZip) { throw 'Latest zip to djob deploy not found' }
@@ -23,11 +20,16 @@ if ([string]::isnullorwhitespace($zipName)) {
     $pathZip = (resolve-path "$PSScriptRoot\temp\$zipName");
 }
 
-LinuxExec "sudo systemctl stop $appName.service ; echo STEP-OK" 'Stopping services';
-LinuxUploadFile $pathZip '/var/www/dndocs/djob-deploy.zip'
-LinuxExec "rm -r -f /var/www/dndocs/djob-deploy-unzip ; mkdir /var/www/dndocs/djob-deploy-unzip && echo STEP-OK" "remove old djobs-unzip folder if existed"
-LinuxExec "(unzip /var/www/dndocs/djob-deploy.zip -d /var/www/dndocs/djob-deploy-unzip) && echo STEP-OK" "unzip to temp-unzip folder"
-LinuxUploadFile "$PSScriptRoot\..\..\secrets\$appName.secrets.json" "/var/www/dndocs/djob-deploy-unzip/secrets.json"
-LinuxExec "rm -r -f /var/www/dndocs/$appName; mv /var/www/dndocs/djob-deploy-unzip /var/www/dndocs/$appName && echo STEP-OK" "rename new temp deployed folder to valid name"
-LinuxExec "sudo systemctl start $appName.service ; echo STEP-OK" 'Start service again';
-LinuxExec "rm -r -f /var/www/dndocs/djob-deploy.zip && echo STEP-OK" "cleanup zips file "
+$command = @"
+cd /mnt/usb2/dndocs
+sudo systemctl stop $dndocsJobServiceName
+rm -r -f ./$dndocsJobAppName
+unzip -X ./$dndocsJobAppName.zip -d ./$dndocsJobAppName;
+rm ./$dndocsJobAppName.zip
+cp ./$dndocsJobAppName-secrets.json ./$dndocsJobAppName/secrets.json
+sudo systemctl start $dndocsJobServiceName
+"@
+
+LinuxUploadFile $pathZip "/mnt/usb2/dndocs/$dndocsJobAppName.zip";
+LinuxUploadFile "$PSScriptRoot\..\..\secrets\$dndocsJobAppName.secrets.json" "/mnt/usb2/dndocs/$dndocsJobAppName-secrets.json"
+PlinkCommand $command

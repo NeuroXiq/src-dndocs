@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.Docs.Api", "DNDocs.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.Docs.IntegrationTests", "Dndocs.Docs.IntegrationTests\DNDocs.Docs.IntegrationTests.csproj", "{53600856-B666-4604-BF00-27EE384785F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.Production.Tests", "DNDocs.Production.Tests\DNDocs.Production.Tests.csproj", "{77182377-E031-4552-846D-E233F5CFFAA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.ProductionTests", "DNDocs.ProductionTests\DNDocs.ProductionTests.csproj", "{77182377-E031-4552-846D-E233F5CFFAA7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.ConsoleTools", "DNDocs.ConsoleTools\DNDocs.ConsoleTools.csproj", "{D75BB5A8-F16F-41AA-B865-2A487F6F2113}"
 EndProject

@@ -10,6 +10,8 @@ namespace Vinca.Utils
         public string AppName { get; set; }
 
         public string AppAssemblyInformationalVersion { get; private set; }
+        
+        public string AppAssemblyFullName { get; private set; }
 
         public Version AppAssemblyVersion { get; private set; }
 
@@ -20,9 +22,11 @@ namespace Vinca.Utils
             var result = new SystemHealthApiResponse();
 
             result.Online = true;
-            result.AppName = assembly.FullName;
+            result.AppName = assembly.GetName().Name;
+            result.AppAssemblyFullName = assembly.FullName;
             result.AppAssemblyInformationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
             result.AppAssemblyVersion = assembly.GetName()?.Version;
+            result.Timestamp = DateTimeOffset.UtcNow;
 
             return result;
         }

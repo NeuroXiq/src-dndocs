@@ -1,0 +1,6 @@
+{
+  "EnvironmentName": "DevTest",
+  "DNDocsServerUrl": "https://dndocs-devtest.dndocs.com",
+  "DNDocsJobServerUrl": "https://dndocs-job-devtest.dndocs.com",
+  "DNDocsDocsServerUrl": "https://dndocs-docs-devtest.dndocs.com"
+}

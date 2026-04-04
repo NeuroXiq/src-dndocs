@@ -15,7 +15,6 @@ namespace DNDocs.Docs.Web.Application
         private Timer logsTimer;
         private Timer resourceMonitorTimer;
         private Timer generateSitemapsTimer;
-        private Timer metricTimer;
         private Timer metricsTimer;
         private IDMetrics metrics;
         private DOptions settings;
@@ -55,7 +54,7 @@ namespace DNDocs.Docs.Web.Application
 
             logsTimer = new Timer(LogsTimerCallback, null, settings.FlushAllLogsTimeSpan, settings.FlushAllLogsTimeSpan);
             generateSitemapsTimer = new Timer(GenerateSitemapsCallback, null, TimeSpan.FromSeconds(3), settings.TimespanGenerateSitemapPeriod);
-            metricTimer = new Timer(OnMetricsTimer, null, TimeSpan.FromSeconds(1), settings.TimeSpanSaveMetrics);
+            metricsTimer = new Timer(OnMetricsTimer, null, TimeSpan.FromSeconds(1), settings.TimeSpanSaveMetrics);
 
             // systemWorkTimer = new Timer(DoSystemWorkTimerCallback, null, 5, 2000 );
             // throw new NotImplementedException();
