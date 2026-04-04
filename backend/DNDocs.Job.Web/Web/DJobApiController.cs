@@ -41,7 +41,7 @@ namespace DNDocs.Job.Web.Web
     {
         public static async Task<IResult> Health(HttpContext httpContext, [FromServices] IApiControllerCtx context)
         {
-            return Results.Json(new { Online = true, AppName = "DNDocs.Job", Timestamp = DateTime.UtcNow });
+            return Results.Json(SystemHealthApiResponse.Create(typeof(DNDocs.Job.Web.Program).Assembly));
         }
 
         public static async Task<IResult> Ping(HttpContext httpContext, [FromServices] IApiControllerCtx context)

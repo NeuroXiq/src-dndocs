@@ -212,6 +212,18 @@ namespace DNDocs.Web
         {
             var services = app.Services;
             services.GetRequiredService<IDNInfrastructure>().RunAppMigrations();
+            var webHostEnvironment = services.GetRequiredService<IWebHostEnvironment>();
+            var logger = services.GetRequiredService<ILogger<Program>>();
+
+            logger.LogInformation("DeploySetup starting method");
+            logger.LogInformation("Environment: {0}", webHostEnvironment.EnvironmentName);
+
+            if (string.IsNullOrWhiteSpace(webHostEnvironment.EnvironmentName))
+            {
+                Console.WriteLine("webHostEnvironment.EnvironmentName is null or white space");
+                logger.LogCritical("webHostEnvironment.EnvironmentName is null or white space");
+                throw new Exception("no environment set e.g. 'ASPNETCORE_ENVIRONMENT=env_name_staging_test_etc dotnet DNDocs.App.Web.dll'. Set env variable first");
+            }
 
             using (var scope = services.CreateScope())
             {

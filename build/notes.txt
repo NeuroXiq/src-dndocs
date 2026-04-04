@@ -2,5 +2,5 @@
 sudo chown -R user1:user1 /var/www/my-app
 
 mount /dev/...src /mnt/usb1 e.g.
-# usb hdd, exfat, mount and can be used by all users:
-sudo mount -t exfat -o umask=000,users /dev/sdf1 /mnt/usb2
+# usb hdd, exfat, mounted user must be an owner, stange thigs happen if not:
+mount -t exfat /dev/sdf1 /mnt/usb2 -o uid=1000,gid=1000,umask=000
