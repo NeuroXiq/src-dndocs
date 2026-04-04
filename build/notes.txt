@@ -1,2 +1,6 @@
 `user (application that run dndocs) must have permission to folder, run as admin:
 sudo chown -R user1:user1 /var/www/my-app
+
+mount /dev/...src /mnt/usb1 e.g.
+# usb hdd, exfat, mount and can be used by all users:
+sudo mount -t exfat -o umask=000,users /dev/sdf1 /mnt/usb2

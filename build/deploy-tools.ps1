@@ -1,6 +1,37 @@
+param(
+	[Parameter(Mandatory=$true)]
+	[ValidateSet('Production', 'Staging', 'DevTest')]
+	$environment
+)
+
+$ErrorActionPreference = "Stop"
+Set-strictmode -version latest
+
+. "$PSScriptRoot/../../secrets/dndocs-deploy-secret.ps1" $environment 'DNDocs'
+
 $linux_username = $luser;
 $linux_password = $lpass;
 $linux_server = $lsrv
+
+$env = $environment.ToLower();
+$dndocsAppName = "dndocs-app-$env";
+$dndocsDocsAppName = "dndocs-docs-app-$env";
+$dndocsJobAppName = "dndocs-job-app-$env";
+
+$dndocsServiceName = "$dndocsAppName.service";
+$dndocsDocsServiceName = "$dndocsDocsAppName.service";
+$dndocsJobServiceName = "$dndocsJobAppName.service";
+
+$dndocsDataPath = "/mnt/usb2/dndocs/dndocs-data-$env";
+$dndocsDocsDataPath = "/mnt/usb2/dndocs/dndocs-docs-data-$env";
+$dndocsJobDataPath = "/mnt/usb2/dndocs/dndocs-job-data-$env";
+
+function PlinkCommand($commands) {
+	$commands = $commands.Replace("`r`n", "`n");
+	write-output 'starting plink with commands:'
+	write-output $commands
+	plink.exe "$linux_username@192.168.0.3" -batch -pw $linux_password "`"$commands`""
+}
 
 function LinuxExec($command, $name) {
 	if ([string]::IsNullOrEmpty($command) -or [string]::IsNullOrWhiteSpace($name)) {

@@ -6,10 +6,6 @@ param(
     $dnAppZip
 )
 
-$ErrorActionPreference = "Stop"
-Set-strictmode -version latest
-
-. "$PSScriptRoot/../../secrets/dndocs-deploy-secret.ps1" $environment 'DNDocs'
 . "$PSScriptRoot/deploy-tools.ps1"
 
 $appName = "dndocs-app-$($environment.ToLower())";

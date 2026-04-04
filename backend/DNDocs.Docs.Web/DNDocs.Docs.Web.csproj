@@ -28,17 +28,16 @@
     <None Remove="Infrastructure\Migrations\VarSite\_00002__sitemaps_.sql" />
     <None Remove="PublicHtml\cookies-consent.html" />
     <None Remove="PublicHtml\dndocs-docfx-script.js" />
-    <None Remove="PublicHtml\public\dndocs-docfx-script-org.js" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="PublicHtml\cookies-consent.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="PublicHtml\public\dndocs-docfx-script-org.js">
+    <Content Include="PublicHtml\public\dndocs-docfx-script.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="PublicHtml\public\dndocs-docfx-script.js">
+    <Content Include="PublicHtml\public\dndocs-docfx-script-2.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

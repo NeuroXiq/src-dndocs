@@ -39,7 +39,7 @@ namespace DNDocs.Infrastructure.Utils
             }
         }
 
-        const string AppDbName = "appdb.sqlite";
+        const string AppDbName = "app.sqlite";
         const string LogDbName = "log.sqlite";
         const string TempFilesFolderName = "temp";
         public static string TempFilesFolderFullPath => $"{filesysPath}/{TempFilesFolderName}";
