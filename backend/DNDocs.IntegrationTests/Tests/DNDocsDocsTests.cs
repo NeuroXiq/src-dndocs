@@ -1,7 +1,7 @@
 ﻿namespace DNDocs.IntegrationTests
 {
 
-    public class ManagementControllerNugetProject : TestsBase
+    public class DNDocsDocsTests : IntegrationTestsBase
     {
         //[Test]
         //public void Ping_WillThrowIfInvalidApiKey()

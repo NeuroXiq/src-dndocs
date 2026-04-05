@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DNDocs.Docs.Api\DNDocs.Docs.Api.csproj" />
+    <ProjectReference Include="..\DNDocs.Job.Api\DNDocs.Job.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

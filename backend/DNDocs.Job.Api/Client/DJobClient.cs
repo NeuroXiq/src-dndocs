@@ -32,7 +32,7 @@ namespace DNDocs.Job.Api.Client
         public string ServerUrl { get; set; }
     }
 
-    internal class DNDocsJobApiClient : IDNDocsJobApiClient
+    public class DNDocsJobApiClient : IDNDocsJobApiClient
     {
         private ILogger<DNDocsJobApiClient> logger;
         private DNDocsJobApiClientOptions options;

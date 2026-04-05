@@ -3,7 +3,7 @@
 namespace DNDocs.IntegrationTests
 {
     [TestFixture]
-    internal class PublicContentControllerTests : TestsBase
+    internal class PublicContentControllerTests : IntegrationTestsBase
     {
         const string NPknName = "testing-content-nupkg";
         const string NPknVer= "1.2.3.4-testing-version-string";

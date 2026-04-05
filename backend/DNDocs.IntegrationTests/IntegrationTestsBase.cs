@@ -1,9 +1,14 @@
-﻿namespace DNDocs.IntegrationTests
+﻿using DNDocs.Docs.Api.Client;
+using DNDocs.Job.Api.Client;
+
+namespace DNDocs.IntegrationTests
 {
     public class IntegrationTestsBase
     {
-        protected HttpClient DNDocsClient { get; set; }
-        protected HttpClient DNDocsDocsClient { get; set; }
-        protected HttpClient DNDocsJobClient { get; set; }
+        public DDocsApiClient DNDocsDocsApiClient { get; set; }
+
+        public DNDocsJobApiClient DNDocsJobApiClient { get; set; }
+
+        public HttpClient DNDocsHttpClient { get; set; }
     }
 }
