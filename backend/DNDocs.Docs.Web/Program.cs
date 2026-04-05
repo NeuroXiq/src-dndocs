@@ -110,29 +110,6 @@ namespace DNDocs.Docs.Web
                 else if (e.HttpMethod == HttpMethod.Post) app.MapPost(e.Route, e.Delegate).DisableAntiforgery();
                 else throw new Exception($"Startup exception, unknown HttpMethod to bind: '{e.HttpMethod?.ToString()}' on route '{e.Route}'");
             }
-
-
-            //byte[] filebytes = File.ReadAllBytes(@"C:\Users\user\Desktop\ef_site.zip");
-
-            // #if DEGUB
-            //for (int i = 0; i < 1; i++)
-            //{
-            //    Task.Factory.StartNew(async () =>
-            //    {
-            //        var id = new Random().Next(1000123);
-            //        // var stre = new FileStream(@"C:\Users\user\Desktop\_site.zip", FileMode.Open);
-            //        var stre = new MemoryStream();
-            //        stre.Write(filebytes);
-            //        stre.Position = 0;
-            //        stre.Position = 0;
-            //        new DndocsDocsApiClient(new DndocsApiClientOptions { ApiKey = "@T4hjr4dsh$%H$J%45j6t7kY^zsdg34", ServerUrl = "https://localhost:7088" }, new asdf())
-            //        .CreateOrReplaceProject(id, "pname", null, null, id.ToString(), id.ToString(), 3, "dndocs-ver1",
-            //        stre).Wait();
-            //    });
-            //}
-            
-            // #endif
-           
             
            app.Run();
         }
@@ -141,19 +118,19 @@ namespace DNDocs.Docs.Web
         static bool IgnoreHttpLogsFor(HttpContext context)
         {
             // ignore hot paths as there is no use of logs for e.g. '.js/.css' files when 99.99% will be 200 OK
-            var path = context.Request.Path.Value;
-            if ((context.Response.StatusCode == 200 || context.Response.StatusCode == 304) && path != null)
+            var path = context.Request.Path;
+
+            if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
             {
-                if (
-                path.StartsWith("/n/") ||
-                path.StartsWith("/v/") ||
-                path.StartsWith("/s/"))
-                {
-                    return false;
-                }
+                bool shouldIgnore = path.StartsWithSegments("/n") ||
+                    path.StartsWithSegments("/favicon.ico") ||
+                    path.StartsWithSegments("/public") ||
+                    path.StartsWithSegments("/robots.txt");
+
+                return shouldIgnore;
             }
 
-            return true;
+            return false;
         }
     }
 }
