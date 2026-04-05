@@ -1,5 +1,4 @@
-﻿using DNDocs.Docs.Api.Management;
-using DNDocs.Docs.Api.Shared;
+﻿using DNDocs.Docs.Api.Shared;
 using DNDocs.Docs.IntegrationTests.Shared;
 using System;
 using System.Collections.Generic;

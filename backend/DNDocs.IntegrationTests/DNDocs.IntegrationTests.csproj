@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DNDocs.IntergrationTests.Shared\DNDocs.IntergrationTests.Shared.csproj" />
+    <ProjectReference Include="..\DNDocs.Docs.Api\DNDocs.Docs.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

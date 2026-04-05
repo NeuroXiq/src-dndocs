@@ -1,11 +1,6 @@
-﻿using DNDocs.Docs.Api.Management;
-using DNDocs.Docs.IntegrationTests.Shared;
+﻿using DNDocs.Docs.IntegrationTests.Shared;
 using DNDocs.IntergrationTests.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DNDocs.Docs.IntegrationTests.PublicContentTests
 {

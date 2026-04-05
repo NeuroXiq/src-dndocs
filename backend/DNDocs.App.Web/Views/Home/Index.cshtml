@@ -1,4 +1,9 @@
-﻿@section Css
+﻿@using Microsoft.Extensions.Options
+@model DNDocs.App.Web.Controllers.HomeController.GenerateModel
+
+@inject IOptions<DNDocs.Shared.Configuration.DNDocsSettings> dndocsSettings
+
+@section Css
 {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,13 +31,13 @@
                     <div class="field">
                         <label class="label">Package Name</label>
                         <div class="control">
-                            <input class="input" type="text" name="packagename" />
+                            <input class="input" type="text" name="packagename" value="@Model?.PackageName" />
                         </div>
                     </div>
                     <div class="field">
                         <label class="label">Package Version</label>
                         <div class="control">
-                            <input class="input" type="text" name="packageversion" />
+                            <input class="input" type="text" name="packageversion" value="@Model?.PackageVersion" />
                         </div>
                     </div>
                     <div class="field">
@@ -47,7 +52,7 @@
 
                 <div style="display: flex; flex-wrap: wrap; justify-content: center;">
 
-                    <a href="https://www.google.com/"
+                    <a href="https://github.com/NeuroXiq/DNDocs"
                        target="_blank"
                        class="tag is-link is-medium is-success is-light m-2">
                         <span class="icon" style="margin-right: 8px">
@@ -56,7 +61,7 @@
                         DNDOCS GITHUB
                     </a>
 
-                    <a href="https://www.google.com/"
+                    <a href="@dndocsSettings.Value.DNDocsDocsServerUrl/system/projects"
                        target="_blank"
                        class="tag is-link is-medium is-link is-light m-2">
                         <span class="icon" style="margin-right: 8px">
@@ -65,7 +70,7 @@
                         ALL PROJECTS
                     </a>
                     
-                    <a href="https://www.google.com/"
+                    <a href="https://github.com/NeuroXiq/src-dndocs"
                        target="_blank"
                        class="tag is-link is-medium is-info is-light m-2">
                         <span class="icon" style="margin-right: 8px">
@@ -73,7 +78,7 @@
                         </span>
                         SOURCE CODE
                     </a>
-                    <a href="https://www.google.com/"
+                    <a href="https://github.com/NeuroXiq/DNDocs/issues"
                        target="_blank"
                        class="tag is-link is-medium is-danger  is-light m-2">
                         <span class="icon" style="margin-right: 8px">
@@ -101,6 +106,9 @@
             <section class="section is-hidden pt-2" id="section-errors">
                 <div class="notification is-danger" id="error-message">
                 </div>
+            </section>
+            <section class="section" id="section-badge">
+                badge example for README.md
             </section>
         </div>
     </main>

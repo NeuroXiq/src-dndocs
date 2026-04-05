@@ -13,6 +13,7 @@ namespace DNDocs.Shared.Configuration
         public string OSPathInfrastructureDirectory { get; set; }
         public string UrlProjectNugetOrgApiFolder { get; set; }
         public string DNDocsApiKey { get; set; }
+        public string DNDocsDocsServerUrl { get; set; }
 
         public DNDocsSettings()
         {

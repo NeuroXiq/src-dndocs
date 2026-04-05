@@ -72,7 +72,7 @@ namespace DNDocs.Web
 
             // dndocs
 
-            builder.AddDNDocsDocsApiClient();
+            builder.AddDNDocsDocsApiClient(c => c.ServerUrl = dnOptions.DNDocsDocsServerUrl);
 
             services.AddHttpClient();
             services.Configure<CookiePolicyOptions>(opt =>

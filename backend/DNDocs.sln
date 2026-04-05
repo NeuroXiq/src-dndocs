@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.32126.317
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11527.330 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.App.Infrastructure", "DNDocs.App.Infrastructure\DNDocs.App.Infrastructure.csproj", "{6728A1A1-A79E-4C1D-B639-99E3E0E29A10}"
 EndProject
@@ -17,8 +17,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.App.Web", "DNDocs.Ap
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5D46AF20-5396-42EF-AAE3-3CACC1FAEDDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.IntegrationTests", "DNDocs.Web.IntegrationTests\Web.IntegrationTests.csproj", "{7A5FB820-B591-4A6A-8F89-08EF6951B19C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.Resources", "DNDocs.Resources\DNDocs.Resources.csproj", "{8ACBF681-3750-4FCF-9FE8-77D3BDD2EA0B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.Docs.Web", "DNDocs.Docs.Web\DNDocs.Docs.Web.csproj", "{CA23B971-0108-4094-A9A2-C724108E0644}"
@@ -26,8 +24,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vinca", "Vinca\Vinca.csproj", "{C4C95D46-6529-4B17-AE2C-3E94FB658FE3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.Docs.Api", "DNDocs.Docs.Api\DNDocs.Docs.Api.csproj", "{6E789602-3121-4430-9F3C-5D391E877F47}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.Docs.IntegrationTests", "Dndocs.Docs.IntegrationTests\DNDocs.Docs.IntegrationTests.csproj", "{53600856-B666-4604-BF00-27EE384785F1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.ProductionTests", "DNDocs.ProductionTests\DNDocs.ProductionTests.csproj", "{77182377-E031-4552-846D-E233F5CFFAA7}"
 EndProject
@@ -42,8 +38,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.PerformanceTests", "DNDocs.PerformanceTests\DNDocs.PerformanceTests.csproj", "{86F823D0-9ED7-4719-8E15-D410E0FF4E1C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.IntegrationTests", "DNDocs.IntegrationTests\DNDocs.IntegrationTests.csproj", "{BDDD3E38-CEE2-486C-A5DD-4B37D619D840}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DNDocs.IntergrationTests.Shared", "DNDocs.IntergrationTests.Shared\DNDocs.IntergrationTests.Shared.csproj", "{06565174-9BDE-459A-99AC-4B104F386ED8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,9 +69,6 @@ Global
 		{CD1B6D86-7165-4380-A035-BC677CA785F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD1B6D86-7165-4380-A035-BC677CA785F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD1B6D86-7165-4380-A035-BC677CA785F3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7A5FB820-B591-4A6A-8F89-08EF6951B19C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A5FB820-B591-4A6A-8F89-08EF6951B19C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A5FB820-B591-4A6A-8F89-08EF6951B19C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8ACBF681-3750-4FCF-9FE8-77D3BDD2EA0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8ACBF681-3750-4FCF-9FE8-77D3BDD2EA0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ACBF681-3750-4FCF-9FE8-77D3BDD2EA0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -94,10 +85,6 @@ Global
 		{6E789602-3121-4430-9F3C-5D391E877F47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E789602-3121-4430-9F3C-5D391E877F47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E789602-3121-4430-9F3C-5D391E877F47}.Release|Any CPU.Build.0 = Release|Any CPU
-		{53600856-B666-4604-BF00-27EE384785F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{53600856-B666-4604-BF00-27EE384785F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{53600856-B666-4604-BF00-27EE384785F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{53600856-B666-4604-BF00-27EE384785F1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{77182377-E031-4552-846D-E233F5CFFAA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{77182377-E031-4552-846D-E233F5CFFAA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77182377-E031-4552-846D-E233F5CFFAA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -126,22 +113,15 @@ Global
 		{BDDD3E38-CEE2-486C-A5DD-4B37D619D840}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDDD3E38-CEE2-486C-A5DD-4B37D619D840}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDDD3E38-CEE2-486C-A5DD-4B37D619D840}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06565174-9BDE-459A-99AC-4B104F386ED8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06565174-9BDE-459A-99AC-4B104F386ED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06565174-9BDE-459A-99AC-4B104F386ED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06565174-9BDE-459A-99AC-4B104F386ED8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7A5FB820-B591-4A6A-8F89-08EF6951B19C} = {5D46AF20-5396-42EF-AAE3-3CACC1FAEDDD}
-		{53600856-B666-4604-BF00-27EE384785F1} = {5D46AF20-5396-42EF-AAE3-3CACC1FAEDDD}
 		{77182377-E031-4552-846D-E233F5CFFAA7} = {5D46AF20-5396-42EF-AAE3-3CACC1FAEDDD}
 		{373728A8-2744-4FE4-9475-16CFA27215B0} = {5D46AF20-5396-42EF-AAE3-3CACC1FAEDDD}
 		{86F823D0-9ED7-4719-8E15-D410E0FF4E1C} = {5D46AF20-5396-42EF-AAE3-3CACC1FAEDDD}
 		{BDDD3E38-CEE2-486C-A5DD-4B37D619D840} = {5D46AF20-5396-42EF-AAE3-3CACC1FAEDDD}
-		{06565174-9BDE-459A-99AC-4B104F386ED8} = {5D46AF20-5396-42EF-AAE3-3CACC1FAEDDD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4BC03FB9-A716-4A5B-8CD0-BE716D7CDA04}

@@ -20,7 +20,7 @@ namespace DNDocs.ProductionTests.ProductionTests
         [Test]
         public async Task DNDocs_LoadBasicResources_Ok()
         {
-            var favicon = await HttpClientDNDocs.GetByteArrayAsync("/favicon.ico");
+            var favicon = await HttpClientDNDocsDocs.GetByteArrayAsync("/favicon.ico");
             Assert.That(favicon?.Length > 10, "load favicon");
         }
     }

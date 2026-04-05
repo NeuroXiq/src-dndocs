@@ -1,15 +1,8 @@
 ﻿using DNDocs.Docs.Api.Client;
-using DNDocs.Docs.IntegrationTests.Shared;
 using DNDocs.IntergrationTests.Shared;
 using Microsoft.Extensions.Options;
-using NUnit.Framework.Constraints;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 
 // this namespace is important because it 

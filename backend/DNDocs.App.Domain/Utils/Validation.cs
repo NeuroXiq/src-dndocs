@@ -69,7 +69,6 @@ namespace DNDocs.Domain.Utils
 
         public static void ThrowError(string message)
         {
-            throw new DNDomainException(message);
         }
 
         public static void ThrowError(bool shouldThrow, string msg)
