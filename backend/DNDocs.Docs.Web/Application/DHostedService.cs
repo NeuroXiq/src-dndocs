@@ -257,7 +257,7 @@ namespace DNDocs.Docs.Web.Application
             var sitemapIndexGen = new SitemapIndexGenerator();
 
             foreach (var sitemapItem in allSitemaps)
-                sitemapIndexGen.Append(settings.GetUrlDDocs(sitemapItem.Path), sitemapItem.UpdatedOn);
+                sitemapIndexGen.Append(settings.GetUrlDNDocsDocs(sitemapItem.Path), sitemapItem.UpdatedOn);
 
             await repository.DeleteSitemapIndex();
             long sitemapsCount = sitemapIndexGen.UrlsCount;

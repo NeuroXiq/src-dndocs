@@ -202,7 +202,7 @@ namespace DNDocs.Docs.Web.Web
         private static void Authorized(HttpContext context, IManagementControllerContext mcContext)
         {
             var logger = mcContext.Logger;
-            var apiKey = mcContext.Settings.Value.DDocsApiKey;
+            var apiKey = mcContext.Settings.Value.DNDocsDocsApiKey;
 
             Exception exc = null;
 

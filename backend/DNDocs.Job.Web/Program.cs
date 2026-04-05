@@ -65,7 +65,7 @@ namespace DNDocs.Job.Web
             var optionsBuilder = builder.Services.AddOptions<DJobSettings>().Bind(builder.Configuration.GetSection(nameof(DJobSettings)));
 
             optionsBuilder
-                .Validate(o => !string.IsNullOrWhiteSpace(o.DJobApiKey), nameof(DJobSettings.DJobApiKey))
+                .Validate(o => !string.IsNullOrWhiteSpace(o.DNDocsJobApiKey), nameof(DJobSettings.DNDocsJobApiKey))
                 .Validate(o => !string.IsNullOrWhiteSpace(o.DataDirectory), nameof(DJobSettings.DataDirectory))
                 .Validate(o => o.MaxParallelBuildCount > 0, $"{nameof(DJobSettings.MaxParallelBuildCount)} must be > 0")
                 .ValidateOnStart();

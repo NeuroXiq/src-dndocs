@@ -51,14 +51,14 @@ namespace DNDocs.Job.Web.Web
 
         public static async Task<IResult> PingAuthorized(HttpContext httpContext, [FromServices] IApiControllerCtx context)
         {
-            XApiKey.Validate(httpContext, context.Settings.DJobApiKey, context.Logger);
+            XApiKey.Validate(httpContext, context.Settings.DNDocsJobApiKey, context.Logger);
 
             return Results.Ok();
         }
 
         internal static async Task<IResult> BuildNugetOrgProject(HttpContext context, [FromServices] IApiControllerCtx ctx, [FromBody] BuildNugetOrgProjectModel model)
         {
-            XApiKey.Validate(context, ctx.Settings.DJobApiKey, ctx.Logger);
+            XApiKey.Validate(context, ctx.Settings.DNDocsJobApiKey, ctx.Logger);
 
             // do very basic validation only for safety reason
             VValidate.Throw(model.ProjectId < 1, "Id");

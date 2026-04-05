@@ -2,7 +2,7 @@
 {
     public class DJobSettings
     {
-        public string DJobApiKey { get; set; }
+        public string DNDocsJobApiKey { get; set; }
         public string DataDirectory { get; set; }
         public int MaxParallelBuildCount { get; set; }
     }
