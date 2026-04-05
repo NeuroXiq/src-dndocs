@@ -6,10 +6,6 @@ param(
 
 set-location "$PSScriptRoot";
 $date = (get-date).tostring("yyyyMMdd_HHmmss")
-$buildOut = "$PSScriptRoot/temp/tests-buildout-$date";
-$logsOut = "$PSScriptRoot/temp/tests-logs-$date"
 $prodTestDir = resolve-path "../backend/DNDocs.ProductionTests";
-
-set-content "$prodTestDir/settings.json" -encoding utf8 -value (cat "$prodTestDir/settings.$environment.json")
-
-dotnet test "$prodTestDir/DNDocs.ProductionTests.csproj" --results-directory $logsOut --output $buildOut 
+set-content "$prodTestDir/settings.json" -encoding utf8 -value (get-content "$prodTestDir/settings.$environment.json" -raw)
+dotnet test "$prodTestDir/DNDocs.ProductionTests.csproj" --results-directory "$PSScriptRoot/temp/tests-prod-logs-$date" --output "$PSScriptRoot/temp/tests-prod-buildout-$date";

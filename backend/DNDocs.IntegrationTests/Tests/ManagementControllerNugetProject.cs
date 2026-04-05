@@ -1,12 +1,7 @@
 ﻿using DNDocs.Docs.Api.Shared;
-using DNDocs.Docs.IntegrationTests.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DNDocs.IntegrationTests.Shared;
 
-namespace DNDocs.Docs.IntegrationTests.ManagementTests
+namespace DNDocs.IntegrationTests.ManagementTests
 {
     internal class ManagementControllerNugetProject : TestsBase
     {

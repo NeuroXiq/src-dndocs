@@ -21,7 +21,7 @@ namespace DNDocs.Job.Web.Infrastructure
 
         public DJobInfrastructure(IOptions<DJobSettings> options)
         {
-            infrastructureDirectory = options.Value.OSPathInfrastructureDirectory;
+            infrastructureDirectory = options.Value.DataDirectory;
 
             if (!Directory.Exists(infrastructureDirectory))
                 throw new Exception($"(Safety): directory does not exists: '{infrastructureDirectory}'. Create this directory manually");

@@ -2,7 +2,7 @@
 {
     public class DOptions
     {
-        public string AppDataDirectoryPath { get; set; }
+        public string DataDirectory { get; set; }
         public StringsOpts Strings { get; set;  }
         public string DDocsApiKey { get; set; }
         public long MemoryCacheMaxSizeMB { get; set; }

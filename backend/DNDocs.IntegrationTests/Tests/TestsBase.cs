@@ -1,46 +1,9 @@
 ﻿using DNDocs.Docs.Api.Client;
 using DNDocs.IntergrationTests.Shared;
 using Microsoft.Extensions.Options;
-using System.Diagnostics;
 using System.Net;
 
-
-// this namespace is important because it 
-// is ran under tests with given namespace.
-// this namespace is root of all tests thus this will be called only once
-namespace DNDocs.Docs.IntegrationTests
-{
-
-    [SetUpFixture]
-    public class GlobalTestsSetup
-    {
-        private static Process ddocsProcess = null;
-
-
-        [OneTimeSetUp]
-        public async Task Start_OneTimeSetupGlobalSetup()
-        {
-            if (!File.Exists(TestsAppConfig.PathSmallSizeZip))
-                throw new Exception($"Startup exception: small path site  file does not exists in '{TestsAppConfig.PathSmallSizeZip}'");
-
-            if (!File.Exists(TestsAppConfig.PathBigSiteZip))
-                throw new Exception($"Startup exception: big path site file does not exists in '{TestsAppConfig.PathBigSiteZip}'");
-
-            ITSetup.StartServer_DDocs();
-        }
-
-        [OneTimeTearDown]
-        public void Start_OneTimeGlobalTeardown()
-        {
-            ddocsProcess.Kill(true);
-            ddocsProcess.Dispose();
-        }
-
-
-    }
-}
-
-namespace DNDocs.Docs.IntegrationTests.Shared
+namespace DNDocs.IntegrationTests.Shared
 {
     [TestFixture]
     public class TestsBase

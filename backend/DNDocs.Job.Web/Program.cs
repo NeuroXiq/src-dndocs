@@ -66,7 +66,7 @@ namespace DNDocs.Job.Web
 
             optionsBuilder
                 .Validate(o => !string.IsNullOrWhiteSpace(o.DJobApiKey), nameof(DJobSettings.DJobApiKey))
-                .Validate(o => !string.IsNullOrWhiteSpace(o.OSPathInfrastructureDirectory), nameof(DJobSettings.OSPathInfrastructureDirectory))
+                .Validate(o => !string.IsNullOrWhiteSpace(o.DataDirectory), nameof(DJobSettings.DataDirectory))
                 .Validate(o => o.MaxParallelBuildCount > 0, $"{nameof(DJobSettings.MaxParallelBuildCount)} must be > 0")
                 .ValidateOnStart();
         }

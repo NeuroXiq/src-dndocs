@@ -86,7 +86,7 @@ namespace DNDocs.Web
                 opt.MultipartBodyLengthLimit = 16 * 1024 * 1024;
             });
 
-            builder.Services.AddRobiniaInfrastructure(dnOptions.OSPathInfrastructureDirectory);
+            builder.Services.AddRobiniaInfrastructure(dnOptions.DataDirectory);
 
             // dndocs.app.domain
             services.AddScoped<AppDbContext>();
@@ -179,7 +179,7 @@ namespace DNDocs.Web
                 .Validate(c => c.BackendBackgroundWorkerDoImportantWorkSleepSeconds > 5, "BackendBackgroundWorkerDoImportantWorkSleepSeconds")
                 .Validate(c => c.BackendBackgroundWorkerDoWorkSleepSeconds > 5, "BackendBackgroundWorkerDoWorkSleepSeconds")
                 .Validate(c => c.FrontendBackgroundWorkerDoWorkSleepSeconds > 5, "FrontendBackgroundWorkerDoWorkSleepSeconds")
-                .Validate(c => !string.IsNullOrWhiteSpace(c.OSPathInfrastructureDirectory), "OSPathInfrastructureDirectory")
+                .Validate(c => !string.IsNullOrWhiteSpace(c.DataDirectory), "DataDirectory")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.DNDocsApiKey), "DNDocsApiKey")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Issuer), "Issuer")
                 .Validate(c => !string.IsNullOrWhiteSpace(c.Jwt.Audience), "Audience")
@@ -189,9 +189,9 @@ namespace DNDocs.Web
 
             // custom validations
             
-            if (!Directory.Exists(temp.OSPathInfrastructureDirectory))
+            if (!Directory.Exists(temp.DataDirectory))
             {
-                throw new Exception($"OSPathInfrastructureDirectory directory do not exists: '{temp.OSPathInfrastructureDirectory}'");
+                throw new Exception($"DataDirectory directory do not exists: '{temp.DataDirectory}'");
             }
 
             return temp;

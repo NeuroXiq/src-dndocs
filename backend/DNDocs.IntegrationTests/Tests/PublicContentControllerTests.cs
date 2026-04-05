@@ -1,8 +1,8 @@
-﻿using DNDocs.Docs.IntegrationTests.Shared;
+﻿using DNDocs.IntegrationTests.Shared;
 using DNDocs.IntergrationTests.Shared;
 using System.Text;
 
-namespace DNDocs.Docs.IntegrationTests.PublicContentTests
+namespace DNDocs.IntegrationTests.PublicContentTests
 {
     [TestFixture]
     internal class PublicContentControllerTests : TestsBase

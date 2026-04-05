@@ -40,13 +40,13 @@ namespace DNDocs.Docs.Web.Infrastructure
         {
             this.metrics = metrics;
             this.options = fsOptions.Value;
-            if (!Directory.Exists(options.AppDataDirectoryPath))
-                throw new ArgumentException($"(Safety): Directory for instrastructure not exists: '{options.AppDataDirectoryPath}'. Create this directory manually on dev env.");
+            if (!Directory.Exists(options.DataDirectory))
+                throw new ArgumentException($"(Safety): Directory for instrastructure not exists: '{options.DataDirectory}'. Create this directory manually on dev env.");
 
-            OSPath_AppDb = Path.Combine(options.AppDataDirectoryPath, "app.sqlite");
-            OSPath_SiteDb = Path.Combine(options.AppDataDirectoryPath, "site.sqlite");
-            OSPath_VarSiteDb = Path.Combine(options.AppDataDirectoryPath, "varsite.sqlite");
-            OSPath_LogDb = Path.Combine(options.AppDataDirectoryPath, "log.sqlite");
+            OSPath_AppDb = Path.Combine(options.DataDirectory, "app.sqlite");
+            OSPath_SiteDb = Path.Combine(options.DataDirectory, "site.sqlite");
+            OSPath_VarSiteDb = Path.Combine(options.DataDirectory, "varsite.sqlite");
+            OSPath_LogDb = Path.Combine(options.DataDirectory, "log.sqlite");
 
             ConnectionString_App = $"Data Source={OSPath_AppDb};";
             ConnectionString_Site = $"Data Source={OSPath_SiteDb};";

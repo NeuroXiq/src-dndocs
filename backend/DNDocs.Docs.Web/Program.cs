@@ -18,7 +18,7 @@ namespace DNDocs.Docs.Web
             var optionsBuilder = builder.Services.AddOptions<DOptions>().Bind(builder.Configuration.GetSection($"{nameof(DOptions)}"));
 
             optionsBuilder
-                .Validate(o => Directory.Exists(o.AppDataDirectoryPath), $"{nameof(DOptions)}.{nameof(DOptions.AppDataDirectoryPath)}")
+                .Validate(o => Directory.Exists(o.DataDirectory), $"{nameof(DOptions)}.{nameof(DOptions.DataDirectory)}")
                 .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlNugetProjectGenerate), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlNugetProjectGenerate)}")
                 .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlProjectNugetOrgFormat), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlProjectNugetOrgFormat)}")
                 .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlDDocs), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlDDocs)}")

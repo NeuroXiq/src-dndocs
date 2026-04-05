@@ -10,7 +10,7 @@ namespace DNDocs.Shared.Configuration
         public int BackendBackgroundWorkerDoImportantWorkSleepSeconds { get; set; }
         public int BackendBackgroundWorkerDoWorkSleepSeconds { get; set; }
         public int FrontendBackgroundWorkerDoWorkSleepSeconds { get; set; }
-        public string OSPathInfrastructureDirectory { get; set; }
+        public string DataDirectory { get; set; }
         public string UrlProjectNugetOrgApiFolder { get; set; }
         public string DNDocsApiKey { get; set; }
         public string DNDocsDocsServerUrl { get; set; }
