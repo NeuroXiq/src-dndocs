@@ -1,3 +1,6 @@
 ﻿{
-  "EnvironmentName": "Development"
+  "EnvironmentName": "Development",
+  "DNDocsServerUrl": "https://localhost:7111",
+  "DNDocsDocsServerUrl": "https://localhost:7088",
+  "DNDocsJobServerUrl": "https://localhost:7100"
 }

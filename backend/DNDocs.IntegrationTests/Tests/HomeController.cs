@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DNDocs.IntegrationTests.Tests
+﻿namespace DNDocs.IntegrationTests
 {
     [TestFixture]
-    internal class HomeController
+    internal class HomeController : TestsBase
     {
         [Test]
         public void FullCreateNugetProject_Success() { throw new Exception();  }

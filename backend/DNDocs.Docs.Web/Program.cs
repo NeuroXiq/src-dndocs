@@ -151,23 +151,5 @@ namespace DNDocs.Docs.Web
 
             return true;
         }
-
-        /// <summary>
-        /// Method used to start program for integration tests.
-        /// Call this method on separate thread to run host and 
-        /// run IT
-        /// </summary>
-        public static void MainIT()
-        {
-            Program.Main(new string[] { "IntegrationTests" });
-        }
-
-        class asdf : IHttpClientFactory
-        {
-            public HttpClient CreateClient(string name)
-            {
-                return new HttpClient();
-            }
-        }
     }
 }

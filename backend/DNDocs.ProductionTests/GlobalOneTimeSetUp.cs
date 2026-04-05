@@ -9,7 +9,6 @@ namespace DNDocs.ProductionTests
     public class GlobalOneTimeSetup
     {
         public static ProductionTestsSettings Settings { get; private set; }
-
         public static HttpClient HttpClientDNDocs { get; private set;}
         public static HttpClient HttpClientDNDocsDocs { get; private set; }
         public static HttpClient HttpClientDNDocsJob { get; private set; }

@@ -1,8 +1,6 @@
-﻿using DNDocs.IntegrationTests.Shared;
-using DNDocs.IntergrationTests.Shared;
-using System.Text;
+﻿using System.Text;
 
-namespace DNDocs.IntegrationTests.PublicContentTests
+namespace DNDocs.IntegrationTests
 {
     [TestFixture]
     internal class PublicContentControllerTests : TestsBase
@@ -145,7 +143,7 @@ namespace DNDocs.IntegrationTests.PublicContentTests
             var name = "not-exists-nupkgname";
             var ver = "notexists-nupkg-ver";
             var response = await hclient.GetAsync($"/n/{name}/{ver}");
-            Assert.That(response.Headers.Location.ToString() == $"{TestsAppConfig.DNHttpUrl}/?packageName={name}&packageVersion={ver}");
+            Assert.That(response.Headers.Location.ToString() == $"TODO/?packageName={name}&packageVersion={ver}");
             Assert.That(response.StatusCode == System.Net.HttpStatusCode.Found);
         }
 
@@ -183,7 +181,7 @@ namespace DNDocs.IntegrationTests.PublicContentTests
                 };
 
             var client = new HttpClient(handler);
-            client.BaseAddress = new Uri(TestsAppConfig.DdocsHttpsUrl);
+            client.BaseAddress = new Uri("TODOTestsAppConfig.DdocsHttpsUrl");
 
             return client;
         }

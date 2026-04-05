@@ -46,7 +46,7 @@ namespace DNDocs.Infrastructure.DataContext
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
 
-#if DEBUG
+#if DEBUG && FALSE
             options.EnableSensitiveDataLogging(true);
             options.LogTo(Console.WriteLine);
 
