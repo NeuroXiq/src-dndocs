@@ -1,5 +1,4 @@
-﻿using DNDocs.Api.DTO.Enums;
-using DNDocs.Api.Shared;
+﻿using DNDocs.Api.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -43,7 +43,10 @@ namespace DNDocs.Web
             // Add services to the container.
 
             // asp.net framework/nuget
-            builder.Services.AddControllersWithViews();
+            var mvcBuilder = builder.Services.AddControllersWithViews();
+
+            if (builder.Environment.IsDevelopment()) mvcBuilder.AddRazorRuntimeCompilation();
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters

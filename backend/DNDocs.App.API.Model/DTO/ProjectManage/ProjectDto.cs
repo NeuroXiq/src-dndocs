@@ -1,5 +1,4 @@
 ﻿using DNDocs.Api.DTO.Enum;
-using DNDocs.Api.DTO.Enums;
 
 namespace DNDocs.Api.DTO.ProjectManage
 {
@@ -12,7 +11,6 @@ namespace DNDocs.Api.DTO.ProjectManage
         public string Description { get; set; }
         public string GithubUrl { get; set; }
         public string Comment { get; set; }
-        public ProjectStatus Status { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime LastModifiedOn { get; set; }
         public DateTime? LastDocfxBuildTime { get; set; }

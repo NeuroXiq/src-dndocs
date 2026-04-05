@@ -19,7 +19,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Helpers\" />
     <Folder Include="Models\Admin\" />
     <Folder Include="Models\Home\" />
   </ItemGroup>

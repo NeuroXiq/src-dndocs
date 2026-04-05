@@ -1,5 +1,8 @@
-﻿@{
-@inject IWebHostEnvironment webHostEnvironment;
+﻿@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment webHostEnvironment
+@inject IFileVersionProvider fileVersionProvider
+
+@{
+
 }
 
 <!DOCTYPE html>
@@ -8,12 +11,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width; initial-scale=1.0" />
     <title>DNDocs - NuGet package explorer</title>
-    <link href="~/lib/fontawesome-free-7.2.0-web/css/all.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="/css-shared/main.css">
-    <link rel="stylesheet" type="text/css" href="/lib/bulma-1.0.4/css/bulma.css">
+    <link href="~/lib/fontawesome-free-7.2.0-web/css/all.css" rel="stylesheet" asp-append-version="true" />
+    <link rel="stylesheet" type="text/css" href="~/css-shared/main.css" asp-append-version="true">
+    <link rel="stylesheet" type="text/css" href="~/lib/bulma-1.0.4/css/bulma.css" asp-append-version="true">
     @RenderSection("Css", required: false)
-    <script type="module" src="~/js-shared/main.js"></script>
-    <script type="module" src="~/js-shared/tools.js"></script>
+
+    <!script type="importmap">
+    @{
+        // e.g. we have: "import { sampleFunc } from '/js/some-module.js' "
+        // but we want: "import { sampleFunc } from 'js/some-module.js?v=some-fileversion-hashabcdef01234'
+        // we are manually creating what asp-append-version="true" doing
+    }
+        {
+            "imports": {
+                "js-shared/tools": "@fileVersionProvider.AddFileVersionToPath(Context.Request.PathBase, "/js-shared/tools.js")"
+            }
+        }
+    </!script>
     @RenderSection("Scripts", required: false)
     </head>
 <body>

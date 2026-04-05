@@ -6,12 +6,12 @@ export function getById(elementId) {
     return document.getElementById(elementId);
 }
 
-export function toggleHideById(elementId, isHidden) {
-    toggleHide(document.getElementById(elementId), isHidden);
+export function isHiddenById(elementId, shouldHide) {
+    isHidden(document.getElementById(elementId), shouldHide);
 }
 
-export function toggleHide(element, isHidden) {
-    if (isHidden) {
+export function isHidden(element, shouldHide) {
+    if (shouldHide) {
         element.classList.add('is-hidden');
     }
     else {

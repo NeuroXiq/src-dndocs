@@ -1,4 +1,4 @@
-﻿import { toggleHide, getById, toggleHideById, setInnerHTMLById } from '/js-shared/tools.js';
+﻿import { getById, isHiddenById, setInnerHTMLById, } from 'js-shared/tools';
 
 
 console.log('init home index');
@@ -117,12 +117,13 @@ function reset() {
     stepper.setStep({ index: 1, status: 'default' });
     stepper.setStep({ index: 2, status: 'default' });
 
-    toggleHideById('section-errors', true);
-    toggleHideById('id-success-section', true);
+   isHiddenById('section-errors', true);
+   isHiddenById('id-success-section', true);
+   isHiddenById('section-badge', true)
 }
 
 function setError(message) {
-    toggleHideById('section-errors', false);
+   isHiddenById('section-errors', false);
     setInnerHTMLById('error-message',
         'Error occured during request processing. <br />' + message +
         '<br /> You can report this issue on github.');
@@ -148,9 +149,16 @@ function runRefreshingStatus() {
             stepper.setStep({ index: 0, status: 'success' });
             stepper.setStep({ index: 1, status: 'success' });
             stepper.setStep({ index: 2, status: 'success' });
-            toggleHideById('id-success-section', false);
+            isHiddenById('id-success-section', false);
             getById('id-success-url').href = r.projectApiFolderUrl;
+            getById('badge-href').href = r.projectApiFolderUrl;
             setInnerHTMLById('id-success-text', r.projectApiFolderUrl);
+            isHiddenById('section-badge', false);
+
+            getById('badge-code').innerHTML =
+                '[![Static Badge](https://img.shields.io/badge/API%20Docs-DNDocs-190088?logo=readme&logoColor=white)]' +
+                `(${r.projectApiFolderUrl})`
+
         } else if (r.state === 2) {
             // waiting to start build
             stepper.setStep({ index: 0, status: 'inprogress' });
