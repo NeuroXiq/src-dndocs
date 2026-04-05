@@ -21,7 +21,11 @@ namespace DNDocs.Docs.Web
                 .Validate(o => Directory.Exists(o.DataDirectory), $"{nameof(DOptions)}.{nameof(DOptions.DataDirectory)}")
                 .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlNugetProjectGenerate), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlNugetProjectGenerate)}")
                 .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlProjectNugetOrgFormat), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlProjectNugetOrgFormat)}")
-                .Validate(o => !string.IsNullOrWhiteSpace(o.Strings?.UrlDNDocsDocs), $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlDNDocsDocs)}")
+                .Validate(o =>
+                    !string.IsNullOrWhiteSpace(o.Strings?.UrlDNDocsDocs)
+                    && !o.Strings.UrlDNDocsDocs.EndsWith("/"),
+                    $"{nameof(DOptions)}.{nameof(DOptions.Strings.UrlDNDocsDocs)} empty or ends with '/'")
+
                 .Validate(o => !string.IsNullOrWhiteSpace(o.DNDocsDocsApiKey), $"{nameof(DOptions)}.{nameof(DOptions.DNDocsDocsApiKey)}")
                 .Validate(o => o.TimeSpanSaveMetrics.TotalSeconds > 0, $"{nameof(DOptions)}.{nameof(DOptions.TimeSpanSaveMetrics)}")
                 .Validate(o => o.FlushAllLogsTimeSpan.TotalSeconds > 0, $"{nameof(DOptions)}.{nameof(DOptions.FlushAllLogsTimeSpan)}")
