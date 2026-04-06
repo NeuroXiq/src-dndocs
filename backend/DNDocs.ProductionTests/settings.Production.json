@@ -1,6 +1,6 @@
 {
-  "EnvironmentName": "DevTest",
+  "EnvironmentName": "Production",
   "DNDocsServerUrl": "https://dndocs.com",
-  "DNDocsJobServerUrl": "https://docs.dndocs.com",
-  "DNDocsDocsServerUrl": "https://dndocs.job.com"
+  "DNDocsJobServerUrl": "https://job.dndocs.com",
+  "DNDocsDocsServerUrl": "https://docs.dndocs.com"
 }

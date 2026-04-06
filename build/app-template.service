@@ -1,0 +1,15 @@
+[Unit]
+Description=DNDocs.App.Web - DevTest
+After=network.target
+
+[Service]
+WorkingDirectory=/mnt/usb2/dndocs/dndocs-app-devtest
+ExecStart=/usr/bin/dotnet /mnt/usb2/dndocs/dndocs-app-devtest/DNDocs.App.Web.dll
+Restart=always
+RestartSec=10
+SyslogIdentifier=DNDocs.App.Web-DevTest
+User=user1
+Environment=ASPNETCORE_ENVIRONMENT=DevTest
+
+[Install]
+WantedBy=multi-user.target

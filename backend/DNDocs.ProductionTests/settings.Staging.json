@@ -1,0 +1,6 @@
+{
+  "EnvironmentName": "Staging",
+  "DNDocsServerUrl": "https://dndocs-staging.dndocs.com",
+  "DNDocsJobServerUrl": "https://dndocs-job-staging.dndocs.com",
+  "DNDocsDocsServerUrl": "https://dndocs-docs-staging.dndocs.com"
+}
