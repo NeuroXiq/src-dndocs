@@ -19,9 +19,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Helpers\" />
-    <Folder Include="Models\Admin\" />
-    <Folder Include="Models\Home\" />
+    <Compile Remove="Helpers\**" />
+    <Compile Remove="Models\Admin\**" />
+    <Compile Remove="Models\Home\**" />
+    <Content Remove="Helpers\**" />
+    <Content Remove="Models\Admin\**" />
+    <Content Remove="Models\Home\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <EmbeddedResource Remove="Models\Admin\**" />
+    <EmbeddedResource Remove="Models\Home\**" />
+    <None Remove="Helpers\**" />
+    <None Remove="Models\Admin\**" />
+    <None Remove="Models\Home\**" />
   </ItemGroup>
 
   <ItemGroup>

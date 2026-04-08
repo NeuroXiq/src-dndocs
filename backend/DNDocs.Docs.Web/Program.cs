@@ -62,7 +62,7 @@ namespace DNDocs.Docs.Web
             
             builder.Services.AddVHttpLogs(o =>
             {
-                o.ShouldSaveLog = IgnoreHttpLogsFor;
+                o.ShouldSaveLog = ShouldSaveLog;
             });
 
             builder.Services.AddVCacheControlService(o =>
@@ -114,23 +114,22 @@ namespace DNDocs.Docs.Web
            app.Run();
         }
 
-
-        static bool IgnoreHttpLogsFor(HttpContext context)
+        static bool ShouldSaveLog(HttpContext context)
         {
             // ignore hot paths as there is no use of logs for e.g. '.js/.css' files when 99.99% will be 200 OK
             var path = context.Request.Path;
 
-            if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
-            {
-                bool shouldIgnore = path.StartsWithSegments("/n") ||
+            if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300 &&
+                (path.StartsWithSegments("/n") ||
                     path.StartsWithSegments("/favicon.ico") ||
                     path.StartsWithSegments("/public") ||
-                    path.StartsWithSegments("/robots.txt");
-
-                return shouldIgnore;
+                    path.StartsWithSegments("/robots.txt"))
+                )
+            {
+                return false;
             }
 
-            return false;
+            return true;
         }
     }
 }
