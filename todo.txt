@@ -1,3 +1,10 @@
+this is wrong:
+var sql = $"{SqlSelectSiteItem(true)} WHERE project_id = @ProjectId AND [path] = @Path COLLATE NOCASE";
+collate must be case sensitive. for example in real database:
+./n/FemDesign.Core/24.2.0/api/FemDesign.Calculate.CONFIG.html
+./n/FemDesign.Core/24.2.0/api/FemDesign.Calculate.Config.html
+
+
 . emails if critical/fatal error, send e.g. once per day criticals, once per week errors
 . vinca -> ddns as hostedservice
 . tools build (?) that check current env if correct

@@ -30,13 +30,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Dapper" Version="2.1.79" />
     <PackageReference Include="dbup" Version="5.0.41" />
-    <PackageReference Include="dbup-sqlite" Version="5.0.40" />
-    <PackageReference Include="HtmlSanitizer" Version="8.1.870" />
-    <PackageReference Include="Markdig" Version="0.37.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.7" />
-    <PackageReference Include="YamlDotNet" Version="16.0.0" />
+    <PackageReference Include="dbup-sqlite" Version="6.0.4" />
+    <PackageReference Include="HtmlSanitizer" Version="9.2.995" />
+    <PackageReference Include="Markdig" Version="1.3.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>
 
   <ItemGroup>

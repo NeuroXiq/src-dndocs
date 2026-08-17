@@ -69,8 +69,8 @@ function onSubmit(e) {
     e.preventDefault();
     reset();
     let formData = Object.fromEntries(new FormData(form));
-    packageName = formData.packagename;
-    packageVersion = formData.packageversion;
+    packageName = formData.packagename?.trim();
+    packageVersion = formData.packageversion?.trim();
 
     requestStatus().then(r => {
         let next = Promise.resolve();

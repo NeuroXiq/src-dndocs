@@ -69,7 +69,6 @@ namespace DNDocs.Docs.Web.Web
             GetManagementEndpoint(HttpMethod.Get, "/ping/{reply?}", Ping),
             GetManagementEndpoint(HttpMethod.Post, "/createproject", CreateProject),
             GetManagementEndpoint(HttpMethod.Post, "/try-delete-project", TryDeleteProjectAsync),
-            GetManagementEndpoint(HttpMethod.Get, "/metrics/{seconds:int?}", Metrics),
             GetManagementEndpoint(HttpMethod.Get, "/site-item-id-paged", GetSiteItemPaged),
             
             new ApiEndpoint(HttpMethod.Get, "/api/system", System),
@@ -103,32 +102,6 @@ namespace DNDocs.Docs.Web.Web
                 .ToList();
 
             return Results.Ok(result);
-        }
-
-        static async Task<IResult> Metrics(
-            HttpContext context,
-            [FromServices] IQRepository qrepository,
-            [FromServices] IManagementControllerContext mmc,
-            [FromRoute] int? seconds)
-        {
-            int secondsBefore = seconds.HasValue ? seconds.Value : 600;
-
-            var metrics = await qrepository.SelectMtMeasurementSum(DateTime.UtcNow.AddSeconds(-secondsBefore), DateTime.UtcNow);
-            var sb = new StringBuilder();
-            PublicContentController.AppendHtmlTable(sb,
-                new[] { "IID", "Sum", "MtInstrumentName", "MtHRangeEnd", "Tags", "Type" },
-                new Func<MtMeasurementSum, object>[]
-                {
-                    t => t.InstrumentId,
-                    t => string.Format("{0:n}", t.Sum),
-                    t => t.InstrumentName,
-                    t => t.MtHRangeEnd,
-                    t => t.InstrumentTags,
-                    t => t.InstrumentType
-                },
-                metrics);
-
-            return PublicContentController.SimpleHtmlPage(sb);
         }
 
         private static async Task<IResult> TryDeleteProjectAsync(

@@ -20,6 +20,7 @@ using Vinca.Ddns;
 using Vinca.DDNS;
 using Vinca.Exceptions;
 using Vinca.Http.Logs;
+using Vinca.SqliteLogger;
 using Vinca.Utils;
 using static DNDocs.Infrastructure.Utils.RawRobiniaInfrastructure;
 
@@ -76,6 +77,7 @@ namespace DNDocs.Web
             // dndocs
 
             builder.AddDNDocsDocsApiClient(c => c.ServerUrl = dnOptions.DNDocsDocsServerUrl);
+            builder.AddVSqliteLogger();
 
             services.AddHttpClient();
             services.Configure<CookiePolicyOptions>(opt =>

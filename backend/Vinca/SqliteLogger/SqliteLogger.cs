@@ -4,30 +4,23 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Text;
 using Microsoft.Extensions.ObjectPool;
+using System.Collections.Concurrent;
 
-namespace Vinca.BufferLogger
+namespace Vinca.SqliteLogger
 {
-    public sealed class BufferLogger : ILogger
+    public sealed class SqliteLogger : ILogger
     {
-        //LoggerExternalScopeProvider
-
         // LoggerExternalScopeProvider
         // https://github.com/dotnet/runtime/blob/main/src/libraries/Microsoft.Extensions.Logging.Abstractions/src/LoggerExternalScopeProvider.cs
 
         private static readonly ObjectPool<StringBuilder> stringBuilderPool = new DefaultObjectPoolProvider().CreateStringBuilderPool();
-
-        Func<BufferLoggerOptions> getOptions;
         private string categoryName;
-        private Action<LogRow> saveLogCallback;
+        private ConcurrentQueue<LogRow> logsQueueReference;
 
-        public BufferLogger(string name,
-            Func<BufferLoggerOptions> getOptions,
-            Action<LogRow> saveLogCallback
-            )
+        public SqliteLogger(string name, ConcurrentQueue<LogRow> logsQueueReference)
         {
             this.categoryName = name;
-            this.getOptions = getOptions;
-            this.saveLogCallback = saveLogCallback;
+            this.logsQueueReference = logsQueueReference;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -55,14 +48,14 @@ namespace Vinca.BufferLogger
 
             var log = new LogRow()
             {
-                CategoryName = this.categoryName,
+                CategoryName = categoryName,
                 EventId = eventId,
                 Date = DateTime.UtcNow,
                 Message = message,
                 LogLevel = logLevel
             };
 
-            saveLogCallback(log);
+            logsQueueReference.Enqueue(log);
         }
 
         string ExceptionToStringForLogs(Exception e)
@@ -78,7 +71,7 @@ namespace Vinca.BufferLogger
 
             if (e.InnerException != null)
             {
-                b.AppendLine("InnerException:\r\n");
+                b.AppendLine("InnerException:");
                 b.Append(ExceptionToStringForLogs(e.InnerException));
             }
 

@@ -1,1 +1,6 @@
-﻿{ }
+﻿{
+  "EnvironmentName": "Production",
+  "DNDocsServerUrl": "https://dndocs.com",
+  "DNDocsJobServerUrl": "https://job.dndocs.com",
+  "DNDocsDocsServerUrl": "https://docs.dndocs.com"
+}

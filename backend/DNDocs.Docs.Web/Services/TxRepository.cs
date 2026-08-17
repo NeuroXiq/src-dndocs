@@ -6,7 +6,6 @@ using DNDocs.Docs.Web.ValueTypes;
 using Microsoft.Data.Sqlite;
 using Microsoft.Net.Http.Headers;
 using SQLitePCL;
-using Microsoft.Data.Sqlite;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using Vinca.Http.Logs;
@@ -21,16 +20,12 @@ namespace DNDocs.Docs.Web.Services
         void BeginTransaction();
         Task CommitAsync();
         Task RollbackAsync();
-
         
         Task InsertSiteHtmlAsync(SiteItem item);
-        Task InsertHttpLogAsync(IEnumerable<VHttpLog> logs);
         Task DeleteSiteHtmlByProjectIdAsync(long projectId);
-        Task InsertAppLogAsync(IEnumerable<AppLog> logRows);
         
         Task<IEnumerable<string>> SelectSiteItemPathByProjectId(long projectId);
         Task<long?> SelectSharedSiteItemIdBySha256(string sha256);
-        Task InsertResourceMonitorUtilization(ResourceMonitorUtilization rmu);
 
         // project
         Task UpdateProjectAsync(Project project);
@@ -51,12 +46,6 @@ namespace DNDocs.Docs.Web.Services
         // other
         Task<IEnumerable<long>> ScriptForSitemapGenerator();
 
-        // metrics
-        Task InsertMtInstrument(MtInstrument newInstrument);
-        Task InsertMtHRange(MtHRange mtHRange);
-        Task InsertMtMeasurement(IEnumerable<MtMeasurement> mtMeasurements);
-        Task<IEnumerable<MtInstrument>> SelectMtInstrument();
-        Task<IEnumerable<MtHRange>> SelectMtHRange();
     }
 
     /// <summary>
@@ -64,15 +53,11 @@ namespace DNDocs.Docs.Web.Services
     /// </summary>
     public class TxRepository : ITxRepository
     {
-        SqliteConnection GetLogSqliteConnection => GetSqliteConnection(DatabaseType.Log);
-
         SqliteConnection appConnection = null;
         SqliteConnection siteConnection = null;
-        SqliteConnection logConnection = null;
         SqliteConnection varSiteConnection = null;
         SqliteTransaction appTx = null;
         SqliteTransaction siteTx = null;
-        SqliteTransaction logTx = null;
         SqliteTransaction varSiteTx = null;
 
         bool isDisposed = false;
@@ -86,51 +71,7 @@ namespace DNDocs.Docs.Web.Services
             this.metrics = metrics;
         }
 
-        #region metrics
-
-        public async Task<IEnumerable<MtInstrument>> SelectMtInstrument()
-        {
-            var con = GetSqliteConnection(DatabaseType.Log);
-
-            return await con.QueryAsync<MtInstrument>(SqlText.SelectMtMeasurement);
-        }
-
-        public async Task<IEnumerable<MtHRange>> SelectMtHRange()
-        {
-            var con = GetSqliteConnection(DatabaseType.Log);
-            string sql = "SELECT id as Id, mt_instrument_id as MtInstrumentId, end as End FROM mt_hrange";
-
-            return await con.QueryAsync<MtHRange>(sql);
-        }
-
-        public async Task InsertMtMeasurement(IEnumerable<MtMeasurement> mtMeasurements)
-        {
-            var con = GetSqliteConnection(DatabaseType.Log);
-            var sql = "INSERT INTO mt_measurement(mt_instrument_id, [value], mt_hrange_id, created_on) " +
-                "VALUES (@MtInstrumentId, @Value, @MtHRangeId, @CreatedOn)";
-
-            await con.ExecuteAsync(sql, mtMeasurements);
-        }
-
-        public async Task InsertMtHRange(MtHRange mtHRange)
-        {
-            var con = GetSqliteConnection(DatabaseType.Log);
-            var sql = $"INSERT INTO mt_hrange(mt_instrument_id, [end]) VALUES (@MtInstrumentId, @End); " + 
-                $"{SqlText.SelectLastInsertRowId};";
-
-            mtHRange.Id = await con.ExecuteScalarAsync<int>(sql, mtHRange);
-        }
-
-        public async Task InsertMtInstrument(MtInstrument instrument)
-        {
-            var con = GetSqliteConnection(DatabaseType.Log);
-            var sql = $"INSERT INTO mt_instrument([name], meter_name, instance_id, created_on, tags, type) " +
-                $"VALUES(@Name, @MeterName, @InstanceId, @CreatedOn, @Tags, @Type); {SqlText.SelectLastInsertRowId}";
-
-            instrument.Id = await con.ExecuteScalarAsync<int>(sql, instrument);
-        }
-
-        #endregion
+        
 
         #region other
 
@@ -186,37 +127,9 @@ namespace DNDocs.Docs.Web.Services
             return needSitemaps;
         }
 
-        public async Task InsertResourceMonitorUtilization(ResourceMonitorUtilization rmu)
-        {
-            var conn = GetSqliteConnection(DatabaseType.Log);
-            var sql = $"INSERT INTO resource_monitor_utilization (" +
-                "cpu_used_percentage, memory_used_in_bytes, " +
-                "memory_used_percentage, date_time )" +
-                "VALUES (@CpuUsedPercentage, @MemoryUsedInBytes, @MemoryUsedPercentage, @DateTime)";
-            await conn.ExecuteAsync(sql, rmu);
-        }
-
         #endregion
 
-        #region logs
-
-        public async Task InsertAppLogAsync(IEnumerable<AppLog> logs)
-        {
-            var connection = GetSqliteConnection(DatabaseType.Log);
-            await connection.ExecuteAsync(
-                "INSERT INTO app_log([message], category_name, log_level_id, event_id, event_name, [date]) VALUES (" +
-                $"@{nameof(AppLog.Message)}," +
-                $"@{nameof(AppLog.CategoryName)}," +
-                $"@{nameof(AppLog.LogLevelId)}," +
-                $"@{nameof(AppLog.EventId)}," +
-                $"@{nameof(AppLog.EventName)}," +
-                $"@{nameof(AppLog.Date)}" +
-                ")",
-                logs);
-        }
-
-        #endregion
-
+        
         #region SiteItem
 
         public async Task InsertSiteHtmlAsync(SiteItem item)
@@ -373,23 +286,6 @@ namespace DNDocs.Docs.Web.Services
             await InsertPublicHtml(GetSqliteConnection(DatabaseType.VarSite), publicHtml);
         }
 
-        public async Task InsertHttpLogAsync(IEnumerable<VHttpLog> logs)
-        {
-            var connection = GetSqliteConnection(DatabaseType.Log);
-            var sql = $"INSERT INTO http_log " +
-                $"([start_date], [end_date], [write_log_date], client_ip, client_port, method, uri_path, uri_query, response_status, bytes_send, " +
-                "bytes_received, time_taken_ms, host, user_agent, referer) VALUES " +
-                "(@StartDate, @EndDate, @WriteLogDate, @ClientIP, @ClientPort, @Method, @UriPath, @UriQuery, @ResponseStatus, @BytesSend, " +
-                "@BytesReceived, @TimeTakenMs, @Host, @UserAgent, @Referer)";
-
-            foreach (var log in logs)
-            {
-                log.WriteLogDate = DateTimeOffset.UtcNow;
-            }
-
-            await connection.ExecuteAsync(sql, logs);
-        }
-
         public void Dispose()
         {
             if (isDisposed) return;
@@ -398,7 +294,7 @@ namespace DNDocs.Docs.Web.Services
 
             if (isTransactionOpen)
             {
-                var transactions = new SqliteTransaction[] { appTx, siteTx, logTx };
+                var transactions = new SqliteTransaction[] { appTx, siteTx };
                 foreach (var tx in transactions)
                 {
                     try { tx?.Rollback(); } catch { }
@@ -409,7 +305,6 @@ namespace DNDocs.Docs.Web.Services
 
             appConnection?.Close();
             siteConnection?.Close();
-            logConnection?.Close();
             varSiteConnection?.Close();
 
             //appConnection?.Dispose();
@@ -441,10 +336,6 @@ namespace DNDocs.Docs.Web.Services
                     siteConnection = connection;
                     siteTx = connection.BeginTransaction();
                     break;
-                case DatabaseType.Log:
-                    logConnection = connection;
-                    logTx = connection.BeginTransaction();
-                    break;
                 case DatabaseType.VarSite:
                     varSiteConnection = connection;
                     varSiteTx = connection.BeginTransaction();
@@ -461,7 +352,6 @@ namespace DNDocs.Docs.Web.Services
             {
                 case DatabaseType.App: connection = appConnection; transaction = appTx; break;
                 case DatabaseType.Site: connection = siteConnection; transaction = siteTx; break;
-                case DatabaseType.Log: connection = logConnection; transaction = logTx; break;
                 case DatabaseType.VarSite: connection = varSiteConnection; transaction = varSiteTx; break;
                 default: throw new ArgumentException();
             }
@@ -480,10 +370,9 @@ namespace DNDocs.Docs.Web.Services
 
             if (appTx != null) await appTx.RollbackAsync();
             if(siteTx != null) await siteTx.RollbackAsync();
-            if(logTx != null) await logTx.RollbackAsync();
             if(varSiteTx != null) await varSiteTx.RollbackAsync();
             
-            appTx = siteTx = logTx = varSiteTx = null;
+            appTx = siteTx = varSiteTx = null;
 
             isTransactionOpen = false;
         }
@@ -494,10 +383,9 @@ namespace DNDocs.Docs.Web.Services
 
             if (appTx != null) await appTx.CommitAsync();
             if(siteTx != null) await siteTx.CommitAsync();
-            if(logTx != null) await logTx.CommitAsync();
             if(varSiteTx != null) await varSiteTx.CommitAsync();
 
-            appTx = siteTx = logTx = varSiteTx = null;
+            appTx = siteTx = varSiteTx = null;
 
             isTransactionOpen = false;
         }

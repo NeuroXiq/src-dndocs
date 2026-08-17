@@ -61,7 +61,6 @@ namespace DNDocs.Docs.Web.Services
         private readonly ConcurrentBag<InstrumentState> instrumentStates;
         private readonly MeterListener meterListener;
         private readonly Dictionary<string, double[]> histogramsConfig;
-        private MetersInDbCache metersInDbCache;
 
         public DMetrics(IMeterFactory meterFactory, IServiceProvider serviceProvider)
         {
@@ -69,7 +68,6 @@ namespace DNDocs.Docs.Web.Services
             stringBuilderPool = new DefaultObjectPoolProvider().CreateStringBuilderPool();
             instrumentStates = new ConcurrentBag<InstrumentState>();
             meterListener = new MeterListener();
-            metersInDbCache = null;
 
             mddocs = meterFactory.Create("DNDocs.Docs.DMetrics", "");
             cSqlOpen = mddocs.CreateCounter<int>("dndocs.sql.connection-open-count", "number", "open new sql connection");
@@ -128,6 +126,9 @@ namespace DNDocs.Docs.Web.Services
             meterListener.Start();
         }
 
+        // todo implement saving in db metrics if we need metrics
+        public Task SaveInDbAndClear() => Task.CompletedTask;
+
         private void OnMeasurementRecoreded(
             Instrument instrument,
             long measurement,
@@ -140,116 +141,6 @@ namespace DNDocs.Docs.Web.Services
             ReadOnlySpan<KeyValuePair<string, object>> tags,
             object state) => ((InstrumentState)state).OnMeasurementDouble(measurement, tags);
 
-        
-
-        public async Task SaveInDbAndClear()
-        {
-            meterListener.RecordObservableInstruments();
-
-            // todo: need to do something with txrepository, get rid of serviceprovider
-            using var scope = serviceProvider.CreateScope();
-            using var txRepository = scope.ServiceProvider.GetRequiredService<ITxRepository>();
-            txRepository.BeginTransaction();
-
-            List<CounterState> allCounterStates = new List<CounterState>();
-
-            // create all instruments if not exist
-            await InitMetersDbCache(txRepository);
-
-            var nowInstrumentStates = instrumentStates.ToArray();
-            foreach (var istate in nowInstrumentStates)
-            {
-                var counterStatesByTags = istate.CounterStateByTags.ToArray();
-
-                foreach (var stateTagsPair in counterStatesByTags)
-                {
-                    string tags = stateTagsPair.Key;
-                    CounterState counterState = stateTagsPair.Value;
-                    allCounterStates.Add(counterState);
-
-                    if (metersInDbCache.Instruments.ContainsKey(counterState.InstanceId)) continue;
-
-                    var newInstrument = new MtInstrument(istate.Instrument.Name, istate.Instrument.Meter.Name, counterState.InstanceId, istate.InstrumentType, tags);
-                    await txRepository.InsertMtInstrument(newInstrument);
-                    metersInDbCache.Instruments[newInstrument.InstanceId] = newInstrument;
-
-
-                    List<MtHRange> hranges = null;
-
-                    if (newInstrument.Type == MtInstrumentType.Histogram)
-                    {
-                        hranges = istate.HistogramRanges.Select(t => new MtHRange(newInstrument.Id, t)).ToList();
-                        hranges.Add(new MtHRange(newInstrument.Id, null)); // to store all values greater than last
-                    }
-
-                    if (hranges != null)
-                    {
-                        for (int i = 0; i < hranges.Count; i++)
-                        {
-                            await txRepository.InsertMtHRange(hranges[i]);
-                            metersInDbCache.HRanges[$"{counterState.InstanceId}_{i}"] = hranges[i];
-                        }
-                    }
-                }
-            }
-
-            // inserts measurements
-            List<MtMeasurement> mtMeasurements = new List<MtMeasurement>();
-            foreach (var cs in allCounterStates)
-            {
-                // question: should save metrics if 0?
-                // if yes then there will be saved in db 5000 rows per 1 seconds
-                MtInstrument instrument = metersInDbCache.Instruments[cs.InstanceId];
-                
-                bool isempty = (instrument.Type == MtInstrumentType.Counter && cs.Value == 0);
-                isempty |= instrument.Type == MtInstrumentType.Histogram && cs.ValuesH.All(t => t == 0);
-                
-                if (isempty) continue;
-                // if (instrument.Name == "http.server.request.duration") Debugger.Break();
-                if (instrument.Type == MtInstrumentType.Counter || instrument.Type == MtInstrumentType.Gauge)
-                {
-                    mtMeasurements.Add(new MtMeasurement(instrument.Id, Interlocked.Exchange(ref cs.Value, 0), null));
-                }
-                else
-                {
-                    double[] replace = new double[cs.ValuesH.Length];
-                    var dvals = Interlocked.Exchange(ref cs.ValuesH, replace);
-                    for (int i = 0; i < dvals.Length; i++)
-                    {
-                        var ihr = metersInDbCache.HRanges[$"{cs.InstanceId}_{i}"];
-                        mtMeasurements.Add(new MtMeasurement(instrument.Id, dvals[i], ihr.Id));
-                    }
-                }
-            }
-
-            foreach (var m in mtMeasurements) m.CreatedOn = DateTime.UtcNow;
-            await txRepository.InsertMtMeasurement(mtMeasurements);
-            await txRepository.CommitAsync();
-            //throw new NotImplementedException();
-        }
-
-        private async Task InitMetersDbCache(ITxRepository txRepository)
-        {
-            if (metersInDbCache != null) return;
-            metersInDbCache = new MetersInDbCache();
-            IEnumerable<MtInstrument> instruments = await txRepository.SelectMtInstrument();
-            IEnumerable<MtHRange> allHranges = await txRepository.SelectMtHRange();
-
-            foreach (var inst in instruments)
-            {
-                MtHRange[] instHranges = allHranges.Where(t => t.MtInstrumentId == inst.Id)
-                    .OrderBy(t => t.End.HasValue ? t.End : double.MaxValue)
-                    .ToArray();
-
-                metersInDbCache.Instruments[inst.InstanceId] = inst;
-
-                for (int i = 0; i < instHranges.Length; i++)
-                {
-                    metersInDbCache.HRanges[$"{inst.InstanceId}_{i}"] = instHranges[i];
-                }
-            }
-        
-        }
         
         public void SqlInsert(string methodName, long ellapsedMs, long byteDataLength)
         {
@@ -406,18 +297,6 @@ namespace DNDocs.Docs.Web.Services
             public string InstanceId;
             public double Value;
             public double[] ValuesH;
-        }
-
-        class MetersInDbCache
-        {
-            public Dictionary<string, MtInstrument> Instruments { get; private set; }
-            public Dictionary<string, MtHRange> HRanges { get; private set; }
-
-            public MetersInDbCache()
-            {
-                Instruments = new Dictionary<string, MtInstrument>();
-                HRanges = new Dictionary<string, MtHRange>();
-            }
         }
     }
 }

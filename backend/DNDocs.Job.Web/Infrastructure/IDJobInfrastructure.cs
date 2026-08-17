@@ -55,7 +55,7 @@ namespace DNDocs.Job.Web.Infrastructure
             var asm = typeof(DJobInfrastructure).Assembly;
 
             var upgrader = DeployChanges.To
-                .SQLiteDatabase(connectionString)
+                .SqliteDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(asm, (resourceName) => resourceName.StartsWith(filter))
                 .LogScriptOutput()
                 .LogToConsole()

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging.Configuration;
 using DNDocs.Domain.Utils;
 using DNDocs.Application.Services;
-using Vinca.BufferLogger;
 
 namespace DNDocs.Application.Utils
 {
@@ -18,9 +17,7 @@ namespace DNDocs.Application.Utils
         public static void AddRobiniaApplication(WebApplicationBuilder builder)
         {
             IServiceCollection serviceCollection = builder.Services;
-            // AddDatabaseStoreLogger(builder.Logging);
 
-            serviceCollection.AddVBufferLogger(c => c.MaxLogsTreshold = 10000);
             serviceCollection.AddHostedService<ApiBackgroundWorker>();
             serviceCollection.AddSingleton<ApiBackgroundWorker>();
 
@@ -32,18 +29,6 @@ namespace DNDocs.Application.Utils
 
             foreach (var type in allCommandAndQueryHandlers) serviceCollection.AddScoped(type);
         }
-
-        //private static ILoggingBuilder AddDatabaseStoreLogger(ILoggingBuilder builder)
-        //{
-        //    builder.Services.TryAddEnumerable(
-        //        ServiceDescriptor.Singleton<ILoggerProvider, DatabaseStoreLoggerProvider>());
-
-        //    LoggerProviderOptions.RegisterProviderOptions
-        //        <DatabaseStoreLoggerOptions, DatabaseStoreLoggerProvider>(builder.Services);
-
-
-        //    return builder;
-        //}
 
         internal static Type[] ReflectionFindAllHandlers()
         {

@@ -16,7 +16,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Data;
 using Vinca.Api;
-using Vinca.BufferLogger;
 using Vinca.Http.Logs;
 using Vinca.Utils;
 
@@ -38,7 +37,6 @@ namespace DNDocs.Application.Application
         private IDDocsApiClient ddocsApiClient;
         private IVHttpLogService vHttpLogs;
         private IDNInfrastructure dinfrastructure;
-        private IVBufferLogger ivBufferLogger;
         private IServiceProvider services;
         private ILogger<ApiBackgroundWorker> logger;
         private Task taskIndexNow = Task.CompletedTask;
@@ -49,7 +47,6 @@ namespace DNDocs.Application.Application
             ILogger<ApiBackgroundWorker> logger,
             IOptions<DNDocsSettings> robiniaSettings,
             IBgJobQueue bgjobQueue,
-            IVBufferLogger ivBufferLogger,
             IDNInfrastructure dinfrastructure,
             IVHttpLogService vHttpLogs,
             IDDocsApiClient ddocsApiClient,
@@ -62,7 +59,6 @@ namespace DNDocs.Application.Application
             this.ddocsApiClient = ddocsApiClient;
             this.vHttpLogs = vHttpLogs;
             this.dinfrastructure = dinfrastructure;
-            this.ivBufferLogger = ivBufferLogger;
             this.services = services;
             this.logger = logger;
             this.SleepSecondsDoImportantWork = robiniaSettings.Value.BackendBackgroundWorkerDoImportantWorkSleepSeconds;
@@ -75,7 +71,6 @@ namespace DNDocs.Application.Application
         {
             logger.LogInformation("Starting backend background service");
 
-            timerSaveLogs = new Timer(BgWork_SaveLogs, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(SleepSecondsDoImportantWork));
             timerBuildProjects = new Timer(BgWork_BuildProjects, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(SleepSecondsDoWork));
             timerIndexNow = new Timer(OnTimerIndexNow, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24.1));
             timerProcessNugetCatalog = new Timer(OnTimerProcessNugetCatalog, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24));
@@ -168,125 +163,94 @@ namespace DNDocs.Application.Application
                 Dispose(true);
                 logger.Log(LogLevel.Information, "On before stopping backend background service");
 
-                BgWork_SaveLogs(null);
-
                 cancellationTokenSource.Cancel();
             }
-
-            // wait max 10 seconds and shutdown anyway (even if something is running)
-            //for (int i = 0; i < 100 && IsAnythingRunning; i++) Thread.Sleep(100);
-
-            //logger.Log(LogLevel.Information, "on after stopping backend background service");
-            //if (IsAnythingRunning)
-            //    logger.LogCritical("Something is running in background but force shutdown anyway. Not sure what to do with this for now. ");
-
-            //return Task.CompletedTask;
         }
 
-        //private void RemoveOldCache()
-        //{
-        //    logger.LogTrace("Starting RemoveOldCache");
 
-        //    var cacheRepo = appUow.GetSimpleRepository<Cache>();
+        // for now removing logs, do i even need that shit?
+//        private void BgWork_SaveLogs(object s)
+//        {
+//            try
+//            {
+//                using var sqliteConnection = new SqliteConnection(RawRobiniaInfrastructure.LogDbConnectionString());
+//                sqliteConnection.Open();
+//                using var logCommand = sqliteConnection.CreateCommand();
+//                using var tx = sqliteConnection.BeginTransaction();
 
-        //    var toDelete = appUow.GetSimpleRepository<Cache>()
-        //        .Query()
-        //        .Where(t => t.Expiration < DateTime.UtcNow)
-        //        .Select(t => t.Id)
-        //        .ToArray();
+//                logCommand.Transaction = tx;
+//                logCommand.CommandType = System.Data.CommandType.Text;
 
-        //    logger.LogTrace($"RemoveOldCache, to delete ids: {toDelete.StringJoin(",")}");
+//                foreach (var log in logs)
+//                {
 
-        //    foreach (var id in toDelete)
-        //    {
-        //        cacheRepo.ExecuteDelete(t => t.Id == id);
-        //    }
-        //}
+//                    var msg = log.Message == null ? "NULL" : $"'{log.Message.Replace("'", "''")}'";
+//                    logCommand.CommandText =
+//                    "INSERT INTO app_log(message, category_name, log_level_id, event_id, event_name, [date]) " +
+//                    $"VALUES ({msg}, '{log.CategoryName}', {(int)log.LogLevel}, {log.EventId.Id}, '{log.EventId.Name}', '{log.Date.ToString("O")}')";
 
-        private void BgWork_SaveLogs(object s)
-        {
-            try
-            {
-                var logs = ivBufferLogger.DequeueAllLogs();
+//                    logCommand.ExecuteNonQuery();
+//                }
 
-                using var sqliteConnection = new SqliteConnection(RawRobiniaInfrastructure.LogDbConnectionString());
-                sqliteConnection.Open();
-                using var logCommand = sqliteConnection.CreateCommand();
-                using var tx = sqliteConnection.BeginTransaction();
+//                var httplogs = vHttpLogs.DequeueAll();
 
-                logCommand.Transaction = tx;
-                logCommand.CommandType = System.Data.CommandType.Text;
+//                using var httpLogsCommand = sqliteConnection.CreateCommand();
+//                httpLogsCommand.Transaction = tx;
+//                httpLogsCommand.CommandType = CommandType.Text;
+//                foreach (var hl in httplogs)
+//                {
+//                    httpLogsCommand.CommandText =
+//$@"
+//INSERT INTO http_log
+//(
+//start_date,
+//end_date,
+//log_write_date,
+//client_ip,
+//client_port,
+//method,
+//uri_path,
+//uri_query,
+//response_status,
+//bytes_send,
+//bytes_received,
+//time_taken_ms,
+//host,
+//user_agent,
+//referer
+//)
+//VALUES
+//(
+//'{hl.StartDate?.ToStringSql()}',
+//'{hl.EndDate?.ToStringSql()}',
+//'{DateTimeOffset.UtcNow.ToStringSql()}',
+//'{hl.ClientIP}',
+//{hl.ClientPort?.ToString() ?? "NULL"},
+//'{hl.Method}',
+//'{hl.UriPath?.Replace("'", "''")}',
+//'{hl.UriQuery?.Replace("'", "''")}',
+//{hl.ResponseStatus},
+//{hl.BytesSend?.ToString() ?? "NULL"},
+//{hl.BytesReceived?.ToString() ?? "NULL"},
+//{hl.TimeTakenMs},
+//'{hl.Host}',
+//'{hl.UserAgent}',
+//'{hl.Referer}'
+//);
+//";
+//                    httpLogsCommand.ExecuteNonQuery();
 
-                foreach (var log in logs)
-                {
+//                }
+//                tx.Commit();
+//            }
+//            catch (Exception e)
+//            {
+//                logger.LogCritical(e, "system important exception");
 
-                    var msg = log.Message == null ? "NULL" : $"'{log.Message.Replace("'", "''")}'";
-                    logCommand.CommandText =
-                    "INSERT INTO app_log(message, category_name, log_level_id, event_id, event_name, [date]) " +
-                    $"VALUES ({msg}, '{log.CategoryName}', {(int)log.LogLevel}, {log.EventId.Id}, '{log.EventId.Name}', '{log.Date.ToString("O")}')";
-
-                    logCommand.ExecuteNonQuery();
-                }
-
-                var httplogs = vHttpLogs.DequeueAll();
-
-                using var httpLogsCommand = sqliteConnection.CreateCommand();
-                httpLogsCommand.Transaction = tx;
-                httpLogsCommand.CommandType = CommandType.Text;
-                foreach (var hl in httplogs)
-                {
-                    httpLogsCommand.CommandText =
-$@"
-INSERT INTO http_log
-(
-start_date,
-end_date,
-log_write_date,
-client_ip,
-client_port,
-method,
-uri_path,
-uri_query,
-response_status,
-bytes_send,
-bytes_received,
-time_taken_ms,
-host,
-user_agent,
-referer
-)
-VALUES
-(
-'{hl.StartDate?.ToStringSql()}',
-'{hl.EndDate?.ToStringSql()}',
-'{DateTimeOffset.UtcNow.ToStringSql()}',
-'{hl.ClientIP}',
-{hl.ClientPort?.ToString() ?? "NULL"},
-'{hl.Method}',
-'{hl.UriPath?.Replace("'", "''")}',
-'{hl.UriQuery?.Replace("'", "''")}',
-{hl.ResponseStatus},
-{hl.BytesSend?.ToString() ?? "NULL"},
-{hl.BytesReceived?.ToString() ?? "NULL"},
-{hl.TimeTakenMs},
-'{hl.Host}',
-'{hl.UserAgent}',
-'{hl.Referer}'
-);
-";
-                    httpLogsCommand.ExecuteNonQuery();
-
-                }
-                tx.Commit();
-            }
-            catch (Exception e)
-            {
-                logger.LogCritical(e, "system important exception");
-
-                // question: what should  happen in this unhandled  exception in background worker service?
-                // throw;
-            }
-        }
+//                // question: what should  happen in this unhandled  exception in background worker service?
+//                // throw;
+//            }
+//        //}
 
         public void RunBuildProjects() { BgWork_BuildProjects(null); }
 

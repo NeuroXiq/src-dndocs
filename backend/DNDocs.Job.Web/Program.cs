@@ -8,7 +8,7 @@ using DNDocs.Job.Web.Infrastructure;
 using DNDocs.Job.Web.Services;
 using DNDocs.Job.Web.Shared;
 using DNDocs.Job.Web.Web;
-using Vinca.BufferLogger;
+using Vinca.SqliteLogger;
 using Vinca.Utils;
 
 namespace DNDocs.Job.Web
@@ -27,7 +27,7 @@ namespace DNDocs.Job.Web
             builder.AddDNDocsApiClient();
             builder.Services.AddVOSApi();
             builder.Services.AddLogging();
-            builder.Services.AddVBufferLogger(x => x.MaxLogsTreshold = 10000);
+            builder.AddVSqliteLogger();
             builder.Services.AddVNugetRepositoryFacade();
             builder.AddDNDocsDocsApiClient();
 

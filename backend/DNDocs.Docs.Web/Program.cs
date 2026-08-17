@@ -4,9 +4,9 @@ using DNDocs.Docs.Web.Services;
 using DNDocs.Docs.Web.Shared;
 using DNDocs.Docs.Web.Web;
 using Microsoft.Extensions.Options;
-using Vinca.BufferLogger;
 using Vinca.Http.Cache;
 using Vinca.Http.Logs;
+using Vinca.SqliteLogger;
 using Vinca.Utils;
 
 namespace DNDocs.Docs.Web
@@ -77,12 +77,8 @@ namespace DNDocs.Docs.Web
             builder.Services.AddTransient<IManagementControllerContext, ManagementControllerContext>();
             builder.Services.AddHostedService<DHostedService>();
             builder.Services.AddDNDDInfrastructure();
-            builder.Services.AddVBufferLogger(x =>
-            {
-                x.MaxLogsTreshold = 10000;
-            });
+            builder.AddVSqliteLogger();
 
-            builder.Services.AddSingleton<ILogsService, LogsService>();
             builder.Services.AddScoped<IManagementService, ManagementService>();
             builder.Services.AddSingleton<IQRepository, QRepository>();
             builder.Services.AddScoped<ITxRepository, TxRepository>();

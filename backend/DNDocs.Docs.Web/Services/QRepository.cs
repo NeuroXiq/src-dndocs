@@ -21,13 +21,9 @@ namespace DNDocs.Docs.Web.Services
         Task<Project> SelectNugetProjectAsync(string nugetPackageName, string nugetPackageVersion);
         Task<Project> SelectSingletonProjectAsync(string urlPrefix);
         Task<Project[]> SelectProjectPagedAsync(int pageSize, int pageNo);
-        Task<SystemStats> SelectSystemStats();
 
-        Task<IEnumerable<ResourceMonitorUtilization>> SelectResourceMonitorUtilization(int lastCount);
-        
         // other
         Task<PublicHtml> SelectPublicHtml(string slug);
-        Task<IEnumerable<MtMeasurementSum>> SelectMtMeasurementSum(DateTime rangeStart, DateTime rangeEnd);
 
         //varsite
         Task<Sitemap> SelectSitemap(string path);
@@ -38,7 +34,6 @@ namespace DNDocs.Docs.Web.Services
         private SqliteConnection CreateSiteDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.Site);
         private SqliteConnection CreateVarSiteDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.VarSite);
         private SqliteConnection CreateAppDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.App);
-        private SqliteConnection CreateLogDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.Log);
 
         private IDInfrastructure infrastructure;
         private IDMetrics metrics;
@@ -61,71 +56,13 @@ namespace DNDocs.Docs.Web.Services
 
         #region other
 
-        public async Task<IEnumerable<MtMeasurementSum>> SelectMtMeasurementSum(DateTime rangeStart, DateTime rangeEnd)
-        {
-            var con = CreateLogDbConnection;
-            con.DefaultTimeout = 30;
-
-            var sql =
-@"
-SELECT
- mi.id as InstrumentId,
- SUM(m.[value]) as [Sum],
- m.mt_instrument_id as MtInstrumentId,
- m.mt_hrange_id as MtHRangeId,
- h.end as MtHRangeEnd,
- mi.name as InstrumentName,
- mi.tags as InstrumentTags,
- mi.type as InstrumentType
-FROM mt_measurement m 
-INNER JOIN mt_instrument mi on mi.id = m.mt_instrument_id 
-LEFT JOIN mt_hrange h on h.id = m.mt_hrange_id 
-WHERE m.created_on >= @rangeStart AND m.created_on <= @rangeEnd 
-GROUP BY m.mt_instrument_id, m.mt_hrange_id 
-ORDER BY mi.[type] ASC, mi.[name] ASC, mi.id, h.end IS NULL, h.end ASC ";
-
-            return await con.QueryAsync<MtMeasurementSum>(sql, new { rangeStart, rangeEnd });
-        }
-
         public async Task<PublicHtml> SelectPublicHtml(string path)
         {
             using var con = infrastructure.OpenSqliteConnection(DatabaseType.VarSite);
             return await con.QueryFirstOrDefaultAsync<PublicHtml>("SELECT id as Id, [path] as [Path], byte_data as ByteData FROM public_html WHERE [path] = @path", new { @path });
         }
 
-        public async Task<IEnumerable<ResourceMonitorUtilization>> SelectResourceMonitorUtilization(int limit)
-        {
-            using var con = CreateLogDbConnection;
-            var sql = $"SELECT id as Id, cpu_used_percentage as CpuUsedPercentage, " +
-                "memory_used_in_bytes as MemoryUsedInBytes," +
-                "memory_used_percentage as MemoryUsedPercentage," +
-                "date_time as DateTime " +
-                $"FROM resource_monitor_utilization ORDER BY id DESC limit @Limit";
-
-            return await con.QueryAsync<ResourceMonitorUtilization>(sql, new { Limit = limit });
-        }
-
-        public async Task<SystemStats> SelectSystemStats()
-        {
-            SystemStats stats = new SystemStats();
-
-            using var siteDbConnection = CreateSiteDbConnection;
-            using var varSiteDbConn = infrastructure.OpenSqliteConnection(DatabaseType.VarSite);
-            stats.SiteItemCount = siteDbConnection.ExecuteScalar<long>("SELECT MAX(id) FROM site_item");
-            stats.SharedSiteItemCount = await varSiteDbConn.ExecuteScalarAsync<long>("SELECT MAX(id) FROM shared_site_item");
-            stats.SiteItemCountUsingShared = await siteDbConnection.ExecuteScalarAsync<long>(
-                "SELECT COUNT(*) FROM site_item where shared_site_item_id IS NOT NULL");
-
-            using var logDbConnection = CreateLogDbConnection;
-            stats.AppLogCount = await logDbConnection.ExecuteScalarAsync<long>("SELECT MAX(id) FROM app_log");
-            stats.HttpLogCount = await logDbConnection.ExecuteScalarAsync<long>("SELECT MAX(id) FROM http_log");
-            
-            using var appDbConnection = CreateAppDbConnection;
-            stats.ProjectCount = await appDbConnection.ExecuteScalarAsync<long>("SELECT MAX(id) FROM project");
-
-            return stats;
-        }
-
+       
         #endregion
 
         #region SharedSiteItemDb

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Vinca.BufferLogger
+namespace Vinca.SqliteLogger
 {
     public class LogRow
     {

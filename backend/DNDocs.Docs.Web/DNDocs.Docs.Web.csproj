@@ -21,9 +21,6 @@
   <ItemGroup>
     <None Remove="Infrastructure\Migrations\App\_00001_init.sql" />
     <None Remove="Infrastructure\Migrations\App\_00002_drop_pversion.sql" />
-    <None Remove="Infrastructure\Migrations\Log\_00001_init.sql" />
-    <None Remove="Infrastructure\Migrations\Log\_00002_metrics.sql" />
-    <None Remove="Infrastructure\Migrations\Log\_00003_metrics_index.sql" />
     <None Remove="Infrastructure\Migrations\Site\_00001_init.sql" />
     <None Remove="Infrastructure\Migrations\VarSite\_00002__sitemaps_.sql" />
     <None Remove="PublicHtml\cookies-consent.html" />
@@ -45,20 +42,17 @@
   <ItemGroup>
     <EmbeddedResource Include="Infrastructure\Migrations\App\_00002_drop_pversion.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\App\_00001_init.sql" />
-    <EmbeddedResource Include="Infrastructure\Migrations\Log\_00003_metrics_index.sql" />
-    <EmbeddedResource Include="Infrastructure\Migrations\Log\_00002_metrics.sql" />
-    <EmbeddedResource Include="Infrastructure\Migrations\Log\_00001_init.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\Site\_00001_init.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\VarSite\_00002__sitemaps_.sql" />
     <EmbeddedResource Include="Infrastructure\Migrations\VarSite\_00001_init.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="dbup" Version="5.0.40" />
-    <PackageReference Include="dbup-sqlite" Version="5.0.40" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.ResourceMonitoring" Version="8.7.0" />
+    <PackageReference Include="Dapper" Version="2.1.79" />
+    <PackageReference Include="dbup" Version="5.0.41" />
+    <PackageReference Include="dbup-sqlite" Version="6.0.4" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.ResourceMonitoring" Version="10.9.0" />
   </ItemGroup>
 
   <ItemGroup>

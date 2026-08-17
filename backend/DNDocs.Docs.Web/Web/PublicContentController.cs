@@ -21,7 +21,6 @@ namespace DNDocs.Docs.Web.Web
                 GetEndpoint(HttpMethod.Get, "/public/ping", Ping),
                 GetEndpoint(HttpMethod.Get, "/system/projects/{pageNo?}", SystemAllProjects),
                 GetEndpoint(HttpMethod.Get, "/system/site-items/{pageNo?}", SystemSiteItems),
-                GetEndpoint(HttpMethod.Get, "/system/resource-monitor", SystemResourceMonitoring),
 
                 GetEndpoint(HttpMethod.Get, "{*slug}", GetPublicHtmlFile),
                 GetEndpoint(HttpMethod.Get, "/sitemap.xml", GetSitemap),
@@ -159,30 +158,6 @@ namespace DNDocs.Docs.Web.Web
 
         #region System pages
 
-        public static async Task<IResult> SystemResourceMonitoring([FromServices] IQRepository repository)
-        {
-            IEnumerable<ResourceMonitorUtilization> utilization = await repository.SelectResourceMonitorUtilization(50);
-            var sb = new StringBuilder();
-            AppendHtmlTable(sb,
-                new string[] { "id", "date_time", "cpu_used_percentage", "memory_userd_in_bytes", "memory_used_percentage" },
-                new Func<ResourceMonitorUtilization, object>[]
-                {
-                    c => c.Id,
-                    c => c.DateTime.ToString("yyyy-MM-dd T HH:mm:ss"),
-                    c => Math.Round(c.CpuUsedPercentage, 2) + "%",
-                    c => Math.Round(c.MemoryUsedInBytes/(double)1000000) + "MB",
-                    c => Math.Round(c.MemoryUsedPercentage, 2) + "%"
-                },
-                utilization);
-
-            int refreshRate = 5;
-
-#if DEBUG
-            refreshRate = 1;
-#endif
-
-            return SimpleHtmlPage(sb, $"<meta http-equiv=\"refresh\" content=\"{refreshRate}\">");
-        }
 
         public static async Task<IResult> SystemSiteItems(
             [FromServices] IOptions<DOptions> settings,

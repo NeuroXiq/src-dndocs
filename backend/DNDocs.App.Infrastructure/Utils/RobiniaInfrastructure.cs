@@ -38,12 +38,10 @@ namespace DNDocs.Infrastructure.Utils
             string location = typeof(RawRobiniaInfrastructure).Assembly.Location;
 
             var upgrader = DeployChanges.To
-                .SQLiteDatabase(connectionString)
+                .SqliteDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(asm, filter)
                 .LogScriptOutput()
-                .LogTo(new log())
                 .LogToConsole()
-                //.WithTransaction() <-- needed by 0008 migration
                 .Build();
 
             var result = upgrader.PerformUpgrade();

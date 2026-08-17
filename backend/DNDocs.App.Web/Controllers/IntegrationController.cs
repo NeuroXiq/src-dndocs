@@ -12,7 +12,6 @@ using Microsoft.Extensions.Options;
 using DNDocs.Shared.Configuration;
 using Vinca.Http;
 
-
 namespace DNDocs.Web.Controllers
 {
     public class IntegrationController : ApiControllerBase

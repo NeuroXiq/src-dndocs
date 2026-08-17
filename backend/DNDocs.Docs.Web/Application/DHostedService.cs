@@ -16,12 +16,9 @@ namespace DNDocs.Docs.Web.Application
         private Timer resourceMonitorTimer;
         private Timer generateSitemapsTimer;
         private Timer metricsTimer;
-        private IDMetrics metrics;
         private DOptions settings;
         private IServiceProvider serviceProvider;
-        private ILogsService logsService;
         private ILogger<DHostedService> logger;
-        private IResourceMonitor resourceMonitor;
         private int isSystemThreadRun;
         CancellationTokenSource cancelAllTokenSource;
 
@@ -32,17 +29,13 @@ namespace DNDocs.Docs.Web.Application
 
         public DHostedService(
             IServiceProvider serviceProvider,
-            ILogsService logsService,
             ILogger<DHostedService> logger,
             IDMetrics metrics,
             IOptions<DOptions> settings)
         {
-            this.metrics = metrics;
             this.settings = settings.Value;
             this.serviceProvider = serviceProvider;
-            this.logsService = logsService;
             this.logger = logger;
-            this.resourceMonitor = resourceMonitor;
 
             isSystemThreadRun = 0;
         }
@@ -52,32 +45,10 @@ namespace DNDocs.Docs.Web.Application
             logger.LogInformation("starting");
             cancelAllTokenSource = new CancellationTokenSource();
 
-            logsTimer = new Timer(LogsTimerCallback, null, settings.FlushAllLogsTimeSpan, settings.FlushAllLogsTimeSpan);
             generateSitemapsTimer = new Timer(GenerateSitemapsCallback, null, TimeSpan.FromSeconds(3), settings.TimespanGenerateSitemapPeriod);
-            metricsTimer = new Timer(OnMetricsTimer, null, TimeSpan.FromSeconds(1), settings.TimeSpanSaveMetrics);
 
             // systemWorkTimer = new Timer(DoSystemWorkTimerCallback, null, 5, 2000 );
             // throw new NotImplementedException();
-        }
-
-        private void OnMetricsTimer(object state)
-        {
-            if (saveMetricsTask.IsCompleted)
-            {
-                saveMetricsTask = Task.Run(SaveMetrics);
-            }
-        }
-
-        async Task SaveMetrics()
-        {
-            try
-            {
-                await metrics.SaveInDbAndClear();
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, "failed to save metrics");
-            }
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -93,12 +64,6 @@ namespace DNDocs.Docs.Web.Application
             // wait max 15 seconds and force abort (?)
             // maybe other solution? how long to wait, how abort all other safely?
             await Task.WhenAny(Task.Delay(15000), runningJobs);
-        }
-
-        void LogsTimerCallback(object _)
-        {
-            if (saveLogsTask.IsCompleted) saveLogsTask = Task.Run(logsService.BufferLoggerSaveLogs);
-            if (saveHttpLogsTask.IsCompleted) saveHttpLogsTask = Task.Run(logsService.SaveHttpLogsAsync);
         }
 
         void DoWork()

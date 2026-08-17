@@ -22,7 +22,6 @@ namespace DNDocs.Docs.Web.Infrastructure
     {
         App,
         Site,
-        Log,
         VarSite
     }
 
@@ -34,7 +33,6 @@ namespace DNDocs.Docs.Web.Infrastructure
         string ConnectionString_App, OSPath_AppDb;
         string ConnectionString_Site, OSPath_SiteDb;
         string ConnectionString_VarSite, OSPath_VarSiteDb;
-        string ConnectionString_Log, OSPath_LogDb;
 
         public DInfrastructure(IOptions<DOptions> fsOptions, IDMetrics metrics)
         {
@@ -46,11 +44,9 @@ namespace DNDocs.Docs.Web.Infrastructure
             OSPath_AppDb = Path.Combine(options.DataDirectory, "app.sqlite");
             OSPath_SiteDb = Path.Combine(options.DataDirectory, "site.sqlite");
             OSPath_VarSiteDb = Path.Combine(options.DataDirectory, "varsite.sqlite");
-            OSPath_LogDb = Path.Combine(options.DataDirectory, "log.sqlite");
 
             ConnectionString_App = $"Data Source={OSPath_AppDb};";
             ConnectionString_Site = $"Data Source={OSPath_SiteDb};";
-            ConnectionString_Log = $"Data Source={OSPath_LogDb};";
             ConnectionString_VarSite = $"Data Source={OSPath_VarSiteDb};";
         }
 
@@ -61,7 +57,6 @@ namespace DNDocs.Docs.Web.Infrastructure
             {
                 case DatabaseType.App: path = OSPath_AppDb; break;
                 case DatabaseType.Site: path = OSPath_SiteDb; break;
-                case DatabaseType.Log: path = OSPath_LogDb; break;
                 case DatabaseType.VarSite: path = OSPath_VarSiteDb; break;
                 default: throw new ArgumentException("type");
             }
@@ -75,7 +70,6 @@ namespace DNDocs.Docs.Web.Infrastructure
             switch (dbType)
             {
                 case DatabaseType.App: connectionString = ConnectionString_App; break;
-                case DatabaseType.Log: connectionString = ConnectionString_Log; break;
                 case DatabaseType.Site: connectionString = ConnectionString_Site; break;
                 case DatabaseType.VarSite: connectionString = ConnectionString_VarSite; break;
                 default: throw new ArgumentException(nameof(dbType));
@@ -107,12 +101,10 @@ namespace DNDocs.Docs.Web.Infrastructure
             CreateDbIfNotExists(ConnectionString_App);
             CreateDbIfNotExists(ConnectionString_Site);
             CreateDbIfNotExists(ConnectionString_VarSite);
-            CreateDbIfNotExists(ConnectionString_Log);
 
             RunMigration(ConnectionString_App, "DNDocs.Docs.Web.Infrastructure.Migrations.App.");
             RunMigration(ConnectionString_Site, "DNDocs.Docs.Web.Infrastructure.Migrations.Site.");
             RunMigration(ConnectionString_VarSite, "DNDocs.Docs.Web.Infrastructure.Migrations.VarSite.");
-            RunMigration(ConnectionString_Log, "DNDocs.Docs.Web.Infrastructure.Migrations.Log.");
 
             string publicHtmlFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PublicHtml");
             string[] publicHtmlFiles = Directory.GetFiles(publicHtmlFolder, "*.*", SearchOption.AllDirectories);
@@ -142,7 +134,7 @@ namespace DNDocs.Docs.Web.Infrastructure
             var asm = typeof(DInfrastructure).Assembly;
 
             var upgrader = DeployChanges.To
-                .SQLiteDatabase(connectionString)
+                .SqliteDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(asm, (resourceName) => resourceName.StartsWith(filter))
                 .LogScriptOutput()
                 // .WithPreprocessor(new TransactionProcessor())

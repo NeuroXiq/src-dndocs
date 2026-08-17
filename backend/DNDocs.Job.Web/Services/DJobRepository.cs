@@ -3,13 +3,11 @@ using DNDocs.Job.Web.Infrastructure;
 using DNDocs.Job.Web.Model;
 using DNDocs.Job.Web.ValueTypes;
 using Microsoft.Data.Sqlite;
-using Vinca.BufferLogger;
 
 namespace DNDocs.Job.Web.Services
 {
     public interface IDJobRepository
     {
-        public Task InsertLogs(IEnumerable<LogRow> logs);
         public Task<BgJob> DequeueBgJob();
         Task<int> CountJobsWaiting();
         Task InsertJobAsync(BgJobState waiting, string data, DateTime utcNow);
@@ -78,15 +76,6 @@ namespace DNDocs.Job.Web.Services
 
             return await conn.QueryFirstOrDefaultAsync<BgJob>(sql, new { LockGuid = lockVal });
         }
-
-        public async Task InsertLogs(IEnumerable<LogRow> logs)
-        {
-            using SqliteConnection connection = infrastructure.OpenConnectionLog();
-            var sql = "INSERT INTO app_log(message, category_name, log_level_id, date) " +
-                "VALUES(@Message, @CategoryName, @LogLevel, @Date)";
-
-            await connection.ExecuteAsync(sql, logs);
-       }
 
         const string SqlSelectBgJob = "SELECT id as Id, [state] as State, build_data as BuildData, " +
                 "created_on as CreatedOn, start_on as StartOn, completed_on as CompletedOn, " +
