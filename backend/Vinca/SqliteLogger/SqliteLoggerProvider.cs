@@ -56,8 +56,9 @@ namespace Vinca.SqliteLogger
                     {
                         string retention = DateTimeOffset.Now.Subtract(options.RetentionPeriod).ToString("O");
                         using var sqliteConnection = new SqliteConnection(CreateSqliteConnectionString(options.SqliteDbPath));
+                        sqliteConnection.Open();
                         using var command = sqliteConnection.CreateCommand();
-                        command.CommandText = $"DELETE FROM app_log WHERE date < '{retention}' LIMIT 1000";
+                        command.CommandText = $"DELETE FROM app_log WHERE id IN (SELECT id FROM app_log WHERE  date < '{retention}' LIMIT 1000)";
                         affected = command.ExecuteNonQuery();
                     }
                 }
