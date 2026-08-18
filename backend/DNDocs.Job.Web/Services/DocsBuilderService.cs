@@ -201,7 +201,7 @@ namespace DNDocs.Job.Web.Services
             string stdo = "";
             string stderr = "";
             string plog = $"Process Info: docfx os path: {osPathDocfxJson}";
-            int maxProcessWait5Min = 5 * 60 * 1000;
+            int maxProcessWait5Min = 8 * 60 * 1000;
 
             using (Process p = new Process())
             {

@@ -31,9 +31,7 @@ namespace DNDocs.Docs.Web.Services
 
     public class QRepository : IQRepository
     {
-        private SqliteConnection CreateSiteDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.Site);
         private SqliteConnection CreateVarSiteDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.VarSite);
-        private SqliteConnection CreateAppDbConnection => infrastructure.OpenSqliteConnection(DatabaseType.App);
 
         private IDInfrastructure infrastructure;
         private IDMetrics metrics;
@@ -101,24 +99,12 @@ namespace DNDocs.Docs.Web.Services
         {
             var sw = Stopwatch.StartNew();
             using var con = infrastructure.OpenSqliteConnection(DatabaseType.Site);
-            var sql = $"{SqlSelectSiteItem(true)} WHERE project_id = @ProjectId AND [path] = @Path COLLATE NOCASE";
+            var sql = $"{SqlSelectSiteItem(true)} WHERE project_id = @ProjectId AND [path] = @Path COLLATE BINARY";
             var result = await con.QuerySingleOrDefaultAsync<SiteItem>(sql, new { ProjectId = projectId, Path = path });
 
             metrics.SqlSelect($"{nameof(SelectSiteItemAsync)}", sw.ElapsedMilliseconds, result?.ByteData?.Length ?? 0);
             return result;
         }
-
-        //public async Task<SiteItem> SelectSiteItemUsingShared(long projectId, string path)
-        //{
-        //    using var connection = CreateSiteDbConnection;
-        //    var sql = $"SELECT si.id as Id, si.project_id as ProjectId, si.[path] as Path, " +
-        //        "(CASE WHEN si.shared_site_item_id IS NOT NULL THEN ssi.byte_data ELSE si.byte_data END) as ByteData " + 
-        //        "FROM  site_item si " +
-        //        "LEFT JOIN shared_site_item ssi on ssi.id = si.shared_site_item_id " +
-        //        "WHERE si.project_id = @ProjectId AND si.[path] = @Path";
-
-        //    return await connection.QuerySingleOrDefaultAsync<SiteItem>(sql, new { ProjectId = projectId, Path = path });
-        //}
 
         public async Task<IEnumerable<SiteItem>> GetSiteItemPagedAsync(int pageNo, int pageSize)
         {
@@ -181,12 +167,4 @@ namespace DNDocs.Docs.Web.Services
         //@$"{SqlSelectSiteItem_NoData_NoFROM} FROM site_item";
 
     }
-
-    //static class SqliteExtensions
-    //{
-    //    public static async Task <IList<T>> QueryListAsync<T>(this SqliteConnection connection, string sql, object param)
-    //    {
-    //        return (await connection.QueryAsync<T>(sql, param)).ToList();
-    //    }
-    //}
 }

@@ -30,7 +30,7 @@ function PlinkCommand($commands) {
 	$commands = $commands.Replace("`r`n", "`n");
 	write-output 'starting plink with commands:'
 	write-output $commands
-	plink.exe "$linux_username@192.168.0.3" -batch -pw $linux_password "`"$commands`""
+	plink.exe "$linux_username@$linux_server" -batch -pw $linux_password $commands
 }
 
 function LinuxExec($command, $name) {

@@ -8,7 +8,6 @@ namespace DNDocs.Job.Web.Infrastructure
 {
     public interface IDJobInfrastructure
     {
-        SqliteConnection OpenConnectionLog();
         SqliteConnection OpenConnectionApp();
         void Startup();
     }
@@ -17,7 +16,6 @@ namespace DNDocs.Job.Web.Infrastructure
     {
         private string infrastructureDirectory;
         private string appConnectionString;
-        private string logConnectionString;
 
         public DJobInfrastructure(IOptions<DJobSettings> options)
         {
@@ -27,7 +25,6 @@ namespace DNDocs.Job.Web.Infrastructure
                 throw new Exception($"(Safety): directory does not exists: '{infrastructureDirectory}'. Create this directory manually");
 
             appConnectionString = $"Data Source={Path.Combine(infrastructureDirectory, "app.sqlite")};";
-            logConnectionString = $"Data Source={Path.Combine(infrastructureDirectory, "log.sqlite")};";
         }
 
         public void Startup()
@@ -38,7 +35,6 @@ namespace DNDocs.Job.Web.Infrastructure
         private void RunAllMigrations()
         {
             RunMigration(appConnectionString, "DNDocs.Job.Web.Infrastructure.Migrations.App");
-            RunMigration(logConnectionString, "DNDocs.Job.Web.Infrastructure.Migrations.Log");
         }
 
         static void CreateDbIfNotExists(string connStr)
@@ -72,13 +68,6 @@ namespace DNDocs.Job.Web.Infrastructure
         public SqliteConnection OpenConnectionApp()
         {
             SqliteConnection connection = new SqliteConnection(appConnectionString);
-            connection.Open();
-            return connection;
-        }
-
-        public SqliteConnection OpenConnectionLog()
-        {
-            SqliteConnection connection = new SqliteConnection(logConnectionString);
             connection.Open();
             return connection;
         }

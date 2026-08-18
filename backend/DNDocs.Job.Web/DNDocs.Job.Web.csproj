@@ -21,12 +21,10 @@
 
   <ItemGroup>
     <None Remove="Infrastructure\Migrations\App\_00001_init.sql" />
-    <None Remove="Infrastructure\Migrations\Logs\_00001_init.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Infrastructure\Migrations\App\_00001_init.sql" />
-    <EmbeddedResource Include="Infrastructure\Migrations\Logs\_00001_init.sql" />
   </ItemGroup>
 
   <ItemGroup>

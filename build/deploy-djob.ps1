@@ -21,7 +21,7 @@ if ([string]::isnullorwhitespace($zipName)) {
 }
 
 $command = @"
-cd /mnt/usb2/dndocs
+cd /var/www/dndocs
 sudo systemctl stop $dndocsJobServiceName
 rm -r -f ./$dndocsJobAppName
 unzip -X ./$dndocsJobAppName.zip -d ./$dndocsJobAppName;
@@ -30,6 +30,6 @@ cp ./$dndocsJobAppName-secrets.json ./$dndocsJobAppName/secrets.json
 sudo systemctl start $dndocsJobServiceName
 "@
 
-LinuxUploadFile $pathZip "/mnt/usb2/dndocs/$dndocsJobAppName.zip";
-LinuxUploadFile "$PSScriptRoot\..\..\secrets\$dndocsJobAppName.secrets.json" "/mnt/usb2/dndocs/$dndocsJobAppName-secrets.json"
+LinuxUploadFile $pathZip "/var/www/dndocs/$dndocsJobAppName.zip";
+LinuxUploadFile "$PSScriptRoot\..\..\secrets\$dndocsJobAppName.secrets.json" "/var/www/dndocs/$dndocsJobAppName-secrets.json"
 PlinkCommand $command

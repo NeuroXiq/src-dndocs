@@ -18,7 +18,7 @@ if (![system.io.file]::Exists($dnAppZip)) { throw 'backend not exists' }
 #unzip: -X ignores additional file attribues (e.g. not needed when using exFAT)
 
 $command = @"
-cd /mnt/usb2/dndocs
+cd /var/www/dndocs
 sudo systemctl stop $dndocsServiceName
 rm -r -f ./$dndocsAppName
 unzip -X ./$dndocsAppName.zip -d ./$dndocsAppName;
@@ -27,6 +27,6 @@ cp ./$dndocsAppName-secrets.json ./$dndocsAppName/secrets.json
 sudo systemctl start $dndocsServiceName
 "@
 
-LinuxUploadFile $dnAppZip "/mnt/usb2/dndocs/$dndocsAppName.zip";
-LinuxUploadFile "$PSScriptRoot\..\..\secrets\$dndocsAppName.secrets.json" "/mnt/usb2/dndocs/$dndocsAppName-secrets.json"
+LinuxUploadFile $dnAppZip "/var/www/dndocs/$dndocsAppName.zip";
+LinuxUploadFile "$PSScriptRoot\..\..\secrets\$dndocsAppName.secrets.json" "/var/www/dndocs/$dndocsAppName-secrets.json"
 PlinkCommand $command
